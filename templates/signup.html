@@ -1,0 +1,118 @@
+{%extends "base.html"%}
+
+{%block title%}Kayıt Ol{%endblock%}
+
+{%block content%}
+<div class="container" id="formcontainer">
+    <form>
+        <h2 class="form-signin-heading" style="text-align:center; color:white;">Kayıt Olun</h2>
+
+        <span style="display:block; height: 15px;"></span>
+
+        <div class="form-group">
+            <label for="nameid" style="color:white">İsim</label>
+            <input name="name" type="text" class="form-control" id="nameid" placeholder="İsim">
+        </div>
+
+        <div class="form-group">
+            <label for="surnameid" style="color:white">Soyisim</label>
+            <input name="surname" type="text" class="form-control" id="surnameid" placeholder="Soyisim">
+        </div>
+
+        <div class="form-group">
+            <label for="usernameid" style="color:white">Kullanıcı Adı</label>
+            <input name="username" type="text" class="form-control" id="usernameid" placeholder="Kullanıcı Adı">
+        </div>
+
+        <div class="form-group">
+            <label for="passwordid" style="color:white">Şifre</label>
+            <input name="password" type="password" class="form-control" id="passwordid" placeholder="Şifre">
+        </div>
+
+        <button class="btn btn-primary btn-block" type="button" onclick="signuserup()">Gönder</button>
+    </form>
+    <span style="display:block; height: 30px;"></span>
+</div>
+{%endblock%}
+
+{%block style%}
+<style>
+    form
+    {
+        margin-top: 10%;
+        margin-left: 10%;
+        margin-right:10%;
+    }
+</style>
+{%endblock%}
+
+{%block script%}
+<script>
+    function signuserup()
+    {
+        console.log("signuserupclicked");
+        var danger = document.getElementById('dangeralert');
+        danger.style.display = "none"
+
+        var success = document.getElementById('successalert');
+        success.style.display = "none"
+
+        var username = document.getElementById('usernameid').value;
+        console.log(username);
+        var name = document.getElementById('nameid').value;
+        console.log(name);
+        var surname = document.getElementById('surnameid').value;
+        console.log(surname);
+        var password = document.getElementById('passwordid').value;
+        console.log(password);
+
+        var formData = new FormData();
+        formData.append("username", username);
+        formData.append("name", name);
+        formData.append("surname", surname);
+        formData.append("password", password);
+
+        var request = new XMLHttpRequest();
+        request.addEventListener("load", reqListener);
+        request.open("POST", "/signup");
+        request.send(formData);
+    }
+
+    function reqListener()
+    {
+      var json = JSON.parse(this.responseText);
+      if(json.responsecode === 0)
+      {
+        console.log("server returned 0");
+        var formcontainer = document.getElementById('formcontainer');
+        formcontainer.style.display = "none";
+
+        var success = document.getElementById('successalert');
+        var successheading = document.getElementById('successheading');
+        var successmessage = document.getElementById('successmessage');
+        var successpostmessage = document.getElementById('successpostmessage');
+
+        successheading.textContent  = json.heading;
+        successmessage.textContent  = json.message;
+        successpostmessage.textContent  = json.postmessage;
+
+        success.style.display = "block";
+
+        var nav = document.getElementById('navbuttons');
+        nav.style.display = "none"
+
+        setTimeout(() =>
+        {
+            window.location.replace("/login");
+        }, 1250);
+
+      }
+      else if(json.responsecode === -1 || json.responsecode === -2 || json.responsecode === -3 || json.responsecode === -4 || json.responsecode === -5)
+      {
+        var danger = document.getElementById('dangeralert');
+        danger.textContent  = json.message
+        danger.style.display = "block";
+      }
+    }
+</script>
+{%endblock%}

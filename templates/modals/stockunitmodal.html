@@ -1,0 +1,234 @@
+<!-- Stock Unit Modal -->
+<div id="stockUnitModal" class="modal" data-operation="none">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 id="stockUnitModalTitle" class="modal-title">Malzeme Birimi Ekle</h4>
+        <button id="stockUnitModalCloseBtn1" type="button" class="close">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div id="stockUnitModalAlert" class="alert alert-danger" role="alert" style="display: none;">
+           Message
+        </div>
+
+        <form class="form" style="margin:0">
+            <div class="form-group">
+              <label for="stockUnitModalUnitInput">Malzemenin Birimi</label>
+              <input data-unitid="-1" id="stockUnitModalUnitInput" type="text" class="form-control" placeholder="Malzemenin Birimini Girin">
+            </div>
+
+          <div class="form-group">
+              <label for="stockUnitModalPrecisionSelect">Birim Ondalığı</label>
+              <div class="form-group">
+                    <select id="stockUnitModalPrecisionSelect" class="custom-select">
+                        <option data-precision="-1" selected>Birim Seçiniz</option>
+                        <option data-precision="0">0</option>
+                        <option data-precision="1">1</option>
+                        <option data-precision="2">2</option>
+                        <option data-precision="3">3</option>
+                        <option data-precision="4">4</option>
+                        <option data-precision="5">5</option>
+                    </select>
+              </div>
+          </div>
+
+          <button id="stockUnitModalActionButton" type="button" class="btn btn-primary btn-block" style="margin-top:3%;">Malzeme Birimi Ekle</button>
+        </form>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button id="stockUnitModalCloseBtn2" type="button" class="btn btn-danger">Kapat</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+    //mode: add|update|delete
+    function sUMSetMode(mode)
+    {
+        var modal = document.getElementById("stockUnitModal");
+        modal.dataset.operation = mode;
+        var title = document.getElementById("stockUnitModalTitle");
+        var actionbtn = document.getElementById("stockUnitModalActionButton");
+        actionbtn.disabled = false;
+
+        switch(mode)
+        {
+          case "add":
+            title.textContent = "Malzeme Birimi Ekle";
+            actionbtn.textContent = "Malzeme Birimini Ekle";
+            break;
+          case "update":
+            title.textContent = "Malzeme Birimi Değiştir";
+            actionbtn.textContent = "Malzeme Birimini Değiştir";
+            break;
+          case "delete":
+            title.textContent = "Malzeme Birimini Sil";
+            actionbtn.textContent = "Malzeme Birimini Sil";
+            break;
+          default:
+            title.textContent = "Hata!";
+            actionbtn.textContent = "Hata!";
+            actionbtn.disabled = true;
+        }
+    }
+
+    function sUMMode()
+    {
+        var modal = document.getElementById("stockUnitModal");
+        return modal.dataset.operation;
+    }
+
+    function sUMSetInfo(unitid, unitname, precision)
+    {
+        var unitinput = document.getElementById("stockUnitModalUnitInput");
+        unitinput.value = unitname;
+        unitinput.setAttribute('data-unitid', unitid);
+        sUMSelectPrecision(precision);
+    }
+
+    function sUMSetDefaultCloseBtns()
+    {
+        $("#stockUnitModalCloseBtn1").on("click", function()
+        {
+            sUMDefaultCloseActions();
+        });
+
+        $("#stockUnitModalCloseBtn2").on("click", function()
+        {
+            sUMDefaultCloseActions();
+        });
+    }
+
+    function sUMCheckEntries()
+    {
+        var alert = document.getElementById('stockUnitModalAlert');
+        alert.style.display = "none";
+        var unitinput = document.getElementById("stockUnitModalUnitInput");
+        var precisionselect = document.getElementById("stockUnitModalPrecisionSelect");
+
+        if(unitinput.value == "")
+        {
+            alert.textContent = "Lütfen malzeme birimini giriniz!";
+            alert.style.display = "block";
+            return false;
+        }
+
+        if(precisionselect.selectedIndex == 0 || precisionselect.options[precisionselect.selectedIndex].dataset.precision == -1)
+        {
+            alert.textContent = "Lütfen malzeme ondalığını seçiniz!";
+            alert.style.display = "block";
+            return false;
+        }
+        return true;
+    }
+
+    function sUMDefaultCloseActions()
+    {
+        $('#stockUnitModal').modal('hide');
+        sUMResetModal();
+    }
+
+    function sUMDefaultSubmitAction(listener = sTMDefaultStockUnitListener)
+    {
+        if(!sUMCheckEntries())
+        {
+            return -1;
+        }
+
+        var modal = document.getElementById("stockUnitModal");
+        var mode = modal.dataset.operation;
+
+        var unitinput = document.getElementById("stockUnitModalUnitInput");
+        var precisionselect = document.getElementById("stockUnitModalPrecisionSelect");
+
+        var unitvalue = unitinput.value;
+        var unitid = unitinput.dataset.unitid;
+        var precision = precisionselect.options[precisionselect.selectedIndex].dataset.precision;
+
+        var stockunit = {};
+
+        var request = new XMLHttpRequest();
+
+        switch (mode)
+        {
+          case "add":
+            stockunit.name = unitvalue;
+            stockunit.precision = precision;
+            request.open("POST", "/stockunit");
+            break;
+          case "update":
+            stockunit.id = unitid;
+            stockunit.name = unitvalue;
+            stockunit.precision = precision;
+            request.open("PATCH", "/stockunit");
+            break;
+          case "delete":
+            stockunit.id = unitid;
+            request.open("DELETE", "/stockunit");
+            break;
+        }
+
+        request.setRequestHeader("Content-Type", "application/json");
+        request.addEventListener("load", listener);
+        var jsondata = JSON.stringify(stockunit);
+        request.send(jsondata);
+        console.log('submitted ' + mode + Math.random());
+    }
+
+    function sUMDefaultStockUnitListener()
+    {
+        var json = JSON.parse(this.responseText);
+        if(json.responsecode === 0)
+        {
+            sUMDefaultCloseActions();
+        }
+        else if(json.responsecode === -1)
+        {
+            sUMShowAlert(json);
+        }
+    }
+
+    function sUMShowAlert(json)
+    {
+        var alert = document.getElementById('stockUnitModalAlert');
+             alert.textContent  = json.message;
+             alert.style.display = "block";
+    }
+
+    function sUMSelectPrecision(precision)
+    {
+        var precisionselect = document.getElementById("stockUnitModalPrecisionSelect");
+
+        for (var i = 0; i < precisionselect.options.length; i++)
+        {
+            opt = precisionselect.options[i];
+            if(opt.dataset.precision == precision)
+            {
+                precisionselect.selectedIndex = i;
+                break;
+            }
+        }
+    }
+
+    function sUMResetModal()
+    {
+        var actionbtn = document.getElementById("stockUnitModalActionButton");
+        actionbtn.disabled = false;
+        var typeinput = document.getElementById("stockUnitModalUnitInput");
+        typeinput.value = "";
+
+        var precisionselect = document.getElementById("stockUnitModalPrecisionSelect");
+        precisionselect.selectedIndex = 0;
+
+        sUMSetMode("none");
+        sUMSetInfo('', '', '');
+    }
+</script>

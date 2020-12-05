@@ -1,0 +1,235 @@
+<!-- Stock Type Add Modal -->
+<div id="stockTypeModal" class="modal" data-operation="none" data-subcategoryid="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 id="stockTypeModalTitle" class="modal-title">Malzeme Cinsi Ekle</h4>
+        <button id="stockTypeModalCloseBtn1" type="button" class="close">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div id="stockTypeModalAlert" class="alert alert-danger" role="alert" style="display: none;">
+           Message
+        </div>
+
+        <form class="form" style="margin:0">
+            <div class="form-group">
+              <label for="stockTypeModalTypeInput">Malzemenin Cinsi</label>
+              <input data-typeid="-1" id="stockTypeModalTypeInput" type="text" class="form-control" placeholder="Malzemenin Cinsi Girin">
+            </div>
+
+          <div class="form-group">
+              <label for="stockTypeModalUnitSelect">Malzeme Birimi</label>
+              <div class="form-group">
+                    <select id="stockTypeModalUnitSelect" class="custom-select">
+                        <option data-id="-1" selected>Birim Seçiniz</option>
+                        {%for stockunit in stockunits%}
+                        <option data-id="{{stockunit.id}}">{{stockunit.name}}</option>
+                        {%endfor%}
+                    </select>
+              </div>
+          </div>
+
+          <button id="stockTypeModalActionButton" type="button" class="btn btn-primary btn-block" style="margin-top:3%;">Malzeme Cinsini Ekle</button>
+        </form>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button id="stockTypeModalCloseBtn2" type="button" class="btn btn-danger">Kapat</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+    //mode: add|update|delete
+    function sTMSetMode(mode)
+    {
+        var modal = document.getElementById("stockTypeModal");
+        modal.dataset.operation = mode;
+        var title = document.getElementById("stockTypeModalTitle");
+        var actionbtn = document.getElementById("stockTypeModalActionButton");
+        actionbtn.disabled = false;
+
+        switch(mode)
+        {
+          case "add":
+            title.textContent = "Malzeme Cinsi Ekle";
+            actionbtn.textContent = "Malzeme Cinsini Ekle";
+            break;
+          case "update":
+            title.textContent = "Malzeme Cinsini Değiştir";
+            actionbtn.textContent = "Malzeme Cinsini Değiştir";
+            break;
+          case "delete":
+            title.textContent = "Malzeme Cinsini Sil";
+            actionbtn.textContent = "Malzeme Cinsini Sil";
+            break;
+          default:
+            title.textContent = "Hata!";
+            actionbtn.textContent = "Hata!";
+            actionbtn.disabled = true;
+        }
+    }
+
+    function sTMMode()
+    {
+        var modal = document.getElementById("stockTypeModal");
+        return modal.dataset.operation;
+    }
+
+    function sTMSetInfo(typeid, typename, unitid, subcategoryid)
+    {
+        var modal = document.getElementById("stockTypeModal");
+        modal.setAttribute('data-subcategoryid', subcategoryid);
+        var typeinput = document.getElementById("stockTypeModalTypeInput");
+        typeinput.value = typename;
+        typeinput.setAttribute('data-typeid', typeid);
+        sTMSelectUnit(unitid);
+    }
+
+    function sTMSetDefaultCloseBtns()
+    {
+        $("#stockTypeModalCloseBtn1").on("click", function()
+        {
+            sTMDefaultCloseActions();
+        });
+
+        $("#stockTypeModalCloseBtn2").on("click", function()
+        {
+            sTMDefaultCloseActions();
+        });
+    }
+
+    function sTMCheckEntries()
+    {
+        var alert = document.getElementById('stockTypeModalAlert');
+        alert.style.display = "none";
+        var typeinput = document.getElementById("stockTypeModalTypeInput");
+        var unitselect = document.getElementById("stockTypeModalUnitSelect");
+
+        if(typeinput.value == "")
+        {
+            alert.textContent = "Lütfen malzeme cinsini giriniz!";
+            alert.style.display = "block";
+            return false;
+        }
+
+        if(unitselect.selectedIndex == 0 || unitselect.options[unitselect.selectedIndex].dataset.id == -1)
+        {
+            alert.textContent = "Lütfen malzeme cinsinin birimini seçiniz!";
+            alert.style.display = "block";
+            return false;
+        }
+        return true;
+    }
+
+    function sTMDefaultCloseActions()
+    {
+        $('#stockTypeModal').modal('hide');
+        sTMResetModal();
+    }
+
+    function sTMDefaultSubmitAction(listener = sTMDefaultStockTypeListener)
+    {
+        if(!sTMCheckEntries())
+        {
+            return -1;
+        }
+
+        var modal = document.getElementById("stockTypeModal");
+        var mode = modal.dataset.operation;
+
+        var typeinput = document.getElementById("stockTypeModalTypeInput");
+        var unitselect = document.getElementById("stockTypeModalUnitSelect");
+
+        var typevalue = typeinput.value;
+        var typeid = typeinput.dataset.typeid;
+        var selunitid = unitselect.options[unitselect.selectedIndex].dataset.id;
+        var subcategoryid = modal.dataset.subcategoryid;
+
+        var stocktype = {};
+
+        var request = new XMLHttpRequest();
+
+        switch (mode)
+        {
+          case "add":
+            stocktype.name = typevalue;
+            stocktype.unitid = selunitid;
+            stocktype.subcategoryid = subcategoryid;
+            request.open("POST", "/stocktype");
+            break;
+          case "update":
+            stocktype.id = typeid;
+            stocktype.name = typevalue;
+            stocktype.unitid = selunitid;
+            stocktype.subcategoryid = subcategoryid;
+            request.open("PATCH", "/stocktype");
+            break;
+          case "delete":
+            stocktype.id = typeid;
+            request.open("DELETE", "/stocktype");
+            break;
+        }
+
+        request.setRequestHeader("Content-Type", "application/json");
+        request.addEventListener("load", listener);
+        var jsondata = JSON.stringify(stocktype);
+        request.send(jsondata);
+    }
+
+    function sTMDefaultStockTypeListener()
+    {
+        var json = JSON.parse(this.responseText);
+        if(json.responsecode === 0)
+        {
+            sTMDefaultCloseActions();
+        }
+        else if(json.responsecode === -1)
+        {
+            sTMShowAlert(json);
+        }
+    }
+
+    function sTMShowAlert(json)
+    {
+        var alert = document.getElementById('stockTypeModalAlert');
+             alert.textContent  = json.message;
+             alert.style.display = "block";
+    }
+
+    function sTMSelectUnit(unitid)
+    {
+        var unitselect = document.getElementById("stockTypeModalUnitSelect");
+
+        for (var i = 0; i < unitselect.options.length; i++)
+        {
+            opt = unitselect.options[i];
+            if(opt.dataset.id == unitid)
+            {
+                unitselect.selectedIndex = i;
+                break;
+            }
+        }
+    }
+
+    function sTMResetModal()
+    {
+        var actionbtn = document.getElementById("stockTypeModalActionButton");
+        actionbtn.disabled = false;
+        var typeinput = document.getElementById("stockTypeModalTypeInput");
+        typeinput.value = "";
+
+        var unitselect = document.getElementById("stockTypeModalUnitSelect");
+        unitselect.selectedIndex = 0;
+
+        sTMSetMode("none");
+        sTMSetInfo('', '', '', -1);
+    }
+</script>

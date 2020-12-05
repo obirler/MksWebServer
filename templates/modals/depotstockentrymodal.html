@@ -1,0 +1,878 @@
+<!-- Depot Stock Entry Modal -->
+<div class="modal" id="depotStockEntryModal" data-id="-1" data-operation="none">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 id="depotStockEntryModalTitle" class="modal-title">Depoya Malzeme Ekle</h4>
+        <button id="depotStockEntryModalCloseBtn1" type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div id="stockdangeralert" class="alert alert-danger" role="alert" style="display: none;">
+           Message
+        </div>
+
+        <form class="form" style="margin:0">
+          <div class="form-group" style="margin-left: 0; margin-right: 0;">
+              <label for="stockcategory">Malzeme Kategorisi</label>
+              <div class="form-row" style="margin-left: 0; margin-right: 0;">
+                  <div class="form-group flex-grow-1">
+                      <select id="stockcategory" class="custom-select">
+                          <option data-id="-1" selected>Malzeme Kategorisi Seçin</option>
+                          {%for category in stockcategories%}
+                          <option data-id="{{category.id}}">{{category.name}}</option>
+                          {%endfor%}
+                      </select>
+                  </div>
+            </div>
+           </div>
+
+          <div class="form-group" style="margin-left: 0; margin-right: 0;">
+              <label for="stocksubcategory">Malzeme Alt Kategorisi</label>
+              <div class="form-row" style="margin-left: 0; margin-right: 0;">
+                  <div class="form-group flex-grow-1">
+                      <select id="stocksubcategory" class="custom-select">
+                          <option data-id="-1" selected>Malzeme Alt Kategorisi Seçin</option>
+                      </select>
+                  </div>
+            </div>
+           </div>
+
+          <div class="form-group" style="margin-left: 0; margin-right: 0;">
+              <label for="stocktype">Malzemenin Cinsi</label>
+              <div class="form-row" style="margin-left: 0; margin-right: 0;">
+                  <div class="form-group flex-grow-1">
+                      <select id="stocktype" class="custom-select">
+                          <option data-id="-1" data-unitid="-1" selected>Malzeme Cinsi Seçin</option>
+                      </select>
+                  </div>
+                  <span id="stockTypeSpan" style="display: block; width: 10px;"></span>
+                  <div class="form-group">
+                    <button id="stockTypeAddBtn" type="button" class="btn btn-primary addBtn" title="Malzeme Cinsi Ekle"><i class="fa fa-plus"></i></button>
+                  </div>
+            </div>
+           </div>
+
+          <div class="form-group">
+              <label for="stockcolor">Malzeme Rengi</label>
+              <div class="form-row" style="margin-left: 0; margin-right: 0;">
+                  <div class="form-group flex-grow-1">
+                      <select id="stockcolor" class="custom-select">
+                          <option data-id="-1" selected>Malzeme Rengi Seçin</option>
+                          {%for stockcolor in stockcolors%}
+                          <option data-id="{{stockcolor.id}}">{{stockcolor.name}}</option>
+                          {%endfor%}
+                      </select>
+                  </div>
+                  <span id="stockColorSpan" style="display: block; width: 10px;"></span>
+                  <div class="form-group">
+                    <button id="stockColorAddBtn" type="button" class="btn btn-primary addBtn" title="Malzeme Rengi Ekle"><i class="fa fa-plus"></i></button>
+                  </div>
+              </div>
+          </div>
+
+          <div class="form-group">
+              <label for="stockquantity">Malzeme Miktarı</label>
+              <div class="form-row" style="margin-left: 0; margin-right: 0;">
+                  <div class="form-group flex-grow-1">
+                      <input type="text" class="form-control" id="stockquantity" placeholder="Miktar">
+                  </div>
+                  <span id="stockQuantitySpan" style="display: block; width: 10px;"></span>
+                  <div class="form-group">
+                    <select id="stockunit" class="custom-select" disabled>
+                        <option data-id="-1" selected>Birim</option>
+                        {%for stockunit in stockunits%}
+                        <option data-id="{{stockunit.id}}" data-precision="{{stockunit.precision}}">{{stockunit.name}}</option>
+                        {%endfor%}
+                    </select>
+                  </div>
+              </div>
+          </div>
+
+          <button id="depotStockEntryModalActionButton" type="button" class="btn btn-primary btn-block" style="margin-top:3%;">Depoya Malzemeyi Ekle</button>
+        </form>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button id="depotStockEntryModalCloseBtn2" type="button" class="btn btn-danger" data-dismiss="modal">Kapat</button>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+$( document ).ready(function()
+{
+    $("#depotStockEntryModalCloseBtn1").on("click", function(){
+        dSEMCloseModal();
+    });
+
+    $("#depotStockEntryModalCloseBtn2").on("click", function(){
+        dSEMCloseModal();
+    });
+
+
+
+    $("#stockcategory").change(function(){
+        stockCategorySelectionChanged();
+    });
+
+    $("#stocksubcategory").change(function(){
+        stockSubcategorySelectionChanged();
+    });
+
+
+    $("#stockTypeModalCloseBtn1").on("click", function(){
+        //handle close modal action in a custom function
+        //because we need are working with two modal here
+        closeStockTypeModal();
+    });
+
+    $("#stockTypeModalCloseBtn2").on("click", function(){
+        //handle close modal action in a custom function
+        //because we need are working with two modal here
+        closeStockTypeModal();
+    });
+
+    $("#stockTypeAddBtn").on("click", function(){
+        openStockTypeModalClicked();
+    });
+
+    $("#stockTypeModalActionButton").on("click", function(){
+        //default action with custom listener. Because we need to
+        //update the select element
+        sTMDefaultSubmitAction(stockTypeModalAddListener);
+    });
+
+    $("#stocktype").change(function(){
+        console.log('stock type changed');
+        stockTypeSelectionChanged();
+    });
+
+
+    $("#stockColorModalCloseBtn1").on("click", function(){
+        //handle close modal action in a custom function
+        //because we need are working with two modal here
+        closeStockColorModal();
+    });
+
+    $("#stockColorModalCloseBtn2").on("click", function(){
+        //handle close modal action in a custom function
+        //because we need are working with two modal here
+        closeStockColorModal();
+    });
+
+    $("#stockColorAddBtn").on("click", function(){
+        openStockColorModalClicked();
+    });
+
+    $("#stockColorModalActionButton").on("click", function(){
+        //default action with custom listener. Because we need to
+        //update the select element
+        sCMDefaultSubmitAction(stockColorModalAddListener);
+    });
+
+
+    $("#stockPackageModalCloseBtn1").on("click", function(){
+        //handle close modal action in a custom function
+        //because we need are working with two modal here
+        closeStockPackageModal();
+    });
+
+    $("#stockPackageModalCloseBtn2").on("click", function(){
+        //handle close modal action in a custom function
+        //because we need are working with two modal here
+        closeStockPackageModal();
+    });
+
+    $("#stockPackageAddBtn").on("click", function(){
+        openStockPackageModalClicked();
+    });
+
+    $("#stockPackageModalActionButton").on("click", function(){
+        //default action with custom listener. Because we need to
+        //update the select element
+        sPMDefaultSubmitAction(stockPackageModalAddListener);
+    });
+
+
+    cMSetDefaultCloseBtns();
+
+    $("#corporationAddBtn").on("click", function(){
+        openCorporationModalClicked();
+    });
+
+    $("#corporationModalActionButton").on("click", function(){
+        //default action with custom listener. Because we need to
+        //update the select element
+        cMDefaultSubmitAction(corporationModalAddListener);
+    });
+});
+
+function dSEMOpenModal(mode)
+{
+    dSEMSetMode(mode);
+    $('#depotStockEntryModal').modal('show');
+}
+
+function dSEMCloseModal()
+{
+    $('#depotStockEntryModal').modal('hide');
+    dSEMReset();
+}
+
+function dSEMSetInfoForUpdate(id, stocktypeid, stockcolorid, stockunitid, stockquantity)
+{
+    dSEMSetEntryId(id);
+    dSEMBringEntriesOnDialog(stocktypeid, stockcolorid, stockunitid, stockquantity);
+
+    var request = new XMLHttpRequest();
+    request.open("POST", "/getstockcategories");
+    request.setRequestHeader("Content-Type", "application/json");
+    request.addEventListener("load", stockCategoryUpdateListener);
+
+    var data = {};
+    data.id = stocktypeid;
+
+    var jsondata = JSON.stringify(data);
+    request.send(jsondata);
+}
+
+function dSEMSetInfoForDelete(id, stocktypeid, stockcolorid, stockunitid, stockquantity)
+{
+    dSEMSetEntryId(id);
+    dSEMBringEntriesOnDialog(stocktypeid, stockcolorid, stockunitid, stockquantity);
+
+    var request = new XMLHttpRequest();
+    request.open("POST", "/getstockcategories");
+    request.setRequestHeader("Content-Type", "application/json");
+    request.addEventListener("load", stockCategoryDeleteListener);
+
+    var data = {};
+    data.id = stocktypeid;
+
+    var jsondata = JSON.stringify(data);
+    request.send(jsondata);
+}
+
+function dSEMBringEntriesOnDialog(stocktypeid, stockcolorid, stockunitid, stockquantity)
+{
+    dSEMSelectStockColor(stockcolorid);
+    dSEMSelectStockUnit(stockunitid);
+    var stockquantityinput = document.getElementById("stockquantity");
+    stockquantityinput.value = stockquantity;
+}
+
+function stockCategoryUpdateListener()
+{
+    var json = JSON.parse(this.responseText);
+    var catid = json['categoryid'];
+    dSEMSelectStockCategory(catid);
+    var subcategories = json['subcategories'];
+
+    loadStockSubcategories(subcategories);
+
+    var subcategoryid = json['subcategoryid'];
+    dSEMSelectStockSubcategory(subcategoryid)
+
+    var stocktypes = json['stocktypes'];
+    loadStockTypes(stocktypes);
+
+    var stocktypeid = json['stocktypeid'];
+    dSEMSelectStockType(stocktypeid);
+
+    dSEMOpenModal("update");
+}
+
+function stockCategoryDeleteListener()
+{
+    var json = JSON.parse(this.responseText);
+    var catid = json['categoryid'];
+    dSEMSelectStockCategory(catid);
+    var subcategories = json['subcategories'];
+
+    loadStockSubcategories(subcategories);
+
+    var subcategoryid = json['subcategoryid'];
+    dSEMSelectStockSubcategory(subcategoryid)
+
+    var stocktypes = json['stocktypes'];
+    loadStockTypes(stocktypes);
+
+    var stocktypeid = json['stocktypeid'];
+    dSEMSelectStockType(stocktypeid);
+
+    dSEMOpenModal("delete");
+}
+
+//mode: add|update|delete
+function dSEMSetMode(mode)
+{
+    var modal = document.getElementById("depotStockEntryModal");
+    modal.dataset.operation = mode;
+    var title = document.getElementById("depotStockEntryModalTitle");
+    var actionbtn = document.getElementById("depotStockEntryModalActionButton");
+    actionbtn.disabled = false;
+
+    switch(mode)
+    {
+        case "add":
+            title.textContent = "Malzeme Ekle";
+            actionbtn.textContent = "Malzemeyi Ekle";
+            dSEMEnableFields();
+            break;
+        case "update":
+            title.textContent = "Malzemeyi Değiştir";
+            actionbtn.textContent = "Malzemeyi Değiştir";
+            dSEMEnableFields();
+            break;
+        case "delete":
+            title.textContent = "Malzemeyi Sil";
+            actionbtn.textContent = "Malzemeyi Sil";
+            dSEMDisableFields();
+            break;
+        default:
+            title.textContent = "Hata!";
+            actionbtn.textContent = "Hata!";
+            actionbtn.disabled = true;
+            break;
+    }
+}
+
+function dSEMEnableFields()
+{
+    document.getElementById("stockcategory").disabled = false;
+    document.getElementById("stocksubcategory").disabled = false;
+    document.getElementById("stocktype").disabled = false;
+    document.getElementById("stockTypeAddBtn").disabled = false;
+    document.getElementById("stockcolor").disabled = false;
+    document.getElementById("stockColorAddBtn").disabled = false;
+    document.getElementById("stockquantity").disabled = false;
+}
+
+function dSEMDisableFields()
+{
+    document.getElementById("stockcategory").disabled = true;
+    document.getElementById("stocksubcategory").disabled = true;
+    document.getElementById("stocktype").disabled = true;
+    document.getElementById("stockTypeAddBtn").disabled = true;
+    document.getElementById("stockcolor").disabled = true;
+    document.getElementById("stockColorAddBtn").disabled = true;
+    document.getElementById("stockquantity").disabled = true;
+}
+
+function dSEMMode()
+{
+    var modal = document.getElementById("depotStockEntryModal");
+    return modal.dataset.operation;
+}
+
+function dSEMCheckEntries()
+{
+    var danger = document.getElementById('stockdangeralert');
+    danger.style.display = "none";
+
+    var stocktype = document.getElementById('stocktype');
+    var stockcolor = document.getElementById('stockcolor');
+    var stockunit = document.getElementById('stockunit');
+    var stockquantity = document.getElementById('stockquantity');
+
+    var stocktypeid = getselecteddataid(stocktype.id)
+    if(stocktypeid < 0)
+    {
+        danger.textContent  = "Lütfen malzeme cinsi seçin!";
+        danger.style.display = "block";
+        return false;
+    }
+
+    var stockcolorid = getselecteddataid(stockcolor.id);
+    if(stockcolorid < 0)
+    {
+        danger.textContent  = "Lütfen malzeme rengi seçin!";
+        danger.style.display = "block";
+        return false;
+    }
+
+    var stockunitid = getselecteddataid(stockunit.id);
+    if(stockunitid < 0)
+    {
+        danger.textContent  = "Lütfen malzeme birimi seçin!";
+        danger.style.display = "block";
+        return false;
+    }
+
+    if (stockquantity.value === "")
+    {
+        danger.textContent  = "Lütfen malzeme birimi seçin!";
+        danger.style.display = "block";
+        return false;
+    }
+
+    if (!isNumber(stockquantity.value))
+    {
+        danger.textContent  = "Lütfen malzeme miktarını sayı olarak girin!";
+        danger.style.display = "block";
+        return false;
+    }
+
+    return true;
+}
+
+function dSEMSetEntryId(id)
+{
+    var modal = document.getElementById("depotStockEntryModal");
+    modal.dataset.id = id;
+}
+
+function dSEMGetEntryId()
+{
+    var modal = document.getElementById("depotStockEntryModal");
+    return modal.dataset.id;
+}
+
+function dSEMReset()
+{
+    var stockcategory = document.getElementById('stockcategory');
+    var stocksubcategory = document.getElementById('stocksubcategory');
+    var stocktype = document.getElementById('stocktype');
+    var stockcolor = document.getElementById('stockcolor');
+    var stockunit = document.getElementById('stockunit');
+    var stockquantity = document.getElementById('stockquantity');
+
+    resetselect(stockcategory.id);
+    clearSelect(stocktype.id);
+    clearSelect(stocksubcategory.id);
+    resetselect(stockcolor.id);
+    resetselect(stockunit.id);
+    stockquantity.value = "";
+
+    dSEMSetMode('none');
+    dSEMSetEntryId(-1);
+}
+
+function resetselect(id)
+{
+    var select = document.getElementById(id);
+    select.selectedIndex = 0;
+}
+
+function dSEMSelectStockCategory(id)
+{
+    var categoryselect = document.getElementById("stockcategory");
+
+        for (var i = 0; i < categoryselect.options.length; i++)
+        {
+            opt = categoryselect.options[i];
+            if(opt.dataset.id == id)
+            {
+                categoryselect.selectedIndex = i;
+                break;
+            }
+        }
+}
+
+function dSEMSelectStockSubcategory(id)
+{
+    var subcategoryselect = document.getElementById("stocksubcategory");
+
+        for (var i = 0; i < subcategoryselect.options.length; i++)
+        {
+            opt = subcategoryselect.options[i];
+            if(opt.dataset.id == id)
+            {
+                subcategoryselect.selectedIndex = i;
+                break;
+            }
+        }
+}
+
+function dSEMSelectStockType(id)
+{
+    var stocktypeselect = document.getElementById("stocktype");
+
+        for (var i = 0; i < stocktypeselect.options.length; i++)
+        {
+            opt = stocktypeselect.options[i];
+            if(opt.dataset.id == id)
+            {
+                stocktypeselect.selectedIndex = i;
+                break;
+            }
+        }
+}
+
+function dSEMSelectStockColor(id)
+{
+    var colorselect = document.getElementById("stockcolor");
+
+        for (var i = 0; i < colorselect.options.length; i++)
+        {
+            opt = colorselect.options[i];
+            if(opt.dataset.id == id)
+            {
+                colorselect.selectedIndex = i;
+                break;
+            }
+        }
+}
+
+function dSEMSelectStockUnit(id)
+{
+    var unitselect = document.getElementById("stockunit");
+
+        for (var i = 0; i < unitselect.options.length; i++)
+        {
+            opt = unitselect.options[i];
+            if(opt.dataset.id == id)
+            {
+                unitselect.selectedIndex = i;
+                break;
+            }
+        }
+}
+
+
+function isNumber(n)
+{
+    return !isNaN(parseFloat(n)) && !isNaN(n - 0)
+}
+
+function stockTypeSelectionChanged()
+{
+    var stocktypeinput = document.getElementById("stocktype");
+    console.log(stocktypeinput.id + " selection changed");
+    var stockunitinput = document.getElementById("stockunit");
+
+    var selectedid = stocktypeinput.options[stocktypeinput.selectedIndex].dataset.id;
+    if(Number(selectedid) > 0)
+    {
+        var unitid = Number(stocktypeinput.options[stocktypeinput.selectedIndex].dataset.unitid);
+        for (var j = 0; j < stockunitinput.options.length; j++)
+        {
+            optu = stockunitinput.options[j];
+            if(Number(optu.dataset.id) === unitid)
+            {
+                stockunitinput.selectedIndex = j;
+                console.log(stocktypeinput.id + ": selected id: " + unitid + " : unit " + optu.textContent + " selected");
+                break;
+            }
+        }
+    }
+}
+
+/* Stock Type Add Section*/
+
+function openStockTypeModalClicked()
+{
+    sTMSetMode("add");
+    $('#depotStockEntryModal').modal('hide');
+    $('#stockTypeModal').modal('show');
+}
+
+function stockTypeModalAddListener()
+{
+    var json = JSON.parse(this.responseText);
+    if(json.responsecode === 0)
+    {
+        var stocktypeselect = document.getElementById('stocktype');
+
+        var newOption = document.createElement('option');
+        var optionText = document.createTextNode(json.stocktype.name);
+        newOption.appendChild(optionText);
+        newOption.setAttribute('data-id', json.stocktype.id);
+        newOption.setAttribute('data-unitid', json.stocktype.unitid);
+        stocktypeselect.add(newOption);
+
+        closeStockTypeModal();
+    }
+    else if(json.responsecode === -1)
+    {
+         var alert = document.getElementById('stockTypeModalAlert');
+         alert.textContent  = json.message;
+         alert.style.display = "block";
+    }
+}
+
+function closeStockTypeModal()
+{
+    $('#stockTypeModal').modal('hide');
+    $('#depotStockEntryModal').modal('show');
+    sTMResetModal();
+}
+
+function stockCategorySelectionChanged()
+{
+    var stockcategoryselect = document.getElementById("stockcategory");
+    console.log(stockcategoryselect.id + " selection changed");
+    var stocksubcategoryselect = document.getElementById("stocksubcategory");
+    var stocktypeselect = document.getElementById("stocktype");
+    var stockunitselect = document.getElementById("stockunit");
+
+    stocksubcategoryselect.selectedIndex = 0;
+    clearSelect(stocksubcategoryselect.id);
+    stocktypeselect.selectedIndex = 0;
+    clearSelect(stocktypeselect.id);
+    stockunitselect.selectedIndex = 0;
+
+    for (var i = 0; i < stockcategoryselect.options.length; i++)
+    {
+        opt = stockcategoryselect.options[i];
+        if ( opt.selected === true )
+        {
+            if(Number(opt.dataset.id) > 0)
+            {
+                var id = Number(opt.dataset.id);
+                var stockcategory = {};
+                stockcategory.id = id;
+                var request = new XMLHttpRequest();
+                request.open("POST", "/getstocksubcategories");
+                request.setRequestHeader("Content-Type", "application/json");
+                request.addEventListener("load", stockSubcategoryReady);
+                var jsondata = JSON.stringify(stockcategory);
+                request.send(jsondata);
+                break;
+            }
+            break;
+        }
+    }
+}
+
+function stockSubcategoryReady()
+{
+    var json = JSON.parse(this.responseText);
+    var subcategories = json['subcategories'];
+    loadStockSubcategories(subcategories);
+}
+
+function loadStockSubcategories(subcategories)
+{
+    var stocksubcategoryselect = document.getElementById("stocksubcategory");
+    for (i = 0; i < subcategories.length; i++)
+    {
+        var option = document.createElement("option");
+        option.textContent = subcategories[i].name;
+        option.setAttribute('data-id', subcategories[i].id);
+        stocksubcategoryselect.appendChild(option);
+    }
+}
+
+function stockSubcategorySelectionChanged()
+{
+    var stocksubcategoryselect = document.getElementById("stocksubcategory");
+    console.log(stocksubcategoryselect.id + " selection changed");
+    var stocktypeselect = document.getElementById("stocktype");
+    var stockunitselect = document.getElementById("stockunit");
+
+    stocktypeselect.selectedIndex = 0;
+    clearSelect(stocktypeselect.id);
+    stockunitselect.selectedIndex = 0;
+
+    for (var i = 0; i < stocksubcategoryselect.options.length; i++)
+    {
+        opt = stocksubcategoryselect.options[i];
+        if ( opt.selected === true )
+        {
+            if(Number(opt.dataset.id) > 0)
+            {
+                var id = Number(opt.dataset.id);
+                var stockcategory = {};
+                stockcategory.id = id;
+                var request = new XMLHttpRequest();
+                request.open("POST", "/getstocktypes");
+                request.setRequestHeader("Content-Type", "application/json");
+                request.addEventListener("load", stockTypeReady);
+                var jsondata = JSON.stringify(stockcategory);
+                request.send(jsondata);
+                break;
+            }
+            break;
+        }
+    }
+}
+
+function stockTypeReady()
+{
+    var json = JSON.parse(this.responseText);
+    var stocktypes = json['stocktypes'];
+    loadStockTypes(stocktypes);
+}
+
+
+function loadStockTypes(stocktypes)
+{
+    var stocktypeselect = document.getElementById("stocktype");
+    for (i = 0; i < stocktypes.length; i++)
+    {
+        var option = document.createElement("option");
+        option.textContent = stocktypes[i].name;
+        option.setAttribute('data-id', stocktypes[i].id);
+        option.setAttribute('data-unitid', stocktypes[i].unitid);
+        stocktypeselect.appendChild(option);
+    }
+}
+/* End Stock Type Add Section*/
+
+
+/* Stock Color Add Section*/
+function openStockColorModalClicked()
+{
+    sCMSetMode("add");
+    $('#depotStockEntryModal').modal('hide');
+    $('#stockColorModal').modal('show');
+}
+
+function stockColorModalAddListener()
+{
+    var json = JSON.parse(this.responseText);
+    if(json.responsecode === 0)
+    {
+        var stockcolorselect = document.getElementById('stockcolor');
+
+        var newOption = document.createElement('option');
+        var optionText = document.createTextNode(json.stockcolor.name);
+        newOption.appendChild(optionText);
+        newOption.setAttribute('data-id', json.stockcolor.id);
+        stockcolorselect.add(newOption);
+
+        closeStockColorModal();
+    }
+    else if(json.responsecode === -1)
+    {
+         var alert = document.getElementById('stockTypeModalAlert');
+         alert.textContent  = json.message;
+         alert.style.display = "block";
+    }
+}
+
+function closeStockColorModal()
+{
+    $('#stockColorModal').modal('hide');
+    $('#depotStockEntryModal').modal('show');
+    sCMResetModal();
+}
+
+/* End Stock Color Add Section*/
+
+/* Stock Package Add Section*/
+function openStockPackageModalClicked()
+{
+    sPMSetMode("add");
+    $('#depotStockEntryModal').modal('hide');
+    $('#stockPackageModal').modal('show');
+}
+
+function stockPackageModalAddListener()
+{
+    var json = JSON.parse(this.responseText);
+    if(json.responsecode === 0)
+    {
+        var stockpackageselect = document.getElementById('stockpackage');
+
+        var newOption = document.createElement('option');
+        var optionText = document.createTextNode(json.stockpackage.name);
+        newOption.appendChild(optionText);
+        newOption.setAttribute('data-id', json.stockpackage.id);
+        stockpackageselect.add(newOption);
+
+        closeStockPackageModal();
+    }
+    else if(json.responsecode === -1)
+    {
+         var alert = document.getElementById('stockPackageModalAlert');
+         alert.textContent  = json.message;
+         alert.style.display = "block";
+    }
+}
+
+function closeStockPackageModal()
+{
+    $('#stockPackageModal').modal('hide');
+    $('#depotStockEntryModal').modal('show');
+    sPMResetModal();
+}
+/* End Stock Package Add Section*/
+
+/* Corporation Add Section*/
+function openCorporationModalClicked()
+{
+    cMSetMode("add");
+    $('#corporationModal').modal('show');
+}
+
+function corporationModalAddListener()
+{
+    var json = JSON.parse(this.responseText);
+    if(json.responsecode === 0)
+    {
+        var corporationselect = document.getElementById('corporation');
+
+        var newOption = document.createElement('option');
+        var optionText = document.createTextNode(json.corporation.name);
+        newOption.appendChild(optionText);
+        newOption.setAttribute('data-id', json.corporation.id);
+        corporationselect.add(newOption);
+
+        cMDefaultCloseActions();
+    }
+    else if(json.responsecode === -1)
+    {
+         var alert = document.getElementById('corporationModalAlert');
+         alert.textContent  = json.message;
+         alert.style.display = "block";
+    }
+}
+/* End Company Add Section*/
+
+function clearSelect(elid)
+{
+    var select = document.getElementById(elid);
+
+    var option = select.options[1];
+
+    while (option !== undefined)
+    {
+        select.remove(1);
+        option = select.options[1];
+    }
+}
+
+function hasClass(el, className)
+{
+    if (el.classList)
+        return el.classList.contains(className);
+    return !!el.className.match(new RegExp('(\\s|^)' + className + '(\\s|$)'));
+}
+
+function addClass(el, className)
+{
+    if (el.classList)
+        el.classList.add(className)
+    else if (!hasClass(el, className))
+        el.className += " " + className;
+}
+
+function removeClass(el, className)
+{
+    if (el.classList)
+        el.classList.remove(className)
+    else if (hasClass(el, className))
+    {
+        var reg = new RegExp('(\\s|^)' + className + '(\\s|$)');
+        el.className = el.className.replace(reg, ' ');
+    }
+}
+</script>
+
+{% include 'modals/stocktypemodal.html' %}
+
+{% include 'modals/stockcolormodal.html' %}
+
+{% include 'modals/stockpackagemodal.html' %}
+
+{% include 'modals/corporationmodal.html' %}

@@ -1,0 +1,290 @@
+{%extends "base.html"%}
+
+{%block title%}Veri Yönetimi{%endblock%}
+
+{%block content%}
+{% if current_user.isadmin %}
+
+<div id="tablecontainer" class="container" style="margin-top: 1%; margin-left: auto; margin-right:auto;">
+    <h2 class="form-signin-heading" style="text-align:center; color:white;">Veri Yönetimi</h2>
+    <span style="display:block; height: 10px;"></span>
+
+    <div class="text-center">
+        <div class="btn-group" role="group" aria-label="Veri yçnetim Navigasyonu" style="flex-wrap: wrap;">
+          <button id="stockcategorycollapsebtn" type="button" onclick="stockcategoryclicked()" aria-expanded="true" class="btn btn-primary active" aria-pressed="true">Malzeme Kategorisi</button>
+          <button id="stocksubcategorycollapsebtn" type="button" onclick="stocksubcategoryclicked()" class="btn btn-primary" aria-pressed="true">Malzeme Alt Kategorisi</button>
+          <button id="stocktypecollapsebtn" type="button" onclick="stocktypeclicked()" class="btn btn-primary" aria-pressed="true">Malzeme Cinsi</button>
+          <button id="stockcolorcollapsebtn" type="button" onclick="stockcolorclicked()" class="btn btn-primary" aria-pressed="true">Malzeme Rengi</button>
+          <button id="corporationcollapsebtn" type="button" onclick="corporationclicked()" class="btn btn-primary" aria-pressed="true">Şirket</button>
+          <button id="stockpackagecollapsebtn" type="button" onclick="stockpackageclicked()" class="btn btn-primary" aria-pressed="true">Ambalaj</button>
+          <button id="stockunitcollapsebtn" type="button" onclick="stockunitclicked()" class="btn btn-primary" aria-pressed="true">Malzeme Birimi</button>
+        </div>
+    </div>
+
+    <span style="display:block; height: 10px;"></span>
+
+    <div class="collapse" id="stockcategorycollapse" aria-expanded="true">
+        <h4 class="form-signin-heading" style="text-align:center; color: white;">Malzeme Kategorisi</h4>
+        <span style="display:block; height: 6px;"></span>
+        <div class="table-responsive">
+        <table id="stockcategorytable" class="table table-striped" style="background-color:white;">
+          <thead>
+            <tr>
+              <th scope="col">Malzeme Kategorisi</th>
+              <th scope="col">İşlemler</th>
+            </tr>
+          </thead>
+          <tbody>
+            {%for category in stockcategories%}
+              <tr>
+                  <td data-id="{{category.id}}" style="vertical-align: middle;">{{category.name}}</td>
+                  <td>
+                      <div class="form-row">
+                            <button class="btn btn-primary" onclick="openStockCategoryUpdateModalClicked('{{category.id}}','{{category.name}}')" data-toggle="tooltip" title="Malzeme Kategorisini Değiştir">
+                                <i class="fas fa-external-link-alt"></i>
+                            </button>
+                            <span style="display: inline; width: 5px;"></span>
+                            <button class="btn btn-danger" onclick="openStockCategoryDeleteModalClicked('{{category.id}}','{{category.name}}')" data-toggle="tooltip" title="Malzeme Kategorisini Sil">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                      </div>
+                  </td>
+              </tr>
+            {%endfor%}
+          </tbody>
+        </table>
+      </div>
+      <button id="stockCategoryAddBtn" type="button" onclick="openStockCategoryAddModalClicked()" class="btn btn-primary btn-block">Malzeme Kategorisi Ekle</button>
+      <span style="display:block; height: 30px;"></span>
+    </div>
+
+    <div class="collapse" id="stocksubcategorycollapse" aria-expanded="false">
+        <h4 class="form-signin-heading" style="text-align:center; color: white;">Malzeme Alt Kategorileri</h4>
+        <span style="display:block; height: 6px;"></span>
+        <select id="stocksubcategorycategoryselect" class="custom-select">
+            <option data-id="-1" selected>Malzemenin Kategorisi Seçin</option>
+        </select>
+        <span style="display:block; height: 15px;"></span>
+        <div class="table-responsive">
+        <table id="stocksubcategorytable" class="table table-striped" style="background-color:white;">
+            <thead>
+                <tr>
+                  <th scope="col">Malzeme Alt Kategorisi</th>
+                  <th scope="col">İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+      </div>
+      <button id="stockSubcategoryAddBtn" type="button" onclick="openStockSubcategoryAddModalClicked()" class="btn btn-primary btn-block">Malzeme Alt Kategorisi Ekle</button>
+      <span style="display:block; height: 30px;"></span>
+    </div>
+
+    <div class="collapse" id="stocktypecollapse" aria-expanded="false">
+        <h4 class="form-signin-heading" style="text-align:center; color: white;">Malzeme Cinsleri</h4>
+        <span style="display:block; height: 6px;"></span>
+        <select id="stocktypecategoryselect" class="custom-select">
+            <option data-id="-1" selected>Malzemenin Kategorisi Seçin</option>
+        </select>
+        <span style="display:block; height: 10px;"></span>
+        <select id="stocktypesubcategoryselect" class="custom-select">
+            <option data-id="-1" selected>Malzemenin Alt Kategorisi Seçin</option>
+        </select>
+        <span style="display:block; height: 15px;"></span>
+        <div class="table-responsive">
+        <table id="stocktypetable" class="table table-striped" style="background-color:white;">
+          <thead>
+            <tr>
+              <th scope="col">Malzeme Cinsi</th>
+              <th scope="col">Malzeme Birimi</th>
+              <th scope="col">İşlemler</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+      <button id="stockTypeAddBtn" type="button" onclick="openStockTypeAddModalClicked()" class="btn btn-primary btn-block">Malzeme Cinsi Ekle</button>
+      <span style="display:block; height: 30px;"></span>
+    </div>
+
+    <div class="collapse" id="stockcolorcollapse" aria-expanded="true">
+        <h4 class="form-signin-heading" style="text-align:center; color: white;">Malzeme Renkleri</h4>
+        <span style="display:block; height: 6px;"></span>
+        <div class="table-responsive">
+        <table id="stockcolortable" class="table table-striped" style="background-color:white;">
+          <thead>
+            <tr>
+              <th scope="col">Malzeme Rengi</th>
+              <th scope="col">İşlemler</th>
+            </tr>
+          </thead>
+          <tbody>
+            {%for color in stockcolors%}
+              <tr>
+                  <td data-id="{{color.id}}" style="vertical-align: middle;">{{color.name}}</td>
+                  <td>
+                      <div class="form-row">
+                            <button class="btn btn-primary" onclick="openStockColorUpdateModalClicked('{{color.id}}','{{color.name}}')" data-toggle="tooltip" title="Malzeme Rengini Değiştir">
+                                <i class="fas fa-external-link-alt"></i>
+                            </button>
+                            <span style="display: inline; width: 5px;"></span>
+                            <button class="btn btn-danger" onclick="openStockColorDeleteModalClicked('{{color.id}}','{{color.name}}')" data-toggle="tooltip" title="Malzeme Rengini Sil">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                      </div>
+                  </td>
+              </tr>
+            {%endfor%}
+          </tbody>
+        </table>
+      </div>
+      <button id="stockColorAddBtn" type="button" onclick="openStockColorAddModalClicked()" class="btn btn-primary btn-block">Malzeme Rengi Ekle</button>
+      <span style="display:block; height: 30px;"></span>
+    </div>
+
+    <div class="collapse" id="corporationcollapse" aria-expanded="true">
+        <h4 class="form-signin-heading" style="text-align:center; color: white;">Şirketler</h4>
+        <span style="display:block; height: 6px;"></span>
+        <div class="table-responsive">
+        <table id="corporationtable" class="table table-striped" style="background-color:white;">
+          <thead>
+            <tr>
+              <th scope="col">Şirket Adı</th>
+              <th scope="col">İşlemler</th>
+            </tr>
+          </thead>
+          <tbody>
+            {%for corporation in corporations%}
+              <tr>
+                  <td data-id="{{corporation.id}}" style="vertical-align: middle;">{{corporation.name}}</td>
+                  <td>
+                      <div class="form-row">
+                            <button class="btn btn-primary" onclick="openCorporationUpdateModalClicked('{{corporation.id}}','{{corporation.name}}')" data-toggle="tooltip" title="Şirketi Değiştir">
+                                <i class="fas fa-external-link-alt"></i>
+                            </button>
+                            <span style="display: inline; width: 5px;"></span>
+                            <button class="btn btn-danger" onclick="openCorporationDeleteModalClicked('{{corporation.id}}','{{corporation.name}}')" data-toggle="tooltip" title="Şirketi Sil">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                      </div>
+                  </td>
+              </tr>
+            {%endfor%}
+          </tbody>
+        </table>
+      </div>
+      <button id="corporationAddBtn" type="button" onclick="openCorporationAddModalClicked()" class="btn btn-primary btn-block">Şirket Ekle</button>
+      <span style="display:block; height: 30px;"></span>
+    </div>
+
+    <div class="collapse" id="stockpackagecollapse" aria-expanded="true">
+        <h4 class="form-signin-heading" style="text-align:center; color: white;">Ambalaj Tipleri</h4>
+        <span style="display:block; height: 6px;"></span>
+        <div class="table-responsive">
+        <table id="stockpackagetable" class="table table-striped" style="background-color:white;">
+          <thead>
+            <tr>
+              <th scope="col">Ambalaj Tipi</th>
+              <th scope="col">İşlemler</th>
+            </tr>
+          </thead>
+          <tbody>
+            {%for package in stockpackages%}
+              <tr>
+                  <td data-id="{{package.id}}" style="vertical-align: middle;">{{package.name}}</td>
+                  <td>
+                      <div class="form-row">
+                            <button class="btn btn-primary" onclick="openStockPackageUpdateModalClicked('{{package.id}}','{{package.name}}')" data-toggle="tooltip" title="Ambalaj Tipini Değiştir">
+                                <i class="fas fa-external-link-alt"></i>
+                            </button>
+                            <span style="display: inline; width: 5px;"></span>
+                            <button class="btn btn-danger" onclick="openStockPackageDeleteModalClicked('{{package.id}}','{{package.name}}')" data-toggle="tooltip" title="Ambalaj Tipini Sil">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                      </div>
+                  </td>
+              </tr>
+            {%endfor%}
+          </tbody>
+        </table>
+      </div>
+      <button id="stockPackageAddBtn" type="button" onclick="openStockPackageAddModalClicked()" class="btn btn-primary btn-block">Ambalaj Tipi Ekle</button>
+      <span style="display:block; height: 30px;"></span>
+    </div>
+
+    <div class="collapse" id="stockunitcollapse" aria-expanded="true">
+        <h4 class="form-signin-heading" style="text-align:center; color: white;">Malzeme Birimleri</h4>
+        <span style="display:block; height: 6px;"></span>
+        <div class="table-responsive">
+        <table id="stockunittable" class="table table-striped" style="background-color:white;">
+          <thead>
+            <tr>
+              <th scope="col">Stok Birim Adı</th>
+              <th scope="col">Hassasiyet</th>
+              <th scope="col">İşlemler</th>
+            </tr>
+          </thead>
+          <tbody>
+            {%for unit in stockunits%}
+              <tr>
+                  <td data-id="{{unit.id}}" style="vertical-align: middle;">{{unit.name}}</td>
+                  <td data-precision="{{unit.precision}}" style="vertical-align: middle;">{{unit.precision}}</td>
+                  <td>
+                      <div class="form-row">
+                            <button class="btn btn-primary" onclick="openStockUnitUpdateModalClicked('{{unit.id}}','{{unit.name}}','{{unit.precision}}')" data-toggle="tooltip" title="Malzeme Birimini Değiştir">
+                                <i class="fas fa-external-link-alt"></i>
+                            </button>
+                            <span style="display: inline; width: 5px;"></span>
+                            <button class="btn btn-danger" onclick="openStockUnitDeleteModalClicked('{{unit.id}}','{{unit.name}}','{{unit.precision}}')" data-toggle="tooltip" title="Malzeme Birimini Sil">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                      </div>
+                  </td>
+              </tr>
+            {%endfor%}
+          </tbody>
+        </table>
+      </div>
+      <button id="stockUnitAddBtn" type="button" onclick="openStockUnitAddModalClicked()" class="btn btn-primary btn-block">Malzeme Birimi Ekle</button>
+      <span style="display:block; height: 30px;"></span>
+    </div>
+
+</div>
+
+{% else %}
+
+<div class="alert alert-danger" role="alert" style="margin-top: 1%; margin-left: 3%; margin-right:3%; display: block;">
+  Bu sayfayı görüntülemeye yetkiniz yok!
+</div>
+{% endif %}
+
+{% include 'modals/stockcategorymodal.html' %}
+
+{% include 'modals/stocksubcategorymodal.html' %}
+
+{% include 'modals/stocktypemodal.html' %}
+
+{% include 'modals/stockcolormodal.html' %}
+
+{% include 'modals/stockpackagemodal.html' %}
+
+{% include 'modals/corporationmodal.html' %}
+
+{% include 'modals/stockunitmodal.html' %}
+
+{%endblock%}
+
+{%block style%}
+<style>
+    form {
+        margin-left: 10%;
+        margin-right:10%;
+    }
+</style>
+{%endblock%}
+
+{%block script%}
+<script type="text/javascript" src="../static/js/datamanagement.js"></script>
+{%endblock%}

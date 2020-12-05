@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <link rel="icon" href="../static/img/bitmap.ico">
+        <title>{%block title%}Ana Sayfa{%endblock%}</title>
+        <script type="text/javascript" src="../static/js/3rdparty/jquery-3.5.1.min.js"></script>
+        <script src="../static/js/3rdparty/bootstrap.bundle.min.js"></script>
+        <!-- Bootstrap core CSS -->
+        <link href="../static/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="../static/css/fa-all.css">
+
+        <style>
+            a.active {
+              font-weight: bold;
+            }
+            form {
+                margin-top: 10%;
+                margin-left: 10%;
+                margin-right:10%;
+            }
+
+            body.custombodystyle
+            {
+                background: url('../static/img/bg-pattern.png'), linear-gradient(to left, #7b4397, #dc2430);
+                position: relative; width: 100%;
+            }
+
+            .delete_itemBtn {
+                background-color: #f01e00;
+                border: none;
+                color: white;
+                padding: 6px 14px;
+                font-size: 16px;
+                cursor: pointer;
+            }
+
+            /* Darker background on mouse-over */
+            .delete_itemBtn:hover {
+                background-color: #dd0000;
+            }
+
+            .content_itemBtn {
+                background-color: DodgerBlue;
+                border: none;
+                color: white;
+                padding: 6px 12px;
+                font-size: 16px;
+                cursor: pointer;
+            }
+
+            /* Darker background on mouse-over */
+            .content_itemBtn:hover {
+                background-color: RoyalBlue;
+            }
+        </style>
+
+        {%block style%}
+        {%endblock%}
+
+        {%block script%}
+        {%endblock%}
+    </head>
+
+    <body class="custombodystyle">
+
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+          {% if not current_user.is_anonymous %}
+          <a class="navbar-brand" href="/userprofile">{{session['username']}}</a>
+          {% else %}
+          <a class="navbar-brand" href="#">Siz</a>
+          {% endif %}
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul id="navbuttons" class="navbar-nav mr-auto">
+
+              <li class="nav-item">
+                <a class="nav-link" href="/">Ana Sayfa<span class="sr-only">(current)</span></a>
+              </li>
+
+              {% if not current_user.is_anonymous %}
+
+                  {% if current_user.isadmin %}
+                     <li class="nav-item dropdown bg-primary">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          Depo
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+
+                          <a class="dropdown-item" href="/stocks">Depo Durumu<span class="sr-only">(current)</span></a>
+
+                          <a class="dropdown-item" href="/stockmoves">Depo Hareketleri<span class="sr-only">(current)</span></a>
+
+                          <div class="dropdown-divider"></div>
+
+                          <a class="dropdown-item" href="/addincomingstockform">Depo Girişi Yap<span class="sr-only">(current)</span></a>
+
+                          <a class="dropdown-item" href="/incomingstockforms">Depo Giriş Formları<span class="sr-only">(current)</span></a>
+
+                          <div class="dropdown-divider"></div>
+
+                          <a class="dropdown-item" href="/addoutgoingstockform">Ürün Sevkiyatı Yap<span class="sr-only">(current)</span></a>
+
+                          <a class="dropdown-item" href="/outgoingstockforms">Ürün Sevkiyat Formları<span class="sr-only">(current)</span></a>
+
+                          <div class="dropdown-divider"></div>
+
+                          <a class="dropdown-item" href="/datamanagement">Veri Yönetimi<span class="sr-only">(current)</span></a>
+
+                        </div>
+                     </li>
+
+                     <li class="nav-item">
+                      <a class="nav-link" href="/users">Kullanıcılar<span class="sr-only">(current)</span></a>
+                     </li>
+                  {% endif %}
+                  {% if debug %}
+                      <li class="nav-item">
+                      <a class="nav-link" href="/test">Test<span class="sr-only">(current)</span></a>
+                  </li>
+                  {% endif %}
+
+              {% else %}
+                  <li class="nav-item">
+                      <a class="nav-link" href="/signup">Kayıt Ol<span class="sr-only">(current)</span></a>
+                  </li>
+                  <li class="nav-item">
+                      <a class="nav-link" href="/login">Giriş Yap<span class="sr-only">(current)</span></a>
+                  </li>
+              {% endif %}
+
+              {% if not current_user.is_anonymous %}
+                 <li class="nav-item">
+                      <a class="nav-link" href="/logout">Çıkış Yap<span class="sr-only">(current)</span></a>
+                  </li>
+              {% endif %}
+            </ul>
+          </div>
+        </nav>
+
+        <div id="dangeralert" class="alert alert-danger" role="alert" style="margin-top: 1%; margin-left: 3%; margin-right:3%; display: none;">
+          A simple secondary alert—check it out!
+        </div>
+
+        <div id="successalert" class="alert alert-success" role="alert" aria-hidden="true" style="margin-top: 1%; margin-left: 3%; margin-right:3%; display: none;">
+          <h4 id="successheading" class="alert-heading">Heading</h4>
+          <p id="successmessage">Message</p>
+          <hr>
+          <p id="successpostmessage" class="mb-0">Post Message</p>
+        </div>
+
+        {%block content%}
+        {%endblock%}
+    </body>
+</html>

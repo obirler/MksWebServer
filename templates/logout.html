@@ -1,0 +1,33 @@
+{%extends "base.html"%}
+
+{%block title%}Çıkış Yap{%endblock%}
+
+{%block script%}
+<script>
+	$( document ).ready(function()
+    {
+        var successheading = document.getElementById('successheading');
+        successheading.textContent = "Tebrikler!";
+
+        var successmessage = document.getElementById('successmessage');
+        successmessage.textContent = "Sistemden başarıyla çıkış yaptınız.";
+
+        var successpostmessage = document.getElementById('successpostmessage');
+        successpostmessage.textContent = "Şimdi ana sayfaya yönlendirileceksiniz.";
+
+        var success = document.getElementById('successalert');
+        success.style.display = "block"
+
+        var danger = document.getElementById('dangeralert');
+        danger.style.display = "none"
+
+        var nav = document.getElementById('navbuttons');
+        nav.style.display = "none"
+
+        setTimeout(() =>
+        {
+            window.location.replace("/");
+        }, 2300);
+    });
+</script>
+{%endblock%}

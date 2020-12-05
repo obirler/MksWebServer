@@ -1,0 +1,187 @@
+<!-- Stock Category Add Modal -->
+<div id="stockCategoryModal" class="modal" data-operation="none">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 id="stockCategoryModalTitle" class="modal-title">Malzeme Kategorisi Ekle</h4>
+        <button id="stockCategoryModalCloseBtn1" type="button" class="close">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div id="stockCategoryModalAlert" class="alert alert-danger" role="alert" style="display: none;">
+           Message
+        </div>
+
+        <form class="form" style="margin:0">
+            <div class="form-group">
+              <label for="stockCategoryModalCategoryInput">Malzemenin Kategorisi</label>
+              <input data-typeid="-1" id="stockCategoryModalCategoryInput" type="text" class="form-control" placeholder="Malzeme Kategorisini Girin">
+            </div>
+          <button id="stockCategoryModalActionButton" type="button" class="btn btn-primary btn-block" style="margin-top:3%;">Malzeme Kategorisini Ekle</button>
+        </form>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button id="stockCategoryModalCloseBtn2" type="button" class="btn btn-danger">Kapat</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+    //mode: add|update|delete
+    function sCaMSetMode(mode)
+    {
+        var modal = document.getElementById("stockCategoryModal");
+        modal.dataset.operation = mode;
+        var title = document.getElementById("stockCategoryModalTitle");
+        var actionbtn = document.getElementById("stockCategoryModalActionButton");
+        actionbtn.disabled = false;
+
+        switch(mode)
+        {
+          case "add":
+            title.textContent = "Malzeme Kategorisi Ekle";
+            actionbtn.textContent = "Malzeme Kategorisini Ekle";
+            break;
+          case "update":
+            title.textContent = "Malzeme Kategorisini Değiştir";
+            actionbtn.textContent = "Malzeme Kategorisini Değiştir";
+            break;
+          case "delete":
+            title.textContent = "Malzeme Kategorisini Sil";
+            actionbtn.textContent = "Malzeme Kategorisini Sil";
+            break;
+          default:
+            title.textContent = "Hata!";
+            actionbtn.textContent = "Hata!";
+            actionbtn.disabled = true;
+        }
+    }
+
+    function sCaMMode()
+    {
+        var modal = document.getElementById("stockCategoryModal");
+        return modal.dataset.operation;
+    }
+
+    function sCaMSetInfo(categoryid, categoryname)
+    {
+        var categoryinput = document.getElementById("stockCategoryModalCategoryInput");
+        categoryinput.value = categoryname;
+        categoryinput.setAttribute('data-categoryid', categoryid);
+    }
+
+    function sCaMSetDefaultCloseBtns()
+    {
+        $("#stockCategoryModalCloseBtn1").on("click", function()
+        {
+            sCaMDefaultCloseActions();
+        });
+
+        $("#stockCategoryModalCloseBtn2").on("click", function()
+        {
+            sCaMDefaultCloseActions();
+        });
+    }
+
+    function sCaMCheckEntries()
+    {
+        var alert = document.getElementById('stockCategoryModalAlert');
+        alert.style.display = "none";
+        var categoryinput = document.getElementById("stockCategoryModalCategoryInput");
+
+        if(categoryinput.value == "")
+        {
+            alert.textContent = "Lütfen malzeme kategorisini giriniz!";
+            alert.style.display = "block";
+            return false;
+        }
+        return true;
+    }
+
+    function sCaMDefaultCloseActions()
+    {
+        $('#stockCategoryModal').modal('hide');
+        sCaMResetModal();
+    }
+
+    function sCaMDefaultSubmitAction(listener = sCaMDefaultStockCategoryListener)
+    {
+        if(!sCaMCheckEntries())
+        {
+            return -1;
+        }
+
+        var modal = document.getElementById("stockCategoryModal");
+        var mode = modal.dataset.operation;
+
+        var categoryinput = document.getElementById("stockCategoryModalCategoryInput");
+
+        var categoryvalue = categoryinput.value;
+        var categoryid = categoryinput.dataset.categoryid;
+
+        var stockcategory = {};
+
+        var request = new XMLHttpRequest();
+
+        switch (mode)
+        {
+          case "add":
+            stockcategory.name = categoryvalue;
+            request.open("POST", "/stockcategory");
+            break;
+          case "update":
+            stockcategory.id = categoryid;
+            stockcategory.name = categoryvalue;
+            request.open("PATCH", "/stockcategory");
+            break;
+          case "delete":
+            stockcategory.id = categoryid;
+            request.open("DELETE", "/stockcategory");
+            break;
+        }
+
+        request.setRequestHeader("Content-Type", "application/json");
+        request.addEventListener("load", listener);
+        var jsondata = JSON.stringify(stockcategory);
+        request.send(jsondata);
+        console.log('submitted ' + mode + Math.random());
+    }
+
+    function sCaMDefaultStockCategoryListener()
+    {
+        var json = JSON.parse(this.responseText);
+        if(json.responsecode === 0)
+        {
+            sCaMDefaultCloseActions();
+        }
+        else if(json.responsecode === -1)
+        {
+            sCaMShowAlert(json);
+        }
+    }
+
+    function sCaMShowAlert(json)
+    {
+        var alert = document.getElementById('stockCategoryModalAlert');
+        alert.textContent  = json.message;
+        alert.style.display = "block";
+    }
+
+    function sCaMResetModal()
+    {
+        var actionbtn = document.getElementById("stockCategoryModalActionButton");
+        actionbtn.disabled = false;
+        var typeinput = document.getElementById("stockCategoryModalCategoryInput");
+        typeinput.value = "";
+
+        sCaMSetMode("none");
+        sCaMSetInfo('', '', '');
+    }
+</script>

@@ -1,0 +1,192 @@
+<!-- Stock Subcategory Add Modal -->
+<div id="stockSubcategoryModal" class="modal" data-operation="none" data-categoryid="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 id="stockSubcategoryModalTitle" class="modal-title">Malzeme Alt Kategorisi Ekle</h4>
+        <button id="stockSubcategoryModalCloseBtn1" type="button" class="close">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div id="stockSubcategoryModalAlert" class="alert alert-danger" role="alert" style="display: none;">
+           Message
+        </div>
+
+        <form class="form" style="margin:0">
+            <div class="form-group">
+              <label for="stockSubcategoryModalSubcategoryInput">Malzemenin Alt Kategorisi</label>
+              <input data-subcategoryid="-1" id="stockSubcategoryModalSubcategoryInput" type="text" class="form-control" placeholder="Malzemenin Alt Kategorisini Girin">
+            </div>
+
+          <button id="stockSubcategoryModalActionButton" type="button" class="btn btn-primary btn-block" style="margin-top:3%;">Malzeme Alt Kategorisini Ekle</button>
+        </form>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button id="stockSubcategoryModalCloseBtn2" type="button" class="btn btn-danger">Kapat</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+    //mode: add|update|delete
+    function sSMSetMode(mode)
+    {
+        var modal = document.getElementById("stockSubcategoryModal");
+        modal.dataset.operation = mode;
+        var title = document.getElementById("stockSubcategoryModalTitle");
+        var actionbtn = document.getElementById("stockSubcategoryModalActionButton");
+        actionbtn.disabled = false;
+
+        switch(mode)
+        {
+          case "add":
+            title.textContent = "Malzeme Alt Kategorisi Ekle";
+            actionbtn.textContent = "Malzeme Alt Kategorisini Ekle";
+            break;
+          case "update":
+            title.textContent = "Malzeme Alt Kategorisini Değiştir";
+            actionbtn.textContent = "Malzeme Alt Kategorisini Değiştir";
+            break;
+          case "delete":
+            title.textContent = "Malzeme Alt Kategorisini Sil";
+            actionbtn.textContent = "Malzeme Alt Kategorisini Sil";
+            break;
+          default:
+            title.textContent = "Hata!";
+            actionbtn.textContent = "Hata!";
+            actionbtn.disabled = true;
+        }
+    }
+
+    function sSMMode()
+    {
+        var modal = document.getElementById("stockSubcategoryModal");
+        return modal.dataset.operation;
+    }
+
+    function sSMSetInfo(categoryid, subcategoryid, subcategoryname)
+    {
+        var modal = document.getElementById("stockSubcategoryModal");
+        modal.dataset.categoryid = categoryid;
+        var subcategoryinput = document.getElementById("stockSubcategoryModalSubcategoryInput");
+        subcategoryinput.value = subcategoryname;
+        subcategoryinput.setAttribute('data-subcategoryid', subcategoryid);
+    }
+
+    function sSMSetDefaultCloseBtns()
+    {
+        $("#stockSubcategoryModalCloseBtn1").on("click", function()
+        {
+            sSMDefaultCloseActions();
+        });
+
+        $("#stockSubcategoryModalCloseBtn2").on("click", function()
+        {
+            sSMDefaultCloseActions();
+        });
+    }
+
+    function sSMCheckEntries()
+    {
+        var alert = document.getElementById('stockSubcategoryModalAlert');
+        alert.style.display = "none";
+        var subcategoryinput = document.getElementById("stockSubcategoryModalSubcategoryInput");
+
+        if(subcategoryinput.value == "")
+        {
+            alert.textContent = "Lütfen malzeme alt kategorisi giriniz!";
+            alert.style.display = "block";
+            return false;
+        }
+        return true;
+    }
+
+    function sSMDefaultCloseActions()
+    {
+        $('#stockSubcategoryModal').modal('hide');
+        sSMResetModal();
+    }
+
+    function sSMDefaultSubmitAction(listener = sSMDefaultStockSubcategoryListener)
+    {
+        if(!sSMCheckEntries())
+        {
+            return -1;
+        }
+
+        var modal = document.getElementById("stockSubcategoryModal");
+        var mode = modal.dataset.operation;
+
+        var subcategoryinput = document.getElementById("stockSubcategoryModalSubcategoryInput");
+
+        var subcategoryvalue = subcategoryinput.value;
+        var subcategoryid = subcategoryinput.dataset.subcategoryid;
+        var categoryid = modal.dataset.categoryid;
+
+        var stocksubcategory = {};
+
+        var request = new XMLHttpRequest();
+
+        switch (mode)
+        {
+          case "add":
+            stocksubcategory.name = subcategoryvalue;
+            stocksubcategory.categoryid = categoryid;
+            request.open("POST", "/stocksubcategory");
+            break;
+          case "update":
+            stocksubcategory.id = subcategoryid;
+            stocksubcategory.name = subcategoryvalue;
+            stocksubcategory.categoryid = categoryid;
+            request.open("PATCH", "/stocksubcategory");
+            break;
+          case "delete":
+            stocksubcategory.id = subcategoryid;
+            request.open("DELETE", "/stocksubcategory");
+            break;
+        }
+
+        request.setRequestHeader("Content-Type", "application/json");
+        request.addEventListener("load", listener);
+        var jsondata = JSON.stringify(stocksubcategory);
+        request.send(jsondata);
+    }
+
+    function sSMDefaultStockSubcategoryListener()
+    {
+        var json = JSON.parse(this.responseText);
+        if(json.responsecode === 0)
+        {
+            sSMDefaultCloseActions();
+        }
+        else if(json.responsecode === -1)
+        {
+            sSMShowAlert(json);
+        }
+    }
+
+    function sSMShowAlert(json)
+    {
+        var alert = document.getElementById('stockSubcategoryModalAlert');
+        alert.textContent  = json.message;
+        alert.style.display = "block";
+    }
+
+    function sSMResetModal()
+    {
+        var actionbtn = document.getElementById("stockSubcategoryModalActionButton");
+        actionbtn.disabled = false;
+        var subcategoryinput = document.getElementById("stockSubcategoryModalSubcategoryInput");
+        subcategoryinput.value = "";
+
+        sSMSetMode("none");
+        sSMSetInfo(-1, -1, '');
+    }
+</script>

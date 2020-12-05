@@ -1,0 +1,187 @@
+<!-- Corporation Modal -->
+<div id="corporationModal" class="modal" data-operation="none">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 id="corporationModalTitle" class="modal-title">Şirket Ekle</h4>
+        <button id="corporationModalCloseBtn1" type="button" class="close">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div id="corporationModalAlert" class="alert alert-danger" role="alert" style="display: none;">
+           Message
+        </div>
+
+        <form class="form" style="margin:0">
+            <div class="form-group">
+              <label for="corporationModalCorporationInput">Şirket</label>
+              <input data-typeid="-1" id="corporationModalCorporationInput" type="text" class="form-control" placeholder="Şirket Girin">
+            </div>
+          <button id="corporationModalActionButton" type="button" class="btn btn-primary btn-block" style="margin-top:3%;">Şirket Ekle</button>
+        </form>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button id="corporationModalCloseBtn2" type="button" class="btn btn-danger">Kapat</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+    //mode: add|update|delete
+    function cMSetMode(mode)
+    {
+        var modal = document.getElementById("corporationModal");
+        modal.dataset.operation = mode;
+        var title = document.getElementById("corporationModalTitle");
+        var actionbtn = document.getElementById("corporationModalActionButton");
+        actionbtn.disabled = false;
+
+        switch(mode)
+        {
+          case "add":
+            title.textContent = "Şirket Ekle";
+            actionbtn.textContent = "Şirket Ekle";
+            break;
+          case "update":
+            title.textContent = "Şirketi Değiştir";
+            actionbtn.textContent = "Şirketi Değiştir";
+            break;
+          case "delete":
+            title.textContent = "Şirketi Sil";
+            actionbtn.textContent = "Şirketi Sil";
+            break;
+          default:
+            title.textContent = "Hata!";
+            actionbtn.textContent = "Hata!";
+            actionbtn.disabled = true;
+        }
+    }
+
+    function cMMode()
+    {
+        var modal = document.getElementById("corporationModal");
+        return modal.dataset.operation;
+    }
+
+    function cMSetInfo(corporationid, corporationname)
+    {
+        var corporationinput = document.getElementById("corporationModalCorporationInput");
+        corporationinput.value = corporationname;
+        corporationinput.setAttribute('data-corporationid', corporationid);
+    }
+
+    function cMSetDefaultCloseBtns()
+    {
+        $("#corporationModalCloseBtn1").on("click", function()
+        {
+            cMDefaultCloseActions();
+        });
+
+        $("#corporationModalCloseBtn2").on("click", function()
+        {
+            cMDefaultCloseActions();
+        });
+    }
+
+    function cMCheckEntries()
+    {
+        var alert = document.getElementById('corporationModalAlert');
+        alert.style.display = "none";
+        var corporationinput = document.getElementById("corporationModalCorporationInput");
+
+        if(corporationinput.value == "")
+        {
+            alert.textContent = "Lütfen şirket ismini giriniz!";
+            alert.style.display = "block";
+            return false;
+        }
+        return true;
+    }
+
+    function cMDefaultCloseActions()
+    {
+        $('#corporationModal').modal('hide');
+        cMResetModal();
+    }
+
+    function cMDefaultSubmitAction(listener = cMDefaultCorporationListener)
+    {
+        if(!cMCheckEntries())
+        {
+            return -1;
+        }
+
+        var modal = document.getElementById("corporationModal");
+        var mode = modal.dataset.operation;
+
+        var corporationinput = document.getElementById("corporationModalCorporationInput");
+
+        var corporationvalue = corporationinput.value;
+        var corporationid = corporationinput.dataset.corporationid;
+
+        var corporation = {};
+
+        var request = new XMLHttpRequest();
+
+        switch (mode)
+        {
+          case "add":
+            corporation.name = corporationvalue;
+            request.open("POST", "/corporation");
+            break;
+          case "update":
+            corporation.id = corporationid;
+            corporation.name = corporationvalue;
+            request.open("PATCH", "/corporation");
+            break;
+          case "delete":
+            corporation.id = corporationid;
+            request.open("DELETE", "/corporation");
+            break;
+        }
+
+        request.setRequestHeader("Content-Type", "application/json");
+        request.addEventListener("load", listener);
+        var jsondata = JSON.stringify(corporation);
+        request.send(jsondata);
+        console.log('submitted ' + mode + Math.random());
+    }
+
+    function cMDefaultCorporationListener()
+    {
+        var json = JSON.parse(this.responseText);
+        if(json.responsecode === 0)
+        {
+            cMDefaultCloseActions();
+        }
+        else if(json.responsecode === -1)
+        {
+            cMShowAlert(json);
+        }
+    }
+
+    function cMShowAlert(json)
+    {
+        var alert = document.getElementById('corporationModalAlert');
+        alert.textContent  = json.message;
+        alert.style.display = "block";
+    }
+
+    function cMResetModal()
+    {
+        var actionbtn = document.getElementById("corporationModalActionButton");
+        actionbtn.disabled = false;
+        var corporationinput = document.getElementById("corporationModalCorporationInput");
+        corporationinput.value = "";
+
+        cMSetMode("none");
+        cMSetInfo('', '', '');
+    }
+</script>

@@ -1,0 +1,346 @@
+{%extends "base.html"%}
+
+{%block title%}Kullanıcı Bilgileri{%endblock%}
+
+{%block content%}
+<div id="maindiv" class="container" style="padding-top: 5%; padding-left: 5%; padding-right:5%;" data-id="{{session['id']}}">
+    <h2 style="text-align:center; color:white;">Kullanıcı Bilgileri</h2>
+    <span style="display:block; height: 20px;"></span>
+    <div class="input-group mb-3" >
+      <div class="input-group-prepend">
+        <span style="background-color: #d0d4d7" class="input-group-text">Ad</span>
+      </div>
+      <input id="nameinput" type="text" class="form-control" placeholder="Ad" value="{{session['name']}}" aria-describedby="button-addon2" readonly>
+      <div class="input-group-append">
+        <button class="btn btn-primary btn-outline-secondary" data-toggle="modal" data-target="#nameModal" style="color: white;" type="button" id="button-addon2">Değiştir</button>
+      </div>
+    </div>
+
+    <div class="input-group mb-3">
+      <div class="input-group-prepend">
+        <span style="background-color: #d0d4d7" class="input-group-text">Soyad</span>
+      </div>
+      <input id="surnameinput" type="text" class="form-control" placeholder="Soyad" value="{{session['surname']}}" aria-describedby="button-addon2" readonly>
+      <div class="input-group-append">
+        <button class="btn btn-primary btn-outline-secondary" data-toggle="modal" data-target="#surnameModal" style="color: white;" type="button" id="button-addon3">Değiştir</button>
+      </div>
+    </div>
+
+    <div class="input-group mb-3">
+      <div class="input-group-prepend">
+        <span style="background-color: #d0d4d7" class="input-group-text">Kullanıcı Adı</span>
+      </div>
+      <input id="usernameinput" type="text" class="form-control" placeholder="Kullanıcı Adı" value="{{session['username']}}" aria-describedby="button-addon2" readonly>
+      <div class="input-group-append">
+        <button class="btn btn-primary btn-outline-secondary" data-toggle="modal" data-target="#usernameModal" style="color: white;" type="button" id="button-addon4">Değiştir</button>
+      </div>
+    </div>
+
+    <div class="input-group mb-3">
+      <div class="input-group-prepend" >
+        <span style="background-color: #d0d4d7" class="input-group-text">Şifre</span>
+      </div>
+      <input id="passwordinput" type="password" class="form-control" placeholder="Şifre" value="{{session['mockpassword']}}" aria-describedby="button-addon2" readonly>
+      <div class="input-group-append">
+        <button class="btn btn-primary btn-outline-secondary" data-toggle="modal" data-target="#passwordModal" style="color: white;" type="button" id="button-addon5">Değiştir</button>
+      </div>
+    </div>
+    <span style="display:block; height: 30px;"></span>
+</div>
+
+ <!-- Name Modal -->
+<div class="modal fade" id="nameModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Adı Değiştir</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+          <div id="namedangeralert" class="alert alert-danger" role="alert" style="display: none;">
+             Message
+          </div>
+
+        <form class="form" style="margin:0px">
+          <label for="nminput">Yeni Ad</label>
+          <input type="text" name="key" class="form-control" id="nminput" placeholder="Ad">
+          <button type="button" class="btn btn-primary btn-block" onclick="changename()" style="margin-top:3%;">Değiştir</button>
+        </form>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Kapat</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Surname Modal -->
+<div class="modal fade" id="surnameModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Soyadı Değiştir</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+          <div id="surnamedangeralert" class="alert alert-danger" role="alert" style="display: none;">
+             Message
+          </div>
+
+        <form class="form" style="margin:0px">
+          <label for="sminput">Yeni Soyad</label>
+          <input type="text" name="key" class="form-control" id="sminput" placeholder="Soyad">
+          <button type="button" class="btn btn-primary btn-block" onclick="changesurname()" style="margin-top:3%;">Değiştir</button>
+        </form>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Kapat</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Username Modal -->
+<div class="modal fade" id="usernameModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Kullanıcı Adını Değiştir</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+          <div id="usernamedangeralert" class="alert alert-danger" role="alert" style="display: none;">
+             Message
+          </div>
+
+        <form class="form" style="margin:0px">
+          <label for="uminput">Yeni Kullanıcı Adı</label>
+          <input type="text" name="key" class="form-control" id="uminput" placeholder="Kullanıcı Adı">
+          <button type="button" class="btn btn-primary btn-block" onclick="changeusername()" style="margin-top:3%;">Değiştir</button>
+        </form>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Kapat</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Password Modal -->
+<div class="modal fade" id="passwordModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Şifreyi Değiştir</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+          <div id="passworddangeralert" class="alert alert-danger" role="alert" style="display: none;">
+             Message
+          </div>
+
+        <form class="form" style="margin:0px">
+          <div class="form-group">
+              <label for="pminput1">Yeni Şifre</label>
+              <input type="password" name="key" class="form-control" id="pminput1" placeholder="Şifre">
+          </div>
+          <div class="form-group">
+              <label for="pminput2">Şifreyi Tekrar Girin</label>
+              <input type="password" name="key" class="form-control" id="pminput2" placeholder="Şifreyi Doğrula">
+          </div>
+          <button type="button" class="btn btn-primary btn-block" onclick="changepassword()" style="margin-top:3%;">Değiştir</button>
+        </form>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Kapat</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+{%endblock%}
+
+{%block style%}
+<style>
+form {
+    margin-top: 10%;
+    margin-left: 10%;
+    margin-right:10%;
+}
+</style>
+{%endblock%}
+
+{%block script%}
+<script>
+    function changename()
+    {
+        var id = document.getElementById('maindiv').getAttribute("data-id");
+        var danger = document.getElementById('namedangeralert');
+        danger.style.display = "none"
+        var newname = document.getElementById('nminput').value;
+        var formData = new FormData();
+        formData.append("id", id);
+        formData.append("newname", newname);
+
+        var request = new XMLHttpRequest();
+        request.overrideMimeType("application/json");
+        request.addEventListener("load", nameChangeListener);
+        request.open("POST", "/userprofile/namechange");
+        request.send(formData);
+    }
+
+    function nameChangeListener()
+    {
+        var json = JSON.parse(this.responseText);
+        if(json.responsecode == 0)
+        {
+             $('#nameModal').modal('hide');
+             var oldnameinput = document.getElementById('nameinput');
+             var newname = document.getElementById('nminput').value;
+             oldnameinput.value = newname;
+        }
+        else if(json.responsecode == -1 || json.responsecode == -2)
+        {
+             var danger = document.getElementById('namedangeralert');
+             danger.textContent  = json.message;
+             danger.style.display = "block";
+        }
+    }
+
+    function changesurname()
+    {
+        var id = document.getElementById('maindiv').getAttribute("data-id");
+        var danger = document.getElementById('surnamedangeralert');
+        danger.style.display = "none"
+        var newsurname = document.getElementById('sminput').value;
+        var formData = new FormData();
+        formData.append("id", id);
+        formData.append("newsurname", newsurname);
+
+        var request = new XMLHttpRequest();
+        request.overrideMimeType("application/json");
+        request.addEventListener("load", surnameChangeListener);
+        request.open("POST", "/userprofile/surnamechange");
+        request.send(formData);
+    }
+
+    function surnameChangeListener()
+    {
+        var json = JSON.parse(this.responseText);
+        if(json.responsecode == 0)
+        {
+             $('#surnameModal').modal('hide');
+             var oldsurnameinput = document.getElementById('surnameinput');
+             var newsurname = document.getElementById('sminput').value;
+             oldsurnameinput.value = newsurname;
+        }
+        else if(json.responsecode == -1 || json.responsecode == -2)
+        {
+             var danger = document.getElementById('surnamedangeralert');
+             danger.textContent  = json.message;
+             danger.style.display = "block";
+        }
+    }
+    function changeusername()
+    {
+        var id = document.getElementById('maindiv').getAttribute("data-id");
+        var danger = document.getElementById('usernamedangeralert');
+        danger.style.display = "none"
+        var newusername = document.getElementById('uminput').value;
+        var formData = new FormData();
+        formData.append("id", id);
+        formData.append("newusername", newusername);
+
+        var request = new XMLHttpRequest();
+        request.overrideMimeType("application/json");
+        request.addEventListener("load", usernameChangeListener);
+        request.open("POST", "/userprofile/usernamechange");
+        request.send(formData);
+    }
+
+    function usernameChangeListener()
+    {
+        var json = JSON.parse(this.responseText);
+        if(json.responsecode == 0)
+        {
+            $('#usernameModal').modal('hide');
+            var oldsurnameinput = document.getElementById('usernameinput');
+            var newusername = document.getElementById('uminput').value;
+            oldsurnameinput.value = newusername;
+            var navusername = document.getElementById('navusername');
+            navusername.textContent = newusername;
+        }
+        else if(json.responsecode == -1 || json.responsecode == -2 || json.responsecode == -3 || json.responsecode == -4)
+        {
+             var danger = document.getElementById('usernamedangeralert');
+             danger.textContent = json.message;
+             danger.style.display = "block";
+        }
+    }
+
+    function changepassword()
+    {
+        var id = document.getElementById('maindiv').getAttribute("data-id");
+        var danger = document.getElementById('passworddangeralert');
+        danger.style.display = "none"
+        var newpassword1 = document.getElementById('pminput1').value;
+        var newpassword2 = document.getElementById('pminput2').value;
+
+        var formData = new FormData();
+        formData.append("id", id);
+        formData.append("newpassword1", newpassword1);
+        formData.append("newpassword2", newpassword2);
+
+        var request = new XMLHttpRequest();
+        request.overrideMimeType("application/json");
+        request.addEventListener("load", passwordChangeListener);
+        request.open("POST", "/userprofile/passwordchange");
+        request.send(formData);
+    }
+
+    function passwordChangeListener()
+    {
+        var json = JSON.parse(this.responseText);
+        if(json.responsecode == 0)
+        {
+             $('#passwordModal').modal('hide');
+             var oldpasswordinput = document.getElementById('passwordinput');
+             var newpassword = document.getElementById('pminput1').value;
+             oldpasswordinput.value = newpassword;
+        }
+        else if(json.responsecode == -1 || json.responsecode == -2 || json.responsecode == -3 || json.responsecode == -4 || json.responsecode == -5)
+        {
+             var danger = document.getElementById('passworddangeralert');
+             danger.textContent  = json.message;
+             danger.style.display = "block";
+        }
+    }
+</script>
+{%endblock%}

@@ -1,0 +1,187 @@
+<!-- Stock Color Add Modal -->
+<div id="stockColorModal" class="modal" data-operation="none">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 id="stockColorModalTitle" class="modal-title">Malzeme Rengi Ekle</h4>
+        <button id="stockColorModalCloseBtn1" type="button" class="close">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div id="stockColorModalAlert" class="alert alert-danger" role="alert" style="display: none;">
+           Message
+        </div>
+
+        <form class="form" style="margin:0">
+            <div class="form-group">
+              <label for="stockColorModalColorInput">Malzemenin Rengi</label>
+              <input data-typeid="-1" id="stockColorModalColorInput" type="text" class="form-control" placeholder="Malzeme Rengi Girin">
+            </div>
+          <button id="stockColorModalActionButton" type="button" class="btn btn-primary btn-block" style="margin-top:3%;">Malzeme Rengini Ekle</button>
+        </form>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button id="stockColorModalCloseBtn2" type="button" class="btn btn-danger">Kapat</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+    //mode: add|update|delete
+    function sCMSetMode(mode)
+    {
+        var modal = document.getElementById("stockColorModal");
+        modal.dataset.operation = mode;
+        var title = document.getElementById("stockColorModalTitle");
+        var actionbtn = document.getElementById("stockColorModalActionButton");
+        actionbtn.disabled = false;
+
+        switch(mode)
+        {
+          case "add":
+            title.textContent = "Malzeme Rengi Ekle";
+            actionbtn.textContent = "Malzeme Rengini Ekle";
+            break;
+          case "update":
+            title.textContent = "Malzeme Rengini Değiştir";
+            actionbtn.textContent = "Malzeme Rengini Değiştir";
+            break;
+          case "delete":
+            title.textContent = "Malzeme Rengini Sil";
+            actionbtn.textContent = "Malzeme Rengini Sil";
+            break;
+          default:
+            title.textContent = "Hata!";
+            actionbtn.textContent = "Hata!";
+            actionbtn.disabled = true;
+        }
+    }
+
+    function sCMMode()
+    {
+        var modal = document.getElementById("stockColorModal");
+        return modal.dataset.operation;
+    }
+
+    function sCMSetInfo(colorid, colorname)
+    {
+        var colorinput = document.getElementById("stockColorModalColorInput");
+        colorinput.value = colorname;
+        colorinput.setAttribute('data-colorid', colorid);
+    }
+
+    function sCMSetDefaultCloseBtns()
+    {
+        $("#stockColorModalCloseBtn1").on("click", function()
+        {
+            sCMDefaultCloseActions();
+        });
+
+        $("#stockColorModalCloseBtn2").on("click", function()
+        {
+            sCMDefaultCloseActions();
+        });
+    }
+
+    function sCMCheckEntries()
+    {
+        var alert = document.getElementById('stockColorModalAlert');
+        alert.style.display = "none";
+        var colorinput = document.getElementById("stockColorModalColorInput");
+
+        if(colorinput.value == "")
+        {
+            alert.textContent = "Lütfen malzeme rengini giriniz!";
+            alert.style.display = "block";
+            return false;
+        }
+        return true;
+    }
+
+    function sCMDefaultCloseActions()
+    {
+        $('#stockColorModal').modal('hide');
+        sCMResetModal();
+    }
+
+    function sCMDefaultSubmitAction(listener = sCMDefaultStockColorListener)
+    {
+        if(!sCMCheckEntries())
+        {
+            return -1;
+        }
+
+        var modal = document.getElementById("stockColorModal");
+        var mode = modal.dataset.operation;
+
+        var colorinput = document.getElementById("stockColorModalColorInput");
+
+        var colorvalue = colorinput.value;
+        var colorid = colorinput.dataset.colorid;
+
+        var stockcolor = {};
+
+        var request = new XMLHttpRequest();
+
+        switch (mode)
+        {
+          case "add":
+            stockcolor.name = colorvalue;
+            request.open("POST", "/stockcolor");
+            break;
+          case "update":
+            stockcolor.id = colorid;
+            stockcolor.name = colorvalue;
+            request.open("PATCH", "/stockcolor");
+            break;
+          case "delete":
+            stockcolor.id = colorid;
+            request.open("DELETE", "/stockcolor");
+            break;
+        }
+
+        request.setRequestHeader("Content-Type", "application/json");
+        request.addEventListener("load", listener);
+        var jsondata = JSON.stringify(stockcolor);
+        request.send(jsondata);
+        console.log('submitted ' + mode + Math.random());
+    }
+
+    function sCMDefaultStockColorListener()
+    {
+        var json = JSON.parse(this.responseText);
+        if(json.responsecode === 0)
+        {
+            sCMDefaultCloseActions();
+        }
+        else if(json.responsecode === -1)
+        {
+            sCMShowAlert(json);
+        }
+    }
+
+    function sCMShowAlert(json)
+    {
+        var alert = document.getElementById('stockColorModalAlert');
+        alert.textContent  = json.message;
+        alert.style.display = "block";
+    }
+
+    function sCMResetModal()
+    {
+        var actionbtn = document.getElementById("stockColorModalActionButton");
+        actionbtn.disabled = false;
+        var typeinput = document.getElementById("stockColorModalColorInput");
+        typeinput.value = "";
+
+        sCMSetMode("none");
+        sCMSetInfo('', '', '');
+    }
+</script>

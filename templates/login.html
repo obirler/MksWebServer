@@ -1,0 +1,110 @@
+{%extends "base.html"%}
+
+{%block title%}Giriş Yap{%endblock%}
+
+{%block content%}
+<div id="formcontainer" class="container" style="width:350px">
+    <span style="display:block; height: 150px;"></span>
+    <form class="form-signin" action="/login" method="post">
+        <h2 class="form-signin-heading" style="text-align:center; color:white;">Lütfen Giriş Yapın</h2>
+        <span style="display:block; height: 15px;"></span>
+        <input type="text" id="usernameid" name="username" class="form-control" placeholder="Kullanıcı Adı" required="" autofocus="">
+        <span style="display:block; height: 15px;"></span>
+        <input type="password" id="passwordid" name="password" class="form-control" placeholder="Şifre" required="">
+        <span style="display:block; height: 15px;"></span>
+        <button id="loginbtn" class="btn btn-primary btn-block" type="button" onclick="loguserin()">Login</button>
+    </form>
+    <span style="display:block; height: 30px;"></span>
+</div>
+{%endblock%}
+
+{%block style%}
+<style>
+    form {
+    margin-left: 10%;
+    margin-right:10%;
+}
+</style>
+{%endblock%}
+
+{%block script%}
+<script>
+
+$( document ).ready(function()
+{
+    var input = document.getElementById("passwordid");
+
+    // Execute a function when the user releases a key on the keyboard
+    input.addEventListener("keyup", function(event) {
+    // Number 13 is the "Enter" key on the keyboard
+    if (event.keyCode === 13) {
+        // Cancel the default action, if needed
+        event.preventDefault();
+        // Trigger the button element with a click
+        document.getElementById("loginbtn").click();
+  }
+});
+});
+
+    function loguserin()
+    {
+        console.log("loguserinclicked");
+        var danger = document.getElementById('dangeralert');
+        danger.style.display = "none"
+
+        var success = document.getElementById('successalert');
+        success.style.display = "none"
+
+        var username = document.getElementById('usernameid').value;
+        console.log(username);
+
+        var password = document.getElementById('passwordid').value;
+        console.log(password);
+
+        var formData = new FormData();
+        formData.append("username", username);
+        formData.append("password", password);
+
+        var request = new XMLHttpRequest();
+        request.overrideMimeType("application/json");
+        request.addEventListener("load", reqListener);
+        request.open("POST", "/login");
+        request.send(formData);
+    }
+
+    function reqListener()
+    {
+      var json = JSON.parse(this.responseText);
+      if(json.responsecode == 0)
+      {
+        console.log("server returned 0");
+        var formcontainer = document.getElementById('formcontainer');
+        formcontainer.style.display = "none";
+        var success = document.getElementById('successalert');
+        var successheading = document.getElementById('successheading');
+        var successmessage = document.getElementById('successmessage');
+        var successpostmessage = document.getElementById('successpostmessage');
+
+        successheading.textContent  = json.heading
+        successmessage.textContent  = json.message
+        successpostmessage.textContent  = json.postmessage
+
+        success.style.display = "block";
+
+        var nav = document.getElementById('navbuttons');
+        nav.style.display = "none"
+        setTimeout(() =>
+        {
+            window.location.replace("/");
+        }, 1250);
+      }
+      else if(json.responsecode == -1 || json.responsecode == -2 || json.responsecode == -3 || json.responsecode == -4)
+      {
+        console.log("server returned -1");
+        var danger = document.getElementById('dangeralert');
+        danger.textContent  = json.message
+        danger.style.display = "block";
+      }
+    }
+</script>
+{%endblock%}

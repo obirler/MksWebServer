@@ -1,0 +1,92 @@
+{%extends "base.html"%}
+
+{%block title%}Kullanıcılar{%endblock%}
+
+{%block content%}
+
+{% if current_user.isadmin %}
+<div id="formcontainer" class="container" style="margin-top: 1%; margin-left: auto; margin-right:auto;">
+    <h2 class="form-signin-heading" style="text-align:center; color:white;">Tüm Kullanıcılar</h2>
+    <div class="table-responsive">
+      <table id="usertable" class="table table-striped" style="background-color:white;">
+          <thead>
+            <tr>
+              <th scope="col">Id</th>
+              <th scope="col">Kullanıcı Adı</th>
+              <th scope="col">Ad</th>
+              <th scope="col">Soyad</th>
+              <th scope="col">Admin?</th>
+              <th scope="col">Oluşturulma Tarihi</th>
+              <th scope="col">İşlemler</th>
+            </tr>
+          </thead>
+          <tbody>
+            {%for user in users%}
+              <tr>
+                  <td>{{user.id}}</td>
+                  <td>{{user.username}}</td>
+                  <td>{{user.name}}</td>
+                  <td>{{user.surname}}</td>
+                  {% if user.isadmin %}
+                  <td>Evet</td>
+                  {% else %}
+                  <td>Hayır</td>
+                  {% endif %}
+                  <td>{{user.createdate.strftime('%d-%m-%Y %H:%M:%S')}}</td>
+                  <td>
+                      <div>
+                            <button class="btn btn-info content_itemBtn" data-formid="{{user.id}}" data-toggle="tooltip" title=""><i class="fas fa-search"></i></button>
+                            <button class="btn btn-danger delete_itemBtn" data-formid="{{user.id}}" data-toggle="tooltip" title="Kullanıcıyı Sil"><i class="fa fa-trash"></i></button>
+                      </div>
+                  </td>
+              </tr>
+            {%endfor%}
+          </tbody>
+      </table>
+    </div>
+    <span style="display:block; height: 30px;"></span>
+</div>
+{% else %}
+<div class="alert alert-danger" role="alert" style="margin-top: 1%; margin-left: 3%; margin-right:3%; display: block;">
+  Bu sayfayı görüntülemeye yetkiniz yok!
+</div>
+{% endif %}
+{%endblock%}
+
+
+{%block style%}
+<style>
+    form {
+        margin-left: 10%;
+        margin-right:10%;
+    }
+
+
+    .delete_itemBtn {
+        background-color: #f01e00;
+        border: none;
+        color: white;
+        padding: 6px 14px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    /* Darker background on mouse-over */
+    .delete_itemBtn:hover {
+        background-color: #dd0000;
+    }
+    .content_itemBtn {
+        background-color: DodgerBlue;
+        border: none;
+        color: white;
+        padding: 6px 12px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    /* Darker background on mouse-over */
+    .content_itemBtn:hover {
+        background-color: RoyalBlue;
+    }
+</style>
+{%endblock%}

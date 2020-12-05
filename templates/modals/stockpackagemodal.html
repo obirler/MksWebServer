@@ -1,0 +1,187 @@
+<!-- Stock Package Add Modal -->
+<div id="stockPackageModal" class="modal" data-operation="none">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 id="stockPackageModalTitle" class="modal-title">Ambalaj Tipi Ekle</h4>
+        <button id="stockPackageModalCloseBtn1" type="button" class="close">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div id="stockPackageModalAlert" class="alert alert-danger" role="alert" style="display: none;">
+           Message
+        </div>
+
+        <form class="form" style="margin:0">
+            <div class="form-group">
+              <label for="stockPackageModalPackageInput">Ambalaj Tipi</label>
+              <input data-typeid="-1" id="stockPackageModalPackageInput" type="text" class="form-control" placeholder="Ambalaj Tipi Girin">
+            </div>
+          <button id="stockPackageModalActionButton" type="button" class="btn btn-primary btn-block" style="margin-top:3%;">Ambalaj Tipi Ekle</button>
+        </form>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button id="stockPackageModalCloseBtn2" type="button" class="btn btn-danger">Kapat</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+    //mode: add|update|delete
+    function sPMSetMode(mode)
+    {
+        var modal = document.getElementById("stockPackageModal");
+        modal.dataset.operation = mode;
+        var title = document.getElementById("stockPackageModalTitle");
+        var actionbtn = document.getElementById("stockPackageModalActionButton");
+        actionbtn.disabled = false;
+
+        switch(mode)
+        {
+          case "add":
+            title.textContent = "Ambalaj Tipi Ekle";
+            actionbtn.textContent = "Ambalaj Tipi Ekle";
+            break;
+          case "update":
+            title.textContent = "Ambalaj Tipini Değiştir";
+            actionbtn.textContent = "Ambalaj Tipini Değiştir";
+            break;
+          case "delete":
+            title.textContent = "Ambalaj Tipini Sil";
+            actionbtn.textContent = "Ambalaj Tipini Sil";
+            break;
+          default:
+            title.textContent = "Hata!";
+            actionbtn.textContent = "Hata!";
+            actionbtn.disabled = true;
+        }
+    }
+
+    function sPMMode()
+    {
+        var modal = document.getElementById("stockPackageModal");
+        return modal.dataset.operation;
+    }
+
+    function sPMSetInfo(packageid, packagename)
+    {
+        var packageinput = document.getElementById("stockPackageModalPackageInput");
+        packageinput.value = packagename;
+        packageinput.setAttribute('data-packageid', packageid);
+    }
+
+    function sPMSetDefaultCloseBtns()
+    {
+        $("#stockPackageModalCloseBtn1").on("click", function()
+        {
+            sPMDefaultCloseActions();
+        });
+
+        $("#stockPackageModalCloseBtn2").on("click", function()
+        {
+            sPMDefaultCloseActions();
+        });
+    }
+
+    function sPMCheckEntries()
+    {
+        var alert = document.getElementById('stockPackageModalAlert');
+        alert.style.display = "none";
+        var packageinput = document.getElementById("stockPackageModalPackageInput");
+
+        if(packageinput.value == "")
+        {
+            alert.textContent = "Lütfen ambalaj tipini giriniz!";
+            alert.style.display = "block";
+            return false;
+        }
+        return true;
+    }
+
+    function sPMDefaultCloseActions()
+    {
+        $('#stockPackageModal').modal('hide');
+        sPMResetModal();
+    }
+
+    function sPMDefaultSubmitAction(listener = sPMDefaultStockPackageListener)
+    {
+        if(!sPMCheckEntries())
+        {
+            return -1;
+        }
+
+        var modal = document.getElementById("stockPackageModal");
+        var mode = modal.dataset.operation;
+
+        var packageinput = document.getElementById("stockPackageModalPackageInput");
+
+        var packagevalue = packageinput.value;
+        var packageid = packageinput.dataset.packageid;
+
+        var stockpackage = {};
+
+        var request = new XMLHttpRequest();
+
+        switch (mode)
+        {
+          case "add":
+            stockpackage.name = packagevalue;
+            request.open("POST", "/stockpackage");
+            break;
+          case "update":
+            stockpackage.id = packageid;
+            stockpackage.name = packagevalue;
+            request.open("PATCH", "/stockpackage");
+            break;
+          case "delete":
+            stockpackage.id = packageid;
+            request.open("DELETE", "/stockpackage");
+            break;
+        }
+
+        request.setRequestHeader("Content-Type", "application/json");
+        request.addEventListener("load", listener);
+        var jsondata = JSON.stringify(stockpackage);
+        request.send(jsondata);
+        console.log('submitted ' + mode + Math.random());
+    }
+
+    function sPMDefaultStockPackageListener()
+    {
+        var json = JSON.parse(this.responseText);
+        if(json.responsecode === 0)
+        {
+            sPMDefaultCloseActions();
+        }
+        else if(json.responsecode === -1)
+        {
+            sPMShowAlert(json);
+        }
+    }
+
+    function sPMShowAlert(json)
+    {
+        var alert = document.getElementById('stockPackageModalAlert');
+        alert.textContent  = json.message;
+        alert.style.display = "block";
+    }
+
+    function sPMResetModal()
+    {
+        var actionbtn = document.getElementById("stockPackageModalActionButton");
+        actionbtn.disabled = false;
+        var packageinput = document.getElementById("stockPackageModalPackageInput");
+        packageinput.value = "";
+
+        sPMSetMode("none");
+        sPMSetInfo('', '', '');
+    }
+</script>
