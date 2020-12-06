@@ -5,7 +5,7 @@
 {%block content%}
 {% if current_user.isadmin %}
 
-<div id="tablecontainer" class="container" style="margin-top: 1%; margin-left: auto; margin-right:auto;">
+<div id="tablecontainer" class="container" data-order='[[ 1, "asc" ]]' data-page-length='10' style="margin-top: 1%; margin-left: auto; margin-right:auto;">
     <h2 class="form-signin-heading" style="text-align:center; color:white;">Depo Hareketleri</h2>
     <span style="display:block; height: 10px;"></span>
     <div class="table-responsive">
@@ -59,16 +59,26 @@
     <span style="display:block; height: 30px;"></span>
 </div>
 
-{% else %}
-
 {%block style%}
 <style>
-    .icons i,
-    .icons svg {
-       color: #2759AE;
-    }
+
 </style>
+
 {%endblock%}
+
+{%block script%}
+<script>
+$( document ).ready(function()
+{
+     $('#stockformstable').DataTable();
+});
+</script>
+{%endblock%}
+
+
+{% else %}
+
+
 
 <div class="alert alert-danger" role="alert" style="margin-top: 1%; margin-left: 3%; margin-right:3%; display: block;">
   Bu sayfayı görüntülemeye yetkiniz yok!

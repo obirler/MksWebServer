@@ -1,3 +1,5 @@
+from sqlalchemy.exc import IntegrityError
+
 from config import Base, engine, session, DbFilePath
 import models
 import os
@@ -1422,9 +1424,19 @@ def deleteStockCategory(id, commit=True):
     try:
         category = getStockCategory(id)
         session.delete(category)
+        session.flush()
         if commit:
             session.commit()
         return 0
+
+    except IntegrityError as e:
+        session.rollback()
+        if hasattr(e, 'message'):
+            print('Exception: ' + e.message)
+        else:
+            print(e)
+        return -1
+
     except Exception as e:
         session.rollback()
         if hasattr(e, 'message'):

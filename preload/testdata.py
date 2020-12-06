@@ -17,14 +17,16 @@ class TestData():
 
     def preloadMandotaryEntries(self):
         self.preloadstockunits()
-        catload = category.CategoryLoad(self.adet.id, self.metre.id, self.kilo.id)
-        catload.preloadCategories()
-        # self.preloadTestCategories()
+        # catload = category.CategoryLoad(self.adet.id, self.metre.id, self.kilo.id)
+        # catload.preloadCategories()
+        self.preloadTestCategories()
+        self.preloadTestEntries()
 
         self.preloadstockcolors()
         self.preloadstockpackage()
         self.preloadcorporation()
         self.preloadstockrooms()
+        self.preloadusers()
 
     def preloadTestEntries(self):
         # self.preloadstockformtest()

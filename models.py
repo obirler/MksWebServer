@@ -32,7 +32,7 @@ class User(UserMixin, Base):
         :type name: str
         :param surname: The surname of the User
         :type surname: str
-        :param isadmin: Wheter the user is admin or not
+        :param isadmin: Whether the user is admin or not
         :type isadmin: bool
         """
         self.username = username
@@ -136,7 +136,7 @@ class StockSubcategory(Base):
     __tablename__ = 'stocksubcategory'
     id = Column(Integer, primary_key=True)
     name = Column(String(50))
-    categoryid = Column(Integer, ForeignKey('stockcategory.id'))
+    categoryid = Column(Integer, ForeignKey('stockcategory.id'), nullable=False)
 
     def __init__(self, name=None, categoryid=None):
         """
@@ -214,8 +214,8 @@ class StockType(Base, object):
     __tablename__ = 'stocktype'
     id = Column(Integer, primary_key=True)
     name = Column(String(100))
-    unitid = Column(Integer, ForeignKey('stockunit.id'))
-    subcategoryid = Column(Integer, ForeignKey('stocksubcategory.id'))
+    unitid = Column(Integer, ForeignKey('stockunit.id'), nullable=False)
+    subcategoryid = Column(Integer, ForeignKey('stocksubcategory.id'), nullable=False)
 
     def __init__(self, name=None, unitid=None, subcategoryid=None):
         """
@@ -407,8 +407,8 @@ class StockRoom(Base):
 class DepotStock(Base):
     __tablename__ = 'depotstock'
     id = Column(Integer, primary_key=True)
-    stocktypeid = Column(Integer, ForeignKey('stocktype.id'))
-    stockcolorid = Column(Integer, ForeignKey('stockcolor.id'))
+    stocktypeid = Column(Integer, ForeignKey('stocktype.id'), nullable=False)
+    stockcolorid = Column(Integer, ForeignKey('stockcolor.id'), nullable=False)
     quantity = Column(String(50))
     createdate = Column(DateTime, default=datetime.utcnow())
     changedate = Column(DateTime, default=datetime.utcnow())
@@ -520,8 +520,8 @@ class DepotStock(Base):
 class StockForm(Base):
     __tablename__ = 'stockform'
     id = Column(Integer, primary_key=True)
-    userid = Column(Integer, ForeignKey('user.id'))
-    corporationid = Column(Integer, ForeignKey('corporation.id'))
+    userid = Column(Integer, ForeignKey('user.id'), nullable=False)
+    corporationid = Column(Integer, ForeignKey('corporation.id'), nullable=False)
     createdate = Column(DateTime, default=datetime.utcnow())
     changedate = Column(DateTime, default=datetime.utcnow())
     recorddate = Column(DateTime, default=datetime.utcnow())
@@ -586,9 +586,9 @@ class StockForm(Base):
 class StockBase(Base):
     __tablename__ = 'stockbase'
     id = Column(Integer, primary_key=True)
-    userid = Column(Integer, ForeignKey('user.id'))
-    stocktypeid = Column(Integer, ForeignKey('stocktype.id'))
-    stockcolorid = Column(Integer, ForeignKey('stockcolor.id'))
+    userid = Column(Integer, ForeignKey('user.id'), nullable=False)
+    stocktypeid = Column(Integer, ForeignKey('stocktype.id'), nullable=False)
+    stockcolorid = Column(Integer, ForeignKey('stockcolor.id'), nullable=False)
     quantity = Column(String(50))
     createdate = Column(DateTime, default=datetime.utcnow())
     actiontype = Column(Boolean, default=True)
@@ -673,9 +673,9 @@ class StockBase(Base):
 class FormStockBase(Base):
     __tablename__ = 'formstockbase'
     id = Column(Integer, primary_key=True)
-    stockformid = Column(Integer, ForeignKey('stockform.id'))
-    stockbaseid = Column(Integer, ForeignKey('stockbase.id'))
-    stockpackageid = Column(Integer, ForeignKey('stockpackage.id'))
+    stockformid = Column(Integer, ForeignKey('stockform.id'), nullable=False)
+    stockbaseid = Column(Integer, ForeignKey('stockbase.id'), nullable=False)
+    stockpackageid = Column(Integer, ForeignKey('stockpackage.id'), nullable=False)
     packagequantity = Column(String(50))
     note = Column(String(80))
     type = Column(Boolean, default=True)
@@ -807,7 +807,7 @@ class IncomingStockForm(Base):
     __tablename__ = 'incomingstockform'
     id = Column(Integer, primary_key=True)
     name = Column(String(50))
-    stockformid = Column(Integer, ForeignKey('stockform.id'))
+    stockformid = Column(Integer, ForeignKey('stockform.id'), nullable=False)
 
     def __init__(self, name=None, stockformid=None):
         """
@@ -846,8 +846,8 @@ class OutgoingStockForm(Base):
     __tablename__ = 'outgoingstockform'
     id = Column(Integer, primary_key=True)
     name = Column(String(50))
-    stockformid = Column(Integer, ForeignKey('stockform.id'))
-    stockroomid = Column(Integer, ForeignKey('stockroom.id'))
+    stockformid = Column(Integer, ForeignKey('stockform.id'), nullable=False)
+    stockroomid = Column(Integer, ForeignKey('stockroom.id'), nullable=False)
     shipinfo = Column(String(70))
 
     def __init__(self, name=None, stockformid=None, stockroomid=None, shipinfo=None):
