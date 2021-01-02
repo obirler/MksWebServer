@@ -65,6 +65,14 @@ $(document).ready(function()
         //update the select element
         sUMDefaultSubmitAction(stockUnitModalListener);
     });
+
+    getDataTable('stockcategorytable');
+    getDataTable('stocksubcategorytable');
+    getDataTable('stocktypetable');
+    getDataTable('stockcolortable');
+    getDataTable('corporationtable');
+    getDataTable('stockpackagetable');
+    getDataTable('stockunittable');
 });
 
 function stockcategoryclicked()
@@ -177,45 +185,6 @@ function stockCategoryModalListener()
     }
 }
 
-function addStockCategoryTableButtonGroup(row, json)
-{
-    var newCell = row.insertCell();
-    var div = document.createElement('div');
-    newCell.appendChild(div);
-    addClass(div, "form-row");
-
-    var button1 = document.createElement("button");
-    addClass(button1, "btn");
-    addClass(button1, "btn-primary");
-    button1.setAttribute('data-toggle', 'tooltip');
-    button1.setAttribute('title', 'Malzeme Kategorisini Değiştir');
-    button1.setAttribute('onclick', "openStockCategoryUpdateModalClicked('" + json.stockcategory.id + "','"+ json.stockcategory.name + "')");
-
-    div.appendChild(button1);
-    var ielement1 = document.createElement('i');
-    addClass(ielement1, "fas");
-    addClass(ielement1, "fa-external-link-alt");
-    button1.appendChild(ielement1);
-
-    var button2 = document.createElement("button");
-    addClass(button2, "btn");
-    addClass(button2, "btn-danger");
-    button2.setAttribute('data-toggle', 'tooltip');
-    button2.setAttribute('title', 'Malzeme Kategorisini Sil');
-    button2.setAttribute('onclick', "openStockCategoryDeleteModalClicked('" + json.stockcategory.id + "','"+ json.stockcategory.name + "')");
-
-    var span = document.createElement("span");
-    span.style.display = "inline";
-    span.style.width = "5px";
-    div.appendChild(span);
-
-    div.appendChild(button2);
-    var ielement2 = document.createElement('i');
-    addClass(ielement2, "fas");
-    addClass(ielement2, "fa-trash");
-    button2.appendChild(ielement2);
-}
-
 /* Stock Category Add Section*/
 function openStockCategoryAddModalClicked()
 {
@@ -228,8 +197,9 @@ function stockCategoryModalAddListener(json)
 {
     if(json.responsecode === 0)
     {
-        addStockCategoryEntry(json);
-
+        var table = getDataTable('stockcategorytable');
+        table.row.add($(addStockCategoryEntryHtml(json.stockcategory.id, json.stockcategory.name)));
+        table.draw();
         sCaMDefaultCloseActions();
     }
     else if(json.responsecode === -1)
@@ -238,18 +208,26 @@ function stockCategoryModalAddListener(json)
     }
 }
 
-function addStockCategoryEntry(json)
+function addStockCategoryEntryHtml(catid, catname)
 {
-    var tbodyRef = document.getElementById('stockcategorytable').getElementsByTagName('tbody')[0];
-
-    var newRow = tbodyRef.insertRow();
-    var newCell = newRow.insertCell();
-    newCell.textContent = json.stockcategory.name;
-    newCell.style.verticalAlign= "middle";
-    newCell.setAttribute('data-id', json.stockcategory.id);
-
-    addStockCategoryTableButtonGroup(newRow, json);
+    var rowid = 'stockcategory' + catid;
+    var htmlstr = '<tr id="' + rowid +'">';
+    htmlstr += '<td data-id="' + catid + '" style="vertical-align: middle;">' + catname + '</td>';
+    htmlstr += '<td class="min">';
+    htmlstr +=  '<div class="d-flex flex-nowrap">';
+    htmlstr +=      '<button class="btn btn-primary" onclick="openStockCategoryUpdateModalClicked(\'' + catid + '\',\'' + catname + '\')" data-toggle="tooltip" title="Malzeme Kategorisini Değiştir">';
+    htmlstr +=          '<i class="fas fa-external-link-alt"></i>';
+    htmlstr +=      '</button>';
+    htmlstr +=      '<span style="display: inline; width: 5px;"></span>';
+    htmlstr +=      '<button class="btn btn-danger" onclick="openStockCategoryDeleteModalClicked(\'' + catid + '\',\'' + catname + '\')" data-toggle="tooltip" title="Malzeme Kategorisini Sil">';
+    htmlstr +=          '<i class="fa fa-trash"></i>';
+    htmlstr +=      '</button>';
+    htmlstr +=  '</div>';
+    htmlstr += '</td>';
+    htmlstr += '</tr>';
+    return htmlstr;
 }
+
 /* End Stock Category Add Section*/
 
 /* Stock Category Update Section*/
@@ -277,21 +255,13 @@ function stockCategoryModalUpdateListener(json)
 
 function updateStockCategoryEntry(json)
 {
-    var table = document.getElementById("stockcategorytable");
-
-    //start i with 1 instead of 0 because we dont want to touch table header
-    for (var i = 1; i < table.rows.length; i++)
-    {
-        if(table.rows[i].cells[0].dataset.id == json.stockcategory.id)
-        {
-            table.rows[i].cells[0].textContent = json.stockcategory.name;
-            table.rows[i].deleteCell(1);
-
-            addStockCategoryTableButtonGroup(table.rows[i], json);
-            break;
-        }
-    }
+    var id = '#stockcategory' + json.stockcategory.id;
+    var table = getDataTable('stockcategorytable');
+    table.row(id).remove();
+    table.row.add($(addStockCategoryEntryHtml(json.stockcategory.id, json.stockcategory.name)));
+    table.draw();
 }
+
 /* End Stock Category Update Section*/
 
 /* Stock Category Delete Section*/
@@ -319,18 +289,12 @@ function stockCategoryModalDeleteListener(json)
 
 function deleteStockCategoryEntry(json)
 {
-    var table = document.getElementById("stockcategorytable");
-
-    //start i with 1 instead of 0 because we dont want to touch table header
-    for (var i = 1; i < table.rows.length; i++)
-    {
-        if(table.rows[i].cells[0].dataset.id == json.id)
-        {
-            table.deleteRow(i);
-            break;
-        }
-    }
+    var id = '#stockcategory' + json.id;
+    var table = getDataTable('stockcategorytable');
+    table.row(id).remove();
+    table.draw();
 }
+
 /* End Stock Category Delete Section*/
 
 ////////////////////////End Stock Category////////////////////////
@@ -355,45 +319,6 @@ function stockSubcategoryModalListener()
       default:
         break;
     }
-}
-
-function addStockSubcategoryTableButtonGroupWrapper(row, subcatid, subcatname, catid)
-{
-        var newCell = row.insertCell();
-    var div = document.createElement('div');
-    newCell.appendChild(div);
-    addClass(div, "form-row");
-
-    var button1 = document.createElement("button");
-    addClass(button1, "btn");
-    addClass(button1, "btn-primary");
-    button1.setAttribute('data-toggle', 'tooltip');
-    button1.setAttribute('title', 'Malzeme Alt Kategorisini Değiştir');
-    button1.setAttribute('onclick', "openStockSubcategoryUpdateModalClicked('" + subcatid + "','"+ subcatname +"','" + catid + "')");
-
-    div.appendChild(button1);
-    var ielement1 = document.createElement('i');
-    addClass(ielement1, "fas");
-    addClass(ielement1, "fa-external-link-alt");
-    button1.appendChild(ielement1);
-
-    var button2 = document.createElement("button");
-    addClass(button2, "btn");
-    addClass(button2, "btn-danger");
-    button2.setAttribute('data-toggle', 'tooltip');
-    button2.setAttribute('title', 'Malzeme Alt Kategorisini Sil');
-    button2.setAttribute('onclick', "openStockSubcategoryDeleteModalClicked('" + subcatid + "','"+ subcatname +"','" + catid + "')");
-
-    var span = document.createElement("span");
-    span.style.display = "inline";
-    span.style.width = "5px";
-    div.appendChild(span);
-
-    div.appendChild(button2);
-    var ielement2 = document.createElement('i');
-    addClass(ielement2, "fas");
-    addClass(ielement2, "fa-trash");
-    button2.appendChild(ielement2);
 }
 
 function stockSubcategoryUpdateCategories()
@@ -446,10 +371,12 @@ function stockSubcategorySubcategoryReady()
     var json = JSON.parse(this.responseText);
     var subcategories = json['subcategories'];
     cleartable('stocksubcategorytable');
+    var table = getDataTable('stocksubcategorytable');
     for (i=0; i< subcategories.length; i++)
     {
-        addStockSubcategoryEntry(subcategories[i].id, subcategories[i].name, subcategories[i].categoryid);
+        table.row.add($(addStockSubcategoryEntryHtml(subcategories[i].id, subcategories[i].name, subcategories[i].categoryid)));
     }
+    table.draw();
 }
 
 /* Stock Subcategory Add Section*/
@@ -466,8 +393,9 @@ function stockSubcategoryModalAddListener(json)
 {
     if(json.responsecode === 0)
     {
-        addStockSubcategoryEntryFromJson(json);
-
+        var table = getDataTable('stocksubcategorytable');
+        table.row.add($(addStockSubcategoryEntryHtml(json.stocksubcategory.id, json.stocksubcategory.name, json.stocksubcategory.categoryid)));
+        table.draw();
         sSMDefaultCloseActions();
     }
     else if(json.responsecode === -1)
@@ -476,32 +404,25 @@ function stockSubcategoryModalAddListener(json)
     }
 }
 
-function addStockSubcategoryEntry(subcatid, subcatname, catid)
+
+function addStockSubcategoryEntryHtml(subcatid, subcatname, catid)
 {
-    var tbodyRef = document.getElementById('stocksubcategorytable').getElementsByTagName('tbody')[0];
-
-    var newRow = tbodyRef.insertRow();
-    var newCell = newRow.insertCell();
-    newCell.textContent = subcatname;
-    newCell.style.verticalAlign= "middle";
-    newCell.setAttribute('data-id', subcatid);
-    newCell.setAttribute('data-categoryid', catid);
-
-    addStockSubcategoryTableButtonGroupWrapper(newRow, subcatid, subcatname, catid);
-}
-
-function addStockSubcategoryEntryFromJson(json)
-{
-    var tbodyRef = document.getElementById('stocksubcategorytable').getElementsByTagName('tbody')[0];
-
-    var newRow = tbodyRef.insertRow();
-    var newCell = newRow.insertCell();
-    newCell.textContent = json.stocksubcategory.name;
-    newCell.style.verticalAlign= "middle";
-    newCell.setAttribute('data-id', json.stocksubcategory.id);
-    newCell.setAttribute('data-categoryid', json.stocksubcategory.categoryid);
-
-    addStockSubcategoryTableButtonGroupWrapper(newRow, json.stocksubcategory.id, json.stocksubcategory.name, json.stocksubcategory.categoryid);
+    var rowid = 'stocksubcategory' + subcatid;
+    var htmlstr = '<tr id="' + rowid +'">';
+    htmlstr += '<td data-id="' + subcatid + '" data-categoryid="' + catid + '" style="vertical-align: middle;">' + subcatname + '</td>';
+    htmlstr += '<td class="min">';
+    htmlstr +=  '<div class="d-flex flex-nowrap">';
+    htmlstr +=      '<button class="btn btn-primary" onclick="openStockSubcategoryUpdateModalClicked(\'' + subcatid + '\',\'' + subcatname + '\',\'' + catid + '\')" data-toggle="tooltip" title="Malzeme Alt Kategorisini Değiştir">';
+    htmlstr +=          '<i class="fas fa-external-link-alt"></i>';
+    htmlstr +=      '</button>';
+    htmlstr +=      '<span style="display: inline; width: 5px;"></span>';
+    htmlstr +=      '<button class="btn btn-danger" onclick="openStockSubcategoryDeleteModalClicked(\'' + subcatid + '\',\'' + subcatname + '\',\'' + catid + '\')" data-toggle="tooltip" title="Malzeme Kategorisini Sil">';
+    htmlstr +=          '<i class="fa fa-trash"></i>';
+    htmlstr +=      '</button>';
+    htmlstr +=  '</div>';
+    htmlstr += '</td>';
+    htmlstr += '</tr>';
+    return htmlstr;
 }
 
 /* End Stock Subcategory Add Section*/
@@ -531,23 +452,13 @@ function stockSubcategoryModalUpdateListener(json)
 
 function updateStockSubcategoryEntry(json)
 {
-    var table = document.getElementById("stocksubcategorytable");
-
-    //start i with 1 instead of 0 because we dont want to touch table header
-    for (var i = 1; i < table.rows.length; i++)
-    {
-        if(table.rows[i].cells[0].dataset.id == json.stocksubcategory.id)
-        {
-            table.rows[i].cells[0].textContent = json.stocksubcategory.name;
-            table.rows[i].cells[0].setAttribute('data-id', json.stocksubcategory.id);
-            table.rows[i].cells[0].setAttribute('data-categoryid', json.stocksubcategory.categoryid);
-            table.rows[i].deleteCell(1);
-
-            addStockSubcategoryTableButtonGroupWrapper(table.rows[i], json.stocksubcategory.id, json.stocksubcategory.name, json.stocksubcategory.categoryid)
-            break;
-        }
-    }
+    var id = '#stocksubcategory' + json.stocksubcategory.id;
+    var table = getDataTable('stocksubcategorytable');
+    table.row(id).remove();
+    table.row.add($(addStockSubcategoryEntryHtml(json.stocksubcategory.id, json.stocksubcategory.name, json.stocksubcategory.categoryid)));
+    table.draw();
 }
+
 /* End Stock Subcategory Update Section*/
 
 /* Stock Subcategory Delete Section*/
@@ -575,17 +486,10 @@ function stockSubcategoryModalDeleteListener(json)
 
 function deleteStockSubcategoryEntry(json)
 {
-    var table = document.getElementById("stocksubcategorytable");
-
-    //start i with 1 instead of 0 because we dont want to touch table header
-    for (var i = 1; i < table.rows.length; i++)
-    {
-        if(table.rows[i].cells[0].dataset.id == json.id)
-        {
-            table.deleteRow(i);
-            break;
-        }
-    }
+    var id = '#stocksubcategory' + json.id;
+    var table = getDataTable('stocksubcategorytable');
+    table.row(id).remove();
+    table.draw();
 }
 /* End Stock Subcategory Delete Section*/
 
@@ -611,45 +515,6 @@ function stockTypeModalListener()
       default:
         break;
     }
-}
-
-function addStockTypeTableButtonGroup(row, typeid, typename, unitid, subcatid)
-{
-    var newCell = row.insertCell();
-    var div = document.createElement('div');
-    newCell.appendChild(div);
-    addClass(div, "form-row");
-
-    var button1 = document.createElement("button");
-    addClass(button1, "btn");
-    addClass(button1, "btn-primary");
-    button1.setAttribute('data-toggle', 'tooltip');
-    button1.setAttribute('title', 'Malzeme Cinsini Değiştir');
-    button1.setAttribute('onclick', "openStockTypeUpdateModalClicked('" + typeid + "','"+ typename +"','" + unitid + "','" + subcatid + "')");
-
-    div.appendChild(button1);
-    var ielement1 = document.createElement('i');
-    addClass(ielement1, "fas");
-    addClass(ielement1, "fa-external-link-alt");
-    button1.appendChild(ielement1);
-
-    var button2 = document.createElement("button");
-    addClass(button2, "btn");
-    addClass(button2, "btn-danger");
-    button2.setAttribute('data-toggle', 'tooltip');
-    button2.setAttribute('title', 'Malzeme Cinsini Sil');
-    button2.setAttribute('onclick', "openStockTypeDeleteModalClicked('" + typeid + "','"+ typename +"','" + unitid + "','" + subcatid + "')");
-
-    var span = document.createElement("span");
-    span.style.display = "inline";
-    span.style.width = "5px";
-    div.appendChild(span);
-
-    div.appendChild(button2);
-    var ielement2 = document.createElement('i');
-    addClass(ielement2, "fas");
-    addClass(ielement2, "fa-trash");
-    button2.appendChild(ielement2);
 }
 
 function stockTypeUpdateCategories()
@@ -744,10 +609,12 @@ function stockTypeReady()
     cleartable('stocktypetable');
     var json = JSON.parse(this.responseText);
     var stocktypes = json['stocktypes'];
+    var table = getDataTable('stocktypetable');
     for (i=0; i< stocktypes.length; i++)
     {
-        addStockTypeEntry(stocktypes[i].id,stocktypes[i].name, stocktypes[i].unitid, stocktypes[i].unitname, stocktypes[i].subcategoryid);
+        table.row.add($(addStockTypeEntryHtml(stocktypes[i].id,stocktypes[i].name, stocktypes[i].unitid, stocktypes[i].unitname, stocktypes[i].subcategoryid)));
     }
+    table.draw();
 }
 
 /* Stock Type Add Section*/
@@ -764,8 +631,9 @@ function stockTypeModalAddListener(json)
 {
     if(json.responsecode === 0)
     {
-        addStockTypeEntryFromJson(json);
-
+        var table = getDataTable('stocktypetable');
+        table.row.add($(addStockTypeEntryHtml(json.stocktype.id, json.stocktype.name, json.stocktype.unitid, json.stocktype.unitname, json.stocktype.subcategoryid)));
+        table.draw();
         sTMDefaultCloseActions();
     }
     else if(json.responsecode === -1)
@@ -774,39 +642,25 @@ function stockTypeModalAddListener(json)
     }
 }
 
-function addStockTypeEntry(typeid, typename, unitid, unitname, subcatid)
+function addStockTypeEntryHtml(typeid, typename, unitid, unitname, subcatid)
 {
-    var tbodyRef = document.getElementById('stocktypetable').getElementsByTagName('tbody')[0];
-
-    var newRow = tbodyRef.insertRow();
-    var newCell = newRow.insertCell();
-    newCell.textContent = typename;
-    newCell.style.verticalAlign= "middle";
-    newCell.setAttribute('data-id', typeid);
-
-    newCell = newRow.insertCell();
-    newCell.textContent = unitname;
-    newCell.style.verticalAlign= "middle";
-    newCell.setAttribute('data-unitid', unitid);
-    addStockTypeTableButtonGroup(newRow, typeid, typename, unitid, subcatid);
-}
-
-function addStockTypeEntryFromJson(json)
-{
-    var tbodyRef = document.getElementById('stocktypetable').getElementsByTagName('tbody')[0];
-
-    var newRow = tbodyRef.insertRow();
-    var newCell = newRow.insertCell();
-    newCell.textContent = json.stocktype.name;
-    newCell.style.verticalAlign= "middle";
-    newCell.setAttribute('data-id', json.stocktype.id);
-
-    newCell = newRow.insertCell();
-    newCell.textContent = json.stocktype.unitname;
-    newCell.style.verticalAlign= "middle";
-    newCell.setAttribute('data-unitid', json.stocktype.unitid);
-
-    addStockTypeTableButtonGroup(newRow, json);
+    var rowid = 'stocktype' + typeid;
+    var htmlstr = '<tr id="' + rowid +'">';
+    htmlstr += '<td data-id="' + typeid + '" style="vertical-align: middle;">' + typename + '</td>';
+    htmlstr += '<td data-unitid="' + unitid + '" style="vertical-align: middle;">' + unitname + '</td>';
+    htmlstr += '<td class="min">';
+    htmlstr +=  '<div class="d-flex flex-nowrap">';
+    htmlstr +=      '<button class="btn btn-primary" onclick="openStockTypeUpdateModalClicked(\'' + typeid + '\',\'' + typename + '\',\'' + unitid + '\',\'' + subcatid + '\')" data-toggle="tooltip" title="Malzeme Cinsini Değiştir">';
+    htmlstr +=          '<i class="fas fa-external-link-alt"></i>';
+    htmlstr +=      '</button>';
+    htmlstr +=      '<span style="display: inline; width: 5px;"></span>';
+    htmlstr +=      '<button class="btn btn-danger" onclick="openStockTypeDeleteModalClicked (\'' + typeid + '\',\'' + typename + '\',\'' + unitid + '\',\'' + subcatid + '\')" data-toggle="tooltip" title="Malzeme Kategorisini Sil">';
+    htmlstr +=          '<i class="fa fa-trash"></i>';
+    htmlstr +=      '</button>';
+    htmlstr +=  '</div>';
+    htmlstr += '</td>';
+    htmlstr += '</tr>';
+    return htmlstr;
 }
 
 /* End Stock Type Add Section*/
@@ -814,7 +668,6 @@ function addStockTypeEntryFromJson(json)
 /* Stock Type Update Section*/
 function openStockTypeUpdateModalClicked(id, name, unitid, subcatid)
 {
-    console.log('clicked' +Math.random());
     sTMSetMode("update");
     sTMSetInfo(id, name, unitid, subcatid);
 
@@ -837,29 +690,16 @@ function stockTypeModalUpdateListener(json)
 
 function updateStockTypeEntry(json)
 {
-    var table = document.getElementById("stocktypetable");
-
-    //start i with 1 instead of 0 because we dont want to touch table header
-    for (var i = 1; i < table.rows.length; i++)
-    {
-        if(table.rows[i].cells[0].dataset.id == json.stocktype.id)
-        {
-            table.rows[i].cells[0].textContent = json.stocktype.name;
-            table.rows[i].cells[1].textContent = json.stocktype.unitname;
-            table.rows[i].cells[1].setAttribute('data-unitid', json.stocktype.unitid);
-            table.rows[i].deleteCell(2);
-
-            addStockTypeTableButtonGroup(table.rows[i], json);
-            break;
-        }
-    }
+    var id = '#stocktype' + json.stocktype.id;
+    var table = getDataTable('stocktypetable');
+    table.row(id).remove();
+    table.row.add($(addStockTypeEntryHtml(json.stocktype.id, json.stocktype.name, json.stocktype.unitid, json.stocktype.unitname, json.stocktype.subcategoryid)));
+    table.draw();
 }
-/* End Stock Type Update Section*/
 
 /* Stock Type Delete Section*/
 function openStockTypeDeleteModalClicked(id, name, unitid, subcatid)
 {
-    console.log('clicked' +Math.random());
     sTMSetMode("delete");
     sTMSetInfo(id, name, unitid, subcatid);
 
@@ -882,17 +722,10 @@ function stockTypeModalDeleteListener(json)
 
 function deleteStockTypeEntry(json)
 {
-    var table = document.getElementById("stocktypetable");
-
-    //start i with 1 instead of 0 because we dont want to touch table header
-    for (var i = 1; i < table.rows.length; i++)
-    {
-        if(table.rows[i].cells[0].dataset.id == json.id)
-        {
-            table.deleteRow(i);
-            break;
-        }
-    }
+    var id = '#stocktype' + json.id;
+    var table = getDataTable('stocktypetable');
+    table.row(id).remove();
+    table.draw();
 }
 /* End Stock Type Delete Section*/
 
@@ -920,45 +753,6 @@ function stockColorModalListener()
     }
 }
 
-function addStockColorTableButtonGroup(row, json)
-{
-    var newCell = row.insertCell();
-    var div = document.createElement('div');
-    newCell.appendChild(div);
-    addClass(div, "form-row");
-
-    var button1 = document.createElement("button");
-    addClass(button1, "btn");
-    addClass(button1, "btn-primary");
-    button1.setAttribute('data-toggle', 'tooltip');
-    button1.setAttribute('title', 'Malzeme Rengini Değiştir');
-    button1.setAttribute('onclick', "openStockColorUpdateModalClicked('" + json.stockcolor.id + "','"+ json.stockcolor.name + "')");
-
-    div.appendChild(button1);
-    var ielement1 = document.createElement('i');
-    addClass(ielement1, "fas");
-    addClass(ielement1, "fa-external-link-alt");
-    button1.appendChild(ielement1);
-
-    var button2 = document.createElement("button");
-    addClass(button2, "btn");
-    addClass(button2, "btn-danger");
-    button2.setAttribute('data-toggle', 'tooltip');
-    button2.setAttribute('title', 'Malzeme Rengini Sil');
-    button2.setAttribute('onclick', "openStockColorDeleteModalClicked('" + json.stockcolor.id + "','"+ json.stockcolor.name + "')");
-
-    var span = document.createElement("span");
-    span.style.display = "inline";
-    span.style.width = "5px";
-    div.appendChild(span);
-
-    div.appendChild(button2);
-    var ielement2 = document.createElement('i');
-    addClass(ielement2, "fas");
-    addClass(ielement2, "fa-trash");
-    button2.appendChild(ielement2);
-}
-
 /* Stock Color Add Section*/
 function openStockColorAddModalClicked()
 {
@@ -971,8 +765,9 @@ function stockColorModalAddListener(json)
 {
     if(json.responsecode === 0)
     {
-        addStockColorEntry(json);
-
+        var table = getDataTable('stockcolortable');
+        table.row.add($(addStockColorEntryHtml(json.stockcolor.id, json.stockcolor.name)));
+        table.draw();
         sCMDefaultCloseActions();
     }
     else if(json.responsecode === -1)
@@ -981,24 +776,31 @@ function stockColorModalAddListener(json)
     }
 }
 
-function addStockColorEntry(json)
+function addStockColorEntryHtml(colorid, colorname)
 {
-    var tbodyRef = document.getElementById('stockcolortable').getElementsByTagName('tbody')[0];
-
-    var newRow = tbodyRef.insertRow();
-    var newCell = newRow.insertCell();
-    newCell.textContent = json.stockcolor.name;
-    newCell.style.verticalAlign= "middle";
-    newCell.setAttribute('data-id', json.stockcolor.id);
-
-    addStockColorTableButtonGroup(newRow, json);
+    var rowid = 'stockcolor' + colorid;
+    var htmlstr = '<tr id="' + rowid +'">';
+    htmlstr += '<td data-id="' + colorid + '" style="vertical-align: middle;">' + colorname + '</td>';
+    htmlstr += '<td class="min">';
+    htmlstr +=  '<div class="d-flex flex-nowrap">';
+    htmlstr +=      '<button class="btn btn-primary" onclick="openStockColorUpdateModalClicked(\'' + colorid + '\',\'' + colorname + '\')" data-toggle="tooltip" title="Malzeme Rengini Değiştir">';
+    htmlstr +=          '<i class="fas fa-external-link-alt"></i>';
+    htmlstr +=      '</button>';
+    htmlstr +=      '<span style="display: inline; width: 5px;"></span>';
+    htmlstr +=      '<button class="btn btn-danger" onclick="openStockColorDeleteModalClicked(\'' + colorid + '\',\'' + colorname + '\')" data-toggle="tooltip" title="Malzeme Rengini Sil">';
+    htmlstr +=          '<i class="fa fa-trash"></i>';
+    htmlstr +=      '</button>';
+    htmlstr +=  '</div>';
+    htmlstr += '</td>';
+    htmlstr += '</tr>';
+    return htmlstr;
 }
+
 /* End Stock Color Add Section*/
 
 /* Stock Color Update Section*/
 function openStockColorUpdateModalClicked(id, name)
 {
-    console.log('clicked' +Math.random());
     sCMSetMode("update");
     sCMSetInfo(id, name);
 
@@ -1021,27 +823,18 @@ function stockColorModalUpdateListener(json)
 
 function updateStockColorEntry(json)
 {
-    var table = document.getElementById("stockcolortable");
-
-    //start i with 1 instead of 0 because we dont want to touch table header
-    for (var i = 1; i < table.rows.length; i++)
-    {
-        if(table.rows[i].cells[0].dataset.id == json.stockcolor.id)
-        {
-            table.rows[i].cells[0].textContent = json.stockcolor.name;
-            table.rows[i].deleteCell(1);
-
-            addStockColorTableButtonGroup(table.rows[i], json);
-            break;
-        }
-    }
+    var id = '#stockcolor' + json.stockcolor.id;
+    var table = getDataTable('stockcolortable');
+    table.row(id).remove();
+    table.row.add($(addStockColorEntryHtml(json.stockcolor.id, json.stockcolor.name)));
+    table.draw();
 }
+
 /* End Stock Color Update Section*/
 
 /* Stock Color Delete Section*/
 function openStockColorDeleteModalClicked(id, name)
 {
-    console.log('clicked' +Math.random());
     sCMSetMode("delete");
     sCMSetInfo(id, name);
 
@@ -1064,17 +857,10 @@ function stockColorModalDeleteListener(json)
 
 function deleteStockColorEntry(json)
 {
-    var table = document.getElementById("stockcolortable");
-
-    //start i with 1 instead of 0 because we dont want to touch table header
-    for (var i = 1; i < table.rows.length; i++)
-    {
-        if(table.rows[i].cells[0].dataset.id == json.id)
-        {
-            table.deleteRow(i);
-            break;
-        }
-    }
+    var id = '#stockcolor' + json.id;
+    var table = getDataTable('stockcolortable');
+    table.row(id).remove();
+    table.draw();
 }
 /* End Stock Color Delete Section*/
 
@@ -1102,45 +888,6 @@ function stockPackageModalListener()
     }
 }
 
-function addStockPackageTableButtonGroup(row, json)
-{
-    var newCell = row.insertCell();
-    var div = document.createElement('div');
-    newCell.appendChild(div);
-    addClass(div, "form-row");
-
-    var button1 = document.createElement("button");
-    addClass(button1, "btn");
-    addClass(button1, "btn-primary");
-    button1.setAttribute('data-toggle', 'tooltip');
-    button1.setAttribute('title', 'Ambalaj Tipini Değiştir');
-    button1.setAttribute('onclick', "openStockPackageUpdateModalClicked('" + json.stockpackage.id + "','"+ json.stockpackage.name + "')");
-
-    div.appendChild(button1);
-    var ielement1 = document.createElement('i');
-    addClass(ielement1, "fas");
-    addClass(ielement1, "fa-external-link-alt");
-    button1.appendChild(ielement1);
-
-    var button2 = document.createElement("button");
-    addClass(button2, "btn");
-    addClass(button2, "btn-danger");
-    button2.setAttribute('data-toggle', 'tooltip');
-    button2.setAttribute('title', 'Ambalaj Tipini Sil');
-    button2.setAttribute('onclick', "openStockPackageDeleteModalClicked('" + json.stockpackage.id + "','"+ json.stockpackage.name + "')");
-
-    var span = document.createElement("span");
-    span.style.display = "inline";
-    span.style.width = "5px";
-    div.appendChild(span);
-
-    div.appendChild(button2);
-    var ielement2 = document.createElement('i');
-    addClass(ielement2, "fas");
-    addClass(ielement2, "fa-trash");
-    button2.appendChild(ielement2);
-}
-
 /* Stock Package Add Section*/
 function openStockPackageAddModalClicked()
 {
@@ -1153,7 +900,9 @@ function stockPackageModalAddListener(json)
 {
     if(json.responsecode === 0)
     {
-        addStockPackageEntry(json);
+        var table = getDataTable('stockpackagetable');
+        table.row.add($(addStockPackageEntryHtml(json.stockpackage.id, json.stockpackage.name)));
+        table.draw();
 
         sPMDefaultCloseActions();
     }
@@ -1163,24 +912,31 @@ function stockPackageModalAddListener(json)
     }
 }
 
-function addStockPackageEntry(json)
+function addStockPackageEntryHtml(packageid, packagename)
 {
-    var tbodyRef = document.getElementById('stockpackagetable').getElementsByTagName('tbody')[0];
-
-    var newRow = tbodyRef.insertRow();
-    var newCell = newRow.insertCell();
-    newCell.textContent = json.stockpackage.name;
-    newCell.style.verticalAlign= "middle";
-    newCell.setAttribute('data-id', json.stockpackage.id);
-
-    addStockPackageTableButtonGroup(newRow, json);
+    var rowid = 'stockpackage' + packageid;
+    var htmlstr = '<tr id="' + rowid +'">';
+    htmlstr += '<td data-id="' + packageid + '" style="vertical-align: middle;">' + packagename + '</td>';
+    htmlstr += '<td class="min">';
+    htmlstr +=  '<div class="d-flex flex-nowrap">';
+    htmlstr +=      '<button class="btn btn-primary" onclick="openStockPackageUpdateModalClicked(\'' + packageid + '\',\'' + packagename + '\')" data-toggle="tooltip" title="Malzeme Rengini Değiştir">';
+    htmlstr +=          '<i class="fas fa-external-link-alt"></i>';
+    htmlstr +=      '</button>';
+    htmlstr +=      '<span style="display: inline; width: 5px;"></span>';
+    htmlstr +=      '<button class="btn btn-danger" onclick="openStockPackageDeleteModalClicked(\'' + packageid + '\',\'' + packagename + '\')" data-toggle="tooltip" title="Malzeme Rengini Sil">';
+    htmlstr +=          '<i class="fa fa-trash"></i>';
+    htmlstr +=      '</button>';
+    htmlstr +=  '</div>';
+    htmlstr += '</td>';
+    htmlstr += '</tr>';
+    return htmlstr;
 }
+
 /* End Stock Package Add Section*/
 
 /* Stock Package Update Section*/
 function openStockPackageUpdateModalClicked(id, name)
 {
-    console.log('clicked' +Math.random());
     sPMSetMode("update");
     sPMSetInfo(id, name);
 
@@ -1203,27 +959,18 @@ function stockPackageModalUpdateListener(json)
 
 function updateStockPackageEntry(json)
 {
-    var table = document.getElementById("stockpackagetable");
-
-    //start i with 1 instead of 0 because we dont want to touch table header
-    for (var i = 1; i < table.rows.length; i++)
-    {
-        if(table.rows[i].cells[0].dataset.id == json.stockpackage.id)
-        {
-            table.rows[i].cells[0].textContent = json.stockpackage.name;
-            table.rows[i].deleteCell(1);
-
-            addStockPackageTableButtonGroup(table.rows[i], json);
-            break;
-        }
-    }
+    var id = '#stockpackage' + json.stockpackage.id;
+    var table = getDataTable('stockpackagetable');
+    table.row(id).remove();
+    table.row.add($(addStockPackageEntryHtml(json.stockpackage.id, json.stockpackage.name)));
+    table.draw();
 }
+
 /* End Stock Package Update Section*/
 
 /* Stock Package Delete Section*/
 function openStockPackageDeleteModalClicked(id, name)
 {
-    console.log('clicked' +Math.random());
     sPMSetMode("delete");
     sPMSetInfo(id, name);
 
@@ -1246,18 +993,12 @@ function stockPackageModalDeleteListener(json)
 
 function deleteStockPackageEntry(json)
 {
-    var table = document.getElementById("stockpackagetable");
-
-    //start i with 1 instead of 0 because we dont want to touch table header
-    for (var i = 1; i < table.rows.length; i++)
-    {
-        if(table.rows[i].cells[0].dataset.id == json.id)
-        {
-            table.deleteRow(i);
-            break;
-        }
-    }
+    var id = '#stockpackage' + json.id;
+    var table = getDataTable('stockpackagetable');
+    table.row(id).remove();
+    table.draw();
 }
+
 /* End Stock Package Delete Section*/
 
 ////////////////////////End Stock Package//////////////////////////
@@ -1284,45 +1025,6 @@ function corporationModalListener()
     }
 }
 
-function addCorporationTableButtonGroup(row, json)
-{
-    var newCell = row.insertCell();
-    var div = document.createElement('div');
-    newCell.appendChild(div);
-    addClass(div, "form-row");
-
-    var button1 = document.createElement("button");
-    addClass(button1, "btn");
-    addClass(button1, "btn-primary");
-    button1.setAttribute('data-toggle', 'tooltip');
-    button1.setAttribute('title', 'Şirketi Değiştir');
-    button1.setAttribute('onclick', "openCorporationUpdateModalClicked('" + json.corporation.id + "','"+ json.corporation.name + "')");
-
-    div.appendChild(button1);
-    var ielement1 = document.createElement('i');
-    addClass(ielement1, "fas");
-    addClass(ielement1, "fa-external-link-alt");
-    button1.appendChild(ielement1);
-
-    var button2 = document.createElement("button");
-    addClass(button2, "btn");
-    addClass(button2, "btn-danger");
-    button2.setAttribute('data-toggle', 'tooltip');
-    button2.setAttribute('title', 'Şirketi Sil');
-    button2.setAttribute('onclick', "openCorporationDeleteModalClicked('" + json.corporation.id + "','"+ json.corporation.name + "')");
-
-    var span = document.createElement("span");
-    span.style.display = "inline";
-    span.style.width = "5px";
-    div.appendChild(span);
-
-    div.appendChild(button2);
-    var ielement2 = document.createElement('i');
-    addClass(ielement2, "fas");
-    addClass(ielement2, "fa-trash");
-    button2.appendChild(ielement2);
-}
-
 /* Corporation Add Section*/
 function openCorporationAddModalClicked()
 {
@@ -1335,7 +1037,9 @@ function corporationModalAddListener(json)
 {
     if(json.responsecode === 0)
     {
-        addCorporationEntry(json);
+        var table = getDataTable('corporationtable');
+        table.row.add($(addCorporationEntryHtml(json.corporation.id, json.corporation.name)));
+        table.draw();
 
         cMDefaultCloseActions();
     }
@@ -1345,24 +1049,31 @@ function corporationModalAddListener(json)
     }
 }
 
-function addCorporationEntry(json)
+function addCorporationEntryHtml(corporationid, corporationname)
 {
-    var tbodyRef = document.getElementById('corporationtable').getElementsByTagName('tbody')[0];
-
-    var newRow = tbodyRef.insertRow();
-    var newCell = newRow.insertCell();
-    newCell.textContent = json.corporation.name;
-    newCell.style.verticalAlign= "middle";
-    newCell.setAttribute('data-id', json.corporation.id);
-
-    addCorporationTableButtonGroup(newRow, json);
+    var rowid = 'corporation' + corporationid;
+    var htmlstr = '<tr id="' + rowid +'">';
+    htmlstr += '<td data-id="' + corporationid + '" style="vertical-align: middle;">' + corporationname + '</td>';
+    htmlstr += '<td class="min">';
+    htmlstr +=  '<div class="d-flex flex-nowrap">';
+    htmlstr +=      '<button class="btn btn-primary" onclick="openCorporationUpdateModalClicked(\'' + corporationid + '\',\'' + corporationname + '\')" data-toggle="tooltip" title="Malzeme Rengini Değiştir">';
+    htmlstr +=          '<i class="fas fa-external-link-alt"></i>';
+    htmlstr +=      '</button>';
+    htmlstr +=      '<span style="display: inline; width: 5px;"></span>';
+    htmlstr +=      '<button class="btn btn-danger" onclick="openCorporationDeleteModalClicked(\'' + corporationid + '\',\'' + corporationname + '\')" data-toggle="tooltip" title="Malzeme Rengini Sil">';
+    htmlstr +=          '<i class="fa fa-trash"></i>';
+    htmlstr +=      '</button>';
+    htmlstr +=  '</div>';
+    htmlstr += '</td>';
+    htmlstr += '</tr>';
+    return htmlstr;
 }
+
 /* End Corporation Add Section*/
 
 /* Corporation Update Section*/
 function openCorporationUpdateModalClicked(id, name)
 {
-    console.log('clicked' +Math.random());
     cMSetMode("update");
     cMSetInfo(id, name);
 
@@ -1385,27 +1096,17 @@ function corporationModalUpdateListener(json)
 
 function updateCorporationEntry(json)
 {
-    var table = document.getElementById("corporationtable");
-
-    //start i with 1 instead of 0 because we dont want to touch table header
-    for (var i = 1; i < table.rows.length; i++)
-    {
-        if(table.rows[i].cells[0].dataset.id == json.corporation.id)
-        {
-            table.rows[i].cells[0].textContent = json.corporation.name;
-            table.rows[i].deleteCell(1);
-
-            addCorporationTableButtonGroup(table.rows[i], json);
-            break;
-        }
-    }
+    var id = '#corporation' + json.corporation.id;
+    var table = getDataTable('corporationtable');
+    table.row(id).remove();
+    table.row.add($(addCorporationEntryHtml(json.corporation.id, json.corporation.name)));
+    table.draw();
 }
 /* End Corporation Update Section*/
 
 /* Corporation Delete Section*/
 function openCorporationDeleteModalClicked(id, name)
 {
-    console.log('clicked' +Math.random());
     cMSetMode("delete");
     cMSetInfo(id, name);
 
@@ -1428,18 +1129,12 @@ function corporationModalDeleteListener(json)
 
 function deleteCorporationEntry(json)
 {
-    var table = document.getElementById("corporationtable");
-
-    //start i with 1 instead of 0 because we dont want to touch table header
-    for (var i = 1; i < table.rows.length; i++)
-    {
-        if(table.rows[i].cells[0].dataset.id == json.id)
-        {
-            table.deleteRow(i);
-            break;
-        }
-    }
+    var id = '#corporation' + json.id;
+    var table = getDataTable('corporationtable');
+    table.row(id).remove();
+    table.draw();
 }
+
 /* End Corporation Delete Section*/
 
 ////////////////////////End Corporation//////////////////////////
@@ -1466,45 +1161,6 @@ function stockUnitModalListener()
     }
 }
 
-function addStockUnitTableButtonGroup(row, json)
-{
-    var newCell = row.insertCell();
-    var div = document.createElement('div');
-    newCell.appendChild(div);
-    addClass(div, "form-row");
-
-    var button1 = document.createElement("button");
-    addClass(button1, "btn");
-    addClass(button1, "btn-primary");
-    button1.setAttribute('data-toggle', 'tooltip');
-    button1.setAttribute('title', 'Malzeme Birimini Değiştir');
-    button1.setAttribute('onclick', "openStockUnitUpdateModalClicked('" + json.stockunit.id + "','"+ json.stockunit.name +"','" + json.stockunit.precision + "')");
-
-    div.appendChild(button1);
-    var ielement1 = document.createElement('i');
-    addClass(ielement1, "fas");
-    addClass(ielement1, "fa-external-link-alt");
-    button1.appendChild(ielement1);
-
-    var button2 = document.createElement("button");
-    addClass(button2, "btn");
-    addClass(button2, "btn-danger");
-    button2.setAttribute('data-toggle', 'tooltip');
-    button2.setAttribute('title', 'Malzeme Birimini Sil');
-    button2.setAttribute('onclick', "openStockUnitDeleteModalClicked('" + json.stockunit.id + "','"+ json.stockunit.name +"','" + json.stockunit.precision + "')");
-
-    var span = document.createElement("span");
-    span.style.display = "inline";
-    span.style.width = "5px";
-    div.appendChild(span);
-
-    div.appendChild(button2);
-    var ielement2 = document.createElement('i');
-    addClass(ielement2, "fas");
-    addClass(ielement2, "fa-trash");
-    button2.appendChild(ielement2);
-}
-
 /* Stock Unit Add Section*/
 function openStockUnitAddModalClicked()
 {
@@ -1517,7 +1173,9 @@ function stockUnitModalAddListener(json)
 {
     if(json.responsecode === 0)
     {
-        addStockUnitEntry(json);
+        var table = getDataTable('stockunittable');
+        table.row.add($(addStockUnitEntryHtml(json.stockunit.id, json.stockunit.name)));
+        table.draw();
 
         sUMDefaultCloseActions();
     }
@@ -1527,29 +1185,31 @@ function stockUnitModalAddListener(json)
     }
 }
 
-function addStockUnitEntry(json)
+function addStockUnitEntryHtml(unitid, unitname)
 {
-    var tbodyRef = document.getElementById('stockunittable').getElementsByTagName('tbody')[0];
-
-    var newRow = tbodyRef.insertRow();
-    var newCell = newRow.insertCell();
-    newCell.textContent = json.stockunit.name;
-    newCell.style.verticalAlign= "middle";
-    newCell.setAttribute('data-id', json.stockunit.id);
-
-    newCell = newRow.insertCell();
-    newCell.textContent = json.stockunit.precision;
-    newCell.style.verticalAlign= "middle";
-    newCell.setAttribute('data-precision', json.stockunit.precision);
-
-    addStockUnitTableButtonGroup(newRow, json);
+    var rowid = 'stockunit' + unitid;
+    var htmlstr = '<tr id="' + rowid +'">';
+    htmlstr += '<td data-id="' + unitid + '" style="vertical-align: middle;">' + unitname + '</td>';
+    htmlstr += '<td class="min">';
+    htmlstr +=  '<div class="d-flex flex-nowrap">';
+    htmlstr +=      '<button class="btn btn-primary" onclick="openStockUnitUpdateModalClicked(\'' + unitid + '\',\'' + unitname + '\')" data-toggle="tooltip" title="Malzeme Rengini Değiştir">';
+    htmlstr +=          '<i class="fas fa-external-link-alt"></i>';
+    htmlstr +=      '</button>';
+    htmlstr +=      '<span style="display: inline; width: 5px;"></span>';
+    htmlstr +=      '<button class="btn btn-danger" onclick="openStockUnitDeleteModalClicked(\'' + unitid + '\',\'' + unitname + '\')" data-toggle="tooltip" title="Malzeme Rengini Sil">';
+    htmlstr +=          '<i class="fa fa-trash"></i>';
+    htmlstr +=      '</button>';
+    htmlstr +=  '</div>';
+    htmlstr += '</td>';
+    htmlstr += '</tr>';
+    return htmlstr;
 }
+
 /* End Stock Unit Add Section*/
 
 /* Stock Unit Update Section*/
 function openStockUnitUpdateModalClicked(id, name, precision)
 {
-    console.log('clicked' +Math.random());
     sUMSetMode("update");
     sUMSetInfo(id, name, precision);
 
@@ -1572,29 +1232,17 @@ function stockUnitModalUpdateListener(json)
 
 function updateStockUnitEntry(json)
 {
-    var table = document.getElementById("stockunittable");
-
-    //start i with 1 instead of 0 because we dont want to touch table header
-    for (var i = 1; i < table.rows.length; i++)
-    {
-        if(table.rows[i].cells[0].dataset.id == json.stockunit.id)
-        {
-            table.rows[i].cells[0].textContent = json.stockunit.name;
-            table.rows[i].cells[1].textContent = json.stockunit.precision;
-            table.rows[i].cells[1].setAttribute('data-precision', json.stockunit.precision);
-            table.rows[i].deleteCell(2);
-
-            addStockUnitTableButtonGroup(table.rows[i], json);
-            break;
-        }
-    }
+    var id = '#stockunit' + json.stockunit.id;
+    var table = getDataTable('stockunittable');
+    table.row(id).remove();
+    table.row.add($(addStockUnitEntryHtml(json.stockunit.id, json.stockunit.name)));
+    table.draw();
 }
 /* End Stock Unit Update Section*/
 
 /* Stock Unit Delete Section*/
 function openStockUnitDeleteModalClicked(id, name, precision)
 {
-    console.log('clicked' +Math.random());
     sUMSetMode("delete");
     sUMSetInfo(id, name, precision);
 
@@ -1617,17 +1265,10 @@ function stockUnitModalDeleteListener(json)
 
 function deleteStockUnitEntry(json)
 {
-    var table = document.getElementById("stockunittable");
-
-    //start i with 1 instead of 0 because we dont want to touch table header
-    for (var i = 1; i < table.rows.length; i++)
-    {
-        if(table.rows[i].cells[0].dataset.id == json.id)
-        {
-            table.deleteRow(i);
-            break;
-        }
-    }
+    var id = '#stockunit' + json.id;
+    var table = getDataTable('stockunittable');
+    table.row(id).remove();
+    table.draw();
 }
 /* End Stock Unit Delete Section*/
 

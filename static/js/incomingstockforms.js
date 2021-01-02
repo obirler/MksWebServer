@@ -13,6 +13,8 @@ $(document).ready(function()
         var modal = document.getElementById('stockFormDeleteModal');
         modal.dataset.id = formid;
     });
+
+    getDataTable('stockformstable');
 });
 
 function openadvancedpdfmenu(formid)

@@ -4,7 +4,10 @@ $( document ).ready(function()
     {
         stockEntryButtonSubmitAction();
     });
+
+    getDataTable('stockstable');
 });
+
 
 function openStockEntryModalForAdd()
 {

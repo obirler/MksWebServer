@@ -20,7 +20,6 @@ class TestData():
         # catload = category.CategoryLoad(self.adet.id, self.metre.id, self.kilo.id)
         # catload.preloadCategories()
         self.preloadTestCategories()
-        self.preloadTestEntries()
 
         self.preloadstockcolors()
         self.preloadstockpackage()
@@ -93,7 +92,7 @@ class TestData():
         dbexecutor.addStockColor("Yeşil")
         dbexecutor.addStockColor("Beyaz")
         dbexecutor.addStockColor("Kahve")
-        dbexecutor.addStockColor("Kımızı")
+        dbexecutor.addStockColor("Kırmızı")
         dbexecutor.addStockColor("Mor")
         dbexecutor.addStockColor("Sarı")
         dbexecutor.addStockColor("Turuncu")
@@ -102,12 +101,15 @@ class TestData():
         dbexecutor.addStockPackage("Koli")
         dbexecutor.addStockPackage("Çuval")
         dbexecutor.addStockPackage("Torba")
+        dbexecutor.addStockPackage("Kangal")
+        dbexecutor.addStockPackage("Makara")
 
     def preloadcorporation(self):
         dbexecutor.addCorporation("Mega Metal")
         dbexecutor.addCorporation("Er Bakır")
         dbexecutor.addCorporation("Deva Plastik")
         dbexecutor.addCorporation("Eker Motor")
+        dbexecutor.addCorporation("Ürün Sarfı")
 
     def preloadstockrooms(self):
         dbexecutor.addStockRoom("Şentaş")

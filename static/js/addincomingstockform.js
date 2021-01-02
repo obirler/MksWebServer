@@ -123,6 +123,7 @@ function updatestock()
         {
             if(table.rows[i].cells[0].dataset.entryid == sEMGetEntryId())
             {
+                // noinspection TypeScriptValidateTypes
                 table.rows[i].cells[0].textContent = stocktype.options[stocktype.selectedIndex].textContent;
                 table.rows[i].cells[0].setAttribute('data-id', stocktypeid);
                 table.rows[i].cells[0].setAttribute('data-entryid', sEMGetEntryId());

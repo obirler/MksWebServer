@@ -1,0 +1,436 @@
+<!-- Add Stock Filter Modal -->
+<div id="addStockFilterModal" class="modal" data-operation="none">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 id="addStockFilterTitle" class="modal-title">Filtre Ekle</h4>
+        <button id="addStockFilterModalCloseBtn1" type="button" class="close">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div id="addStockFilterAlert" class="alert alert-danger" role="alert" style="display: none;">
+           Message
+        </div>
+
+        <form class="form" style="margin:0">
+            <div class="form-group">
+              <label for="addStockFilterModalFilterSelect">Filtre Kolonu</label>
+              <select id="addStockFilterModalFilterSelect" class="custom-select">
+                <option data-id="-1" selected>Filtre Kolonu Seçin</option>
+                <option data-id="1">Operasyon</option>
+                <option data-id="2">Malzeme Türü</option>
+                <option data-id="3">Renk</option>
+                <option data-id="4">Miktar</option>
+                <option data-id="5">Miktar Birimi</option>
+                <option data-id="6">Paket Miktarı</option>
+                <option data-id="7">Paket Miktarı Birimi</option>
+                <option data-id="8">Kullanıcı Adı</option>
+                <option data-id="9">Şirket İsmi</option>
+                <option data-id="10">Hareket Tipi</option>
+                <option data-id="11">Form Adı</option>
+                <option data-id="12">Ambar Adı</option>
+                <option data-id="13">Araç Bilgileri</option>
+                <option data-id="14">Açıklama</option>
+                <option data-id="15">Tarih</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="addStockFilterModalOperatorSelect">Operatör</label>
+              <select id="addStockFilterModalOperatorSelect" class="custom-select">
+                <option data-id="-1" selected>Operatör Seçin</option>
+              </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0; margin-left: 0; margin-right: 0;">
+              <div class="form-row" style="margin-bottom: 0; margin-left: 0; margin-right: 0;">
+                <div id="addStockFilterModalInputField1Div" class="form-group flex-grow-1" style="display: none; margin-right: 0; margin-left: 0;">
+                  <input id="addStockFilterModalInputField1" type="text" class="form-control">
+                </div>
+                <span style="display:block; width: 10px;"></span>
+                <div id="addStockFilterModalInputField2Div" class="form-group flex-grow-1" style="display: none; margin-right: 0; margin-left: 0;">
+                  <input id="addStockFilterModalInputField2" type="text" class="form-control">
+                </div>
+              </div>
+
+            </div>
+          <button id="addStockFilterModalActionButton" type="button" class="btn btn-primary btn-block" style="margin-top:3%;">Filtreyi Ekle</button>
+        </form>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button id="addStockFilterModalCloseBtn2" type="button" class="btn btn-danger">Kapat</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+    $( document ).ready(function()
+    {
+        $("#addStockFilterModalFilterSelect").change(function()
+        {
+            aSFAddStockFilterModalColumnSelectSelectionChanged();
+        });
+
+        $("#addStockFilterModalOperatorSelect").change(function()
+        {
+            aSFAddStockFilterModalOperatorSelectSelectionChanged();
+        });
+    });
+
+    function aSFAddStockFilterModalColumnSelectSelectionChanged()
+    {
+        aSFresetOperatorSelect();
+        var columnselect = document.getElementById("addStockFilterModalFilterSelect");
+        var operatorselect = document.getElementById("addStockFilterModalOperatorSelect");
+        aSFclearselect(operatorselect.id);
+        var input1 = document.getElementById("addStockFilterModalInputField1");
+        var input2 = document.getElementById("addStockFilterModalInputField2");
+        var dataid = parseInt(columnselect.options[columnselect.selectedIndex].dataset.id);
+        switch(dataid)
+        {
+            case -1:
+                break;
+            case 1:
+            case 2:
+            case 3:
+            case 5:
+            case 7:
+            case 8:
+            case 9:
+            case 10:
+            case 11:
+            case 12:
+            case 13:
+            case 14:
+                input1.type = "text";
+                input2.type = "text";
+                aSFtextfieldoptions(operatorselect);
+                break;
+            case 4:
+            case 6:
+                input1.type = "number";
+                input2.type = "number";
+                aSFnumericfieldoptions(operatorselect);
+                break;
+            case 15:
+                input1.type = "datetime-local";
+                input2.type = "datetime-local";
+                aSFnumericfieldoptions(operatorselect);
+                break;
+        }
+    }
+
+    function aSFAddStockFilterModalOperatorSelectSelectionChanged()
+    {
+        var columnselect = document.getElementById("addStockFilterModalFilterSelect");
+        var colid = parseInt(columnselect.options[columnselect.selectedIndex].dataset.id);
+        var operatorselect = document.getElementById("addStockFilterModalOperatorSelect");
+        var dataid = parseInt(operatorselect.options[operatorselect.selectedIndex].dataset.id);
+        var input1 = document.getElementById("addStockFilterModalInputField1");
+        switch(dataid)
+        {
+            case -1:
+                break;
+            case 1:
+            case 2:
+            case 9:
+            case 10:
+            case 11:
+            case 12:
+                if(colid === 15)
+                {
+                    input1.type = "datetime-local";
+                }
+                aSFsingleinputoperator();
+                break;
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+            case 8:
+                if(colid === 15)
+                {
+                    input1.type = "text";
+                }
+                aSFsingleinputoperator();
+                break;
+            case 13:
+            case 14:
+                if(colid === 15)
+                {
+                    input1.type = "datetime-local";
+                }
+                aSFdoubleinputoperator();
+                break;
+        }
+    }
+
+    function aSFtextfieldoptions(select)
+    {
+        select.appendChild(aSFequalsoption());
+        select.appendChild(aSFnotequalsoption());
+        select.appendChild(aSFcontainsoption());
+        select.appendChild(aSFnotcontainsoption());
+        select.appendChild(aSFstartswithoption());
+        select.appendChild(aSFnotstartswithoption());
+        select.appendChild(aSFendswithoption());
+        select.appendChild(aSFnotendswithoption());
+    }
+
+    function aSFnumericfieldoptions(select)
+    {
+        aSFtextfieldoptions(select);
+        select.appendChild(aSFbiggeroption());
+        select.appendChild(aSFbiggerequalsoption());
+        select.appendChild(aSFsmalleroption());
+        select.appendChild(aSFsmallerequalsoption());
+        select.appendChild(aSFbetweenoption());
+        select.appendChild(aSFnotbetweenoption());
+    }
+
+    function aSFequalsoption()
+    {
+         var option = document.createElement("option");
+         option.textContent = "Eşit";
+         option.setAttribute('data-id', 1);
+         return option;
+    }
+
+    function aSFnotequalsoption()
+    {
+         var option = document.createElement("option");
+         option.textContent = "Eşit Değil";
+         option.setAttribute('data-id', 2);
+         return option;
+    }
+
+    function aSFcontainsoption()
+    {
+         var option = document.createElement("option");
+         option.textContent = "İçeren";
+         option.setAttribute('data-id', 3);
+         return option;
+    }
+
+    function aSFnotcontainsoption()
+    {
+         var option = document.createElement("option");
+         option.textContent = "İçermeyen";
+         option.setAttribute('data-id', 4);
+         return option;
+    }
+
+    function aSFstartswithoption()
+    {
+         var option = document.createElement("option");
+         option.textContent = "İle başlayan";
+         option.setAttribute('data-id', 5);
+         return option;
+    }
+
+    function aSFnotstartswithoption()
+    {
+         var option = document.createElement("option");
+         option.textContent = "İle başlamayan";
+         option.setAttribute('data-id', 6);
+         return option;
+    }
+
+    function aSFendswithoption()
+    {
+         var option = document.createElement("option");
+         option.textContent = "İle biten";
+         option.setAttribute('data-id', 7);
+         return option;
+    }
+
+    function aSFnotendswithoption()
+    {
+         var option = document.createElement("option");
+         option.textContent = "İle bitmeyen";
+         option.setAttribute('data-id', 8);
+         return option;
+    }
+
+    function aSFbiggeroption()
+    {
+         var option = document.createElement("option");
+         option.textContent = "Büyük";
+         option.setAttribute('data-id', 9);
+         return option;
+    }
+
+    function aSFbiggerequalsoption()
+    {
+         var option = document.createElement("option");
+         option.textContent = "Büyük Eşit";
+         option.setAttribute('data-id', 10);
+         return option;
+    }
+
+    function aSFsmalleroption()
+    {
+         var option = document.createElement("option");
+         option.textContent = "Küçük";
+         option.setAttribute('data-id', 11);
+         return option;
+    }
+
+    function aSFsmallerequalsoption()
+    {
+         var option = document.createElement("option");
+         option.textContent = "Küçük Eşit";
+         option.setAttribute('data-id', 12);
+         return option;
+    }
+
+    function aSFbetweenoption()
+    {
+         var option = document.createElement("option");
+         option.textContent = "Arasında";
+         option.setAttribute('data-id', 13);
+         return option;
+    }
+
+    function aSFnotbetweenoption()
+    {
+         var option = document.createElement("option");
+         option.textContent = "Arasında Değil";
+         option.setAttribute('data-id', 14);
+         return option;
+    }
+
+    function aSFsingleinputoperator()
+    {
+        var div1 = document.getElementById("addStockFilterModalInputField1Div");
+        div1.style.display = "block";
+
+        var div2 = document.getElementById("addStockFilterModalInputField2Div");
+        div2.style.display = "none";
+    }
+
+    function aSFdoubleinputoperator()
+    {
+        var div1 = document.getElementById("addStockFilterModalInputField1Div");
+        div1.style.display = "block";
+
+        var div2 = document.getElementById("addStockFilterModalInputField2Div");
+        div2.style.display = "block";
+    }
+
+    function aSFresetinputoperators()
+    {
+        var div1 = document.getElementById("addStockFilterModalInputField1Div");
+        div1.style.display = "none";
+
+        var div2 = document.getElementById("addStockFilterModalInputField2Div");
+        div2.style.display = "none";
+
+        var input1 = document.getElementById("addStockFilterModalInputField1");
+        input1.value = "";
+        input1.type = "text";
+
+        var input2 = document.getElementById("addStockFilterModalInputField2");
+        input2.value = "";
+        input2.type = "text";
+    }
+
+    function aSFresetOperatorSelect()
+    {
+        var operatorselect = document.getElementById("addStockFilterModalOperatorSelect");
+        operatorselect.selectedIndex = 0;
+        aSFresetinputoperators();
+    }
+
+    function aSFResetModal()
+    {
+        var columnselect = document.getElementById("addStockFilterModalFilterSelect");
+        columnselect.selectedIndex = 0;
+        var operatorselect = document.getElementById("addStockFilterModalOperatorSelect");
+        aSFclearselect(operatorselect.id);
+        operatorselect.selectedIndex = 0;
+        aSFresetinputoperators();
+    }
+
+    function aSFCheckEntries()
+    {
+        var alert = document.getElementById('addStockFilterAlert');
+        alert.style.display = "none";
+
+        var columnselect = document.getElementById("addStockFilterModalFilterSelect");
+        if(columnselect.selectedIndex == 0)
+        {
+            alert.textContent = "Lütfen filtre kolonunu seçiniz!";
+            alert.style.display = "block";
+            return false;
+        }
+        var operatorselect = document.getElementById("addStockFilterModalOperatorSelect");
+        if(operatorselect.selectedIndex == 0)
+        {
+            alert.textContent = "Lütfen operatör seçiniz!";
+            alert.style.display = "block";
+            return false;
+        }
+        var input1 = document.getElementById("addStockFilterModalInputField1");
+        var input2 = document.getElementById("addStockFilterModalInputField2");
+        switch(operatorselect.selectedIndex)
+        {
+            case -1:
+                break;
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+            case 8:
+            case 9:
+            case 10:
+            case 11:
+            case 12:
+                if(input1.value == "")
+                {
+                    alert.textContent = "Lütfen değer giriniz!";
+                    alert.style.display = "block";
+                    return false;
+                }
+                break;
+            case 13:
+            case 14:
+                if(input1.value == "")
+                {
+                    alert.textContent = "Lütfen değer giriniz!";
+                    alert.style.display = "block";
+                    return false;
+                }
+                if(input2.value == "")
+                {
+                    alert.textContent = "Lütfen değer giriniz!";
+                    alert.style.display = "block";
+                    return false;
+                }
+                break;
+        }
+        return true;
+    }
+
+    function aSFclearselect(id)
+    {
+        var selectinput = document.getElementById(id);
+        var option = selectinput.options[1];
+        while(typeof option != 'undefined')
+        {
+            selectinput.removeChild(option);
+            option = selectinput.options[1];
+        }
+    }
+</script>

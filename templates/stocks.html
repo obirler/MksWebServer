@@ -5,7 +5,7 @@
 {%block content%}
 {% if current_user.isadmin %}
 
-<div id="tablecontainer" class="container" style="margin-top: 1%; margin-left: auto; margin-right:auto;">
+<div id="tablecontainer" data-order='[[ 1, "asc" ]]' data-page-length='10' style="margin-top: 1%; margin-left: 2%; margin-right:2%;">
     <h2 class="form-signin-heading" style="text-align:center; color:white;">Depo Malzeme Durumu</h2>
     <span style="display:block; height: 10px;"></span>
     <div class="table-responsive">
@@ -15,7 +15,7 @@
               <th scope="col">Malzeme Adı</th>
               <th scope="col">Malzeme Rengi</th>
               <th scope="col">Malzeme Miktarı</th>
-              <th scope="col">İşlemler</th>
+              <th class="min" scope="col">İşlemler</th>
             </tr>
           </thead>
           <tbody>
@@ -24,8 +24,8 @@
                   <td style="vertical-align: middle;" >{{stock.getStockTypeName()}}</td>
                   <td style="vertical-align: middle;" >{{stock.getStockColorName()}}</td>
                   <td style="vertical-align: middle;" >{{stock.getQuantityText()}}</td>
-                  <td style="vertical-align: middle;" >
-                      <div class="form-row">
+                  <td class="min" style="vertical-align: middle;" >
+                      <div class="d-flex flex-nowrap">
                           <button class="btn btn-primary" data-toggle="tooltip" title="Malzemeyi Düzenle" onclick="openStockEntryModalForUpdate('{{stock.id}}', '{{stock.stocktypeid}}', '{{stock.stockcolorid}}', '{{stock.getStockUnitId()}}','{{stock.quantity}}')"><i class="fas fa-external-link-alt"></i></button>
                           <span style="display: inline; width: 5px;"></span>
                           <button class="btn btn-danger" data-toggle="tooltip" title="Malzemeyi Sil" onclick="openStockEntryModalForDelete('{{stock.id}}', '{{stock.stocktypeid}}', '{{stock.stockcolorid}}', '{{stock.getStockUnitId()}}','{{stock.quantity}}')"><i class="fa fa-trash"></i></button>

@@ -5,7 +5,7 @@
 {%block content%}
 {% if current_user.isadmin %}
 
-<div id="tablecontainer" class="container" style="margin-top: 1%; margin-left: auto; margin-right:auto;">
+<div id="tablecontainer" style="margin-top: 1%; margin-left: 2%; margin-right:2%;">
     <h2 class="form-signin-heading" style="text-align:center; color:white;">Veri Yönetimi</h2>
     <span style="display:block; height: 10px;"></span>
 
@@ -23,7 +23,7 @@
 
     <span style="display:block; height: 10px;"></span>
 
-    <div class="collapse" id="stockcategorycollapse" aria-expanded="true">
+    <div class="collapse" id="stockcategorycollapse" aria-expanded="true" data-order='[[ 1, "asc" ]]' data-page-length='10'>
         <h4 class="form-signin-heading" style="text-align:center; color: white;">Malzeme Kategorisi</h4>
         <span style="display:block; height: 6px;"></span>
         <div class="table-responsive">
@@ -31,15 +31,15 @@
           <thead>
             <tr>
               <th scope="col">Malzeme Kategorisi</th>
-              <th scope="col">İşlemler</th>
+              <th class="min" scope="col">İşlemler</th>
             </tr>
           </thead>
           <tbody>
             {%for category in stockcategories%}
-              <tr>
+              <tr id="{{'stockcategory' ~ category.id}}">
                   <td data-id="{{category.id}}" style="vertical-align: middle;">{{category.name}}</td>
-                  <td>
-                      <div class="form-row">
+                  <td class="min">
+                      <div class="d-flex flex-nowrap">
                             <button class="btn btn-primary" onclick="openStockCategoryUpdateModalClicked('{{category.id}}','{{category.name}}')" data-toggle="tooltip" title="Malzeme Kategorisini Değiştir">
                                 <i class="fas fa-external-link-alt"></i>
                             </button>
@@ -54,6 +54,7 @@
           </tbody>
         </table>
       </div>
+      <span style="display:block; height: 10px;"></span>
       <button id="stockCategoryAddBtn" type="button" onclick="openStockCategoryAddModalClicked()" class="btn btn-primary btn-block">Malzeme Kategorisi Ekle</button>
       <span style="display:block; height: 30px;"></span>
     </div>
@@ -70,13 +71,14 @@
             <thead>
                 <tr>
                   <th scope="col">Malzeme Alt Kategorisi</th>
-                  <th scope="col">İşlemler</th>
+                  <th class="min" scope="col">İşlemler</th>
                 </tr>
             </thead>
             <tbody>
             </tbody>
         </table>
       </div>
+      <span style="display:block; height: 10px;"></span>
       <button id="stockSubcategoryAddBtn" type="button" onclick="openStockSubcategoryAddModalClicked()" class="btn btn-primary btn-block">Malzeme Alt Kategorisi Ekle</button>
       <span style="display:block; height: 30px;"></span>
     </div>
@@ -98,13 +100,14 @@
             <tr>
               <th scope="col">Malzeme Cinsi</th>
               <th scope="col">Malzeme Birimi</th>
-              <th scope="col">İşlemler</th>
+              <th class="min" scope="col">İşlemler</th>
             </tr>
           </thead>
           <tbody>
           </tbody>
         </table>
       </div>
+      <span style="display:block; height: 10px;"></span>
       <button id="stockTypeAddBtn" type="button" onclick="openStockTypeAddModalClicked()" class="btn btn-primary btn-block">Malzeme Cinsi Ekle</button>
       <span style="display:block; height: 30px;"></span>
     </div>
@@ -117,15 +120,15 @@
           <thead>
             <tr>
               <th scope="col">Malzeme Rengi</th>
-              <th scope="col">İşlemler</th>
+              <th class="min" scope="col">İşlemler</th>
             </tr>
           </thead>
           <tbody>
             {%for color in stockcolors%}
-              <tr>
+              <tr id="{{'stockcolor' ~ color.id}}">
                   <td data-id="{{color.id}}" style="vertical-align: middle;">{{color.name}}</td>
-                  <td>
-                      <div class="form-row">
+                  <td class="min">
+                      <div class="d-flex flex-nowrap">
                             <button class="btn btn-primary" onclick="openStockColorUpdateModalClicked('{{color.id}}','{{color.name}}')" data-toggle="tooltip" title="Malzeme Rengini Değiştir">
                                 <i class="fas fa-external-link-alt"></i>
                             </button>
@@ -140,6 +143,7 @@
           </tbody>
         </table>
       </div>
+      <span style="display:block; height: 10px;"></span>
       <button id="stockColorAddBtn" type="button" onclick="openStockColorAddModalClicked()" class="btn btn-primary btn-block">Malzeme Rengi Ekle</button>
       <span style="display:block; height: 30px;"></span>
     </div>
@@ -152,15 +156,15 @@
           <thead>
             <tr>
               <th scope="col">Şirket Adı</th>
-              <th scope="col">İşlemler</th>
+              <th class="min" scope="col">İşlemler</th>
             </tr>
           </thead>
           <tbody>
             {%for corporation in corporations%}
-              <tr>
+              <tr id="{{'corporation' ~ corporation.id}}">
                   <td data-id="{{corporation.id}}" style="vertical-align: middle;">{{corporation.name}}</td>
-                  <td>
-                      <div class="form-row">
+                  <td class="min">
+                      <div class="d-flex flex-nowrap">
                             <button class="btn btn-primary" onclick="openCorporationUpdateModalClicked('{{corporation.id}}','{{corporation.name}}')" data-toggle="tooltip" title="Şirketi Değiştir">
                                 <i class="fas fa-external-link-alt"></i>
                             </button>
@@ -175,6 +179,7 @@
           </tbody>
         </table>
       </div>
+      <span style="display:block; height: 10px;"></span>
       <button id="corporationAddBtn" type="button" onclick="openCorporationAddModalClicked()" class="btn btn-primary btn-block">Şirket Ekle</button>
       <span style="display:block; height: 30px;"></span>
     </div>
@@ -187,15 +192,15 @@
           <thead>
             <tr>
               <th scope="col">Ambalaj Tipi</th>
-              <th scope="col">İşlemler</th>
+              <th class="min" scope="col">İşlemler</th>
             </tr>
           </thead>
           <tbody>
             {%for package in stockpackages%}
-              <tr>
+              <tr  id="{{'stockpackage' ~ package.id}}">
                   <td data-id="{{package.id}}" style="vertical-align: middle;">{{package.name}}</td>
-                  <td>
-                      <div class="form-row">
+                  <td class="min">
+                      <div class="d-flex flex-nowrap">
                             <button class="btn btn-primary" onclick="openStockPackageUpdateModalClicked('{{package.id}}','{{package.name}}')" data-toggle="tooltip" title="Ambalaj Tipini Değiştir">
                                 <i class="fas fa-external-link-alt"></i>
                             </button>
@@ -210,6 +215,7 @@
           </tbody>
         </table>
       </div>
+      <span style="display:block; height: 10px;"></span>
       <button id="stockPackageAddBtn" type="button" onclick="openStockPackageAddModalClicked()" class="btn btn-primary btn-block">Ambalaj Tipi Ekle</button>
       <span style="display:block; height: 30px;"></span>
     </div>
@@ -223,16 +229,16 @@
             <tr>
               <th scope="col">Stok Birim Adı</th>
               <th scope="col">Hassasiyet</th>
-              <th scope="col">İşlemler</th>
+              <th class="min" scope="col">İşlemler</th>
             </tr>
           </thead>
           <tbody>
             {%for unit in stockunits%}
-              <tr>
+              <tr id="{{'stockunit' ~ unit.id}}">
                   <td data-id="{{unit.id}}" style="vertical-align: middle;">{{unit.name}}</td>
                   <td data-precision="{{unit.precision}}" style="vertical-align: middle;">{{unit.precision}}</td>
-                  <td>
-                      <div class="form-row">
+                  <td class="min">
+                      <div class="d-flex flex-nowrap">
                             <button class="btn btn-primary" onclick="openStockUnitUpdateModalClicked('{{unit.id}}','{{unit.name}}','{{unit.precision}}')" data-toggle="tooltip" title="Malzeme Birimini Değiştir">
                                 <i class="fas fa-external-link-alt"></i>
                             </button>
@@ -247,18 +253,12 @@
           </tbody>
         </table>
       </div>
+      <span style="display:block; height: 10px;"></span>
       <button id="stockUnitAddBtn" type="button" onclick="openStockUnitAddModalClicked()" class="btn btn-primary btn-block">Malzeme Birimi Ekle</button>
       <span style="display:block; height: 30px;"></span>
     </div>
 
 </div>
-
-{% else %}
-
-<div class="alert alert-danger" role="alert" style="margin-top: 1%; margin-left: 3%; margin-right:3%; display: block;">
-  Bu sayfayı görüntülemeye yetkiniz yok!
-</div>
-{% endif %}
 
 {% include 'modals/stockcategorymodal.html' %}
 
@@ -273,6 +273,13 @@
 {% include 'modals/corporationmodal.html' %}
 
 {% include 'modals/stockunitmodal.html' %}
+
+{% else %}
+
+<div class="alert alert-danger" role="alert" style="margin-top: 1%; margin-left: 3%; margin-right:3%; display: block;">
+  Bu sayfayı görüntülemeye yetkiniz yok!
+</div>
+{% endif %}
 
 {%endblock%}
 

@@ -1,0 +1,282 @@
+<!-- Form Stock Filter Modal -->
+<div id="formStockFilterModal" class="modal" data-operation="none">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 id="formStockFilterModalTitle" class="modal-title">Filtreler</h4>
+        <button id="formStockFilterModalCloseBtn1" type="button" class="close">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div id="formStockFilterModalAlert" class="alert alert-danger" role="alert" style="display: none;">
+           Message
+        </div>
+
+        <div class="table-responsive">
+            <table id="formStockFilterModalFilterTable" class="table table-striped" style="background-color:white;">
+                <thead>
+                    <tr>
+                      <th scope="col">Filtre Kolonu</th>
+                      <th scope="col">Filtre</th>
+                      <th scope="col">İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        <button onclick="fSFOpenAddFilterModal()" type="button" class="btn btn-primary btn-block">Filtre Ekle</button>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button id="formStockFilterModalCloseBtn2" type="button" class="btn btn-danger">Kapat</button>
+        <button id="formStockFilterModalApply" type="button" class="btn btn-primary">Uygula</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+$(document).ready(function()
+{
+    $("#addStockFilterModalCloseBtn1").on("click", function(){
+        fSFCloseAddFilterModal();
+    });
+
+    $("#addStockFilterModalCloseBtn2").on("click", function(){
+        fSFCloseAddFilterModal();
+    });
+
+    $("#addStockFilterModalActionButton").on("click", function(){
+        fSFFilterAddBtnClicked();
+    });
+});
+
+function fSFCloseAddFilterModal()
+{
+    $('#addStockFilterModal').modal('hide');
+    $('#formStockFilterModal').modal('show');
+    aSFResetModal();
+}
+
+function fSFOpenAddFilterModal()
+{
+    $('#formStockFilterModal').modal('hide');
+    $('#addStockFilterModal').modal('show');
+}
+
+function fSFFilterAddBtnClicked()
+{
+    if(aSFCheckEntries())
+    {
+        var columnselect = document.getElementById("addStockFilterModalFilterSelect");
+        var columnid = columnselect.options[columnselect.selectedIndex].dataset.id;
+        var operatorselect = document.getElementById("addStockFilterModalOperatorSelect");
+        var operatorid = operatorselect.options[operatorselect.selectedIndex].dataset.id;
+        var input1 = document.getElementById("addStockFilterModalInputField1");
+        var value1 = input1.value;
+        var input2 = document.getElementById("addStockFilterModalInputField2");
+        var value2 = input2.value;
+
+        fSFAddFilterItem(columnid, operatorid, value1, value2);
+        fSFCloseAddFilterModal();
+    }
+}
+
+function fSFAddFilterItem(columnid, operatorid, value1, value2)
+{
+    var entryid = fSFGenerateUUID();
+    var filtercolumntext = fSFGetFilterColumnText(columnid);
+    var filtertext = fSFGetFilterText(filtercolumntext, operatorid, value1, value2);
+
+    var tbodyRef = document.getElementById('formStockFilterModalFilterTable').getElementsByTagName('tbody')[0];
+    var newRow = tbodyRef.insertRow();
+
+    var columnCell = newRow.insertCell();
+    columnCell.style.verticalAlign= "middle";
+    columnCell.textContent = filtercolumntext;
+    columnCell.setAttribute('data-id', entryid);
+
+    var filterCell = newRow.insertCell();
+    filterCell.style.verticalAlign= "middle";
+    filterCell.textContent = filtertext;
+    filterCell.setAttribute('data-columnid', columnid);
+    filterCell.setAttribute('data-operatorid', operatorid);
+    filterCell.setAttribute('data-value1', value1);
+    filterCell.setAttribute('data-value2', value2);
+
+    var buttonCell = newRow.insertCell();
+    buttonCell.style.verticalAlign= "middle";
+    buttonCell.style.horizontalAlign = "right";
+    var div = document.createElement('div');
+    buttonCell.appendChild(div);
+    fSFAddClass(div, "form-row");
+
+    var deletebtn = document.createElement("button");
+    fSFAddClass(deletebtn, "btn");
+    fSFAddClass(deletebtn, "btn-danger");
+    deletebtn.setAttribute('data-toggle', 'tooltip');
+    deletebtn.setAttribute('title', 'Filtreyi Sil');
+    deletebtn.setAttribute('onclick', "fSFDeleteFilterItem('" + entryid + "')");
+
+    var ielement2 = document.createElement('i');
+    fSFAddClass(ielement2, "fas");
+    fSFAddClass(ielement2, "fa-trash");
+    deletebtn.appendChild(ielement2);
+
+    div.appendChild(deletebtn);
+}
+
+function fSFDeleteFilterItem(entryid)
+{
+    var table = document.getElementById('formStockFilterModalFilterTable');
+    for (var line=1; line < table.rows.length; line++)
+    {
+        var row = table.rows[line];
+        var cell = row.cells[0];
+        var id = cell.dataset.id;
+        if(id === entryid)
+        {
+            table.deleteRow(row.rowIndex);
+            break;
+        }
+    }
+}
+
+function fSFGetFilterText(columntext, operatorid, value1, value2)
+{
+    var filtertext = "";
+
+    switch (operatorid)
+    {
+        case "1":
+            filtertext = columntext + " = " + value1;
+            break;
+        case "2":
+            filtertext = columntext + " != " + value1;
+            break;
+        case "3":
+            filtertext = columntext + " C " + value1;
+            break;
+        case "4":
+            filtertext = columntext + " !C " + value1;
+            break;
+        case "5":
+            filtertext = columntext + " SW " + value1;
+            break;
+        case "6":
+            filtertext = columntext + " !SW " + value1;
+            break;
+        case "7":
+            filtertext = columntext + " EW " + value1;
+            break;
+        case "8":
+            filtertext = columntext + " !EW " + value1;
+            break;
+        case "9":
+            filtertext = columntext + " > " + value1;
+            break;
+        case "10":
+            filtertext = columntext + " >= " + value1;
+            break;
+        case "11":
+            filtertext = columntext + " < " + value1;
+            break;
+        case "12":
+            filtertext = columntext + " <= " + value1;
+            break;
+        case "13":
+            filtertext = value1 + " < " + columntext  + " < " + value2;
+            break;
+        case "14":
+            filtertext = value1 + " !< " + columntext  + " !< " + value2;
+            break;
+    }
+    return filtertext;
+}
+
+function fSFGetFilterColumnText(columnid)
+{
+    var columntext = "";
+    switch (columnid)
+    {
+        case "1":
+            columntext = "Operasyon";
+            break;
+        case "2":
+            columntext = "Malzeme Türü";
+            break;
+        case "3":
+            columntext = "Renk";
+            break;
+        case "4":
+            columntext = "Miktar";
+            break;
+        case "5":
+            columntext = "Miktar Birimi";
+            break;
+        case "6":
+            columntext = "Paket Miktarı";
+            break;
+        case "7":
+            columntext = "Paket Miktarı Birimi";
+            break;
+        case "8":
+            columntext = "Kullanıcı Adı";
+            break;
+        case "9":
+            columntext = "Şirket İsmi";
+            break;
+        case "10":
+            columntext = "Hareket Tipi";
+            break;
+        case "11":
+            columntext = "Form Adı";
+            break;
+        case "12":
+            columntext = "Ambar Adı";
+            break;
+        case "13":
+            columntext = "Araç Bilgileri";
+            break;
+        case "14":
+            columntext = "Açıklama";
+            break;
+        case "15":
+            columntext = "Tarih";
+            break;
+    }
+    return columntext;
+}
+
+function fSFGenerateUUID() { // Public Domain/MIT
+    var d = new Date().getTime();//Timestamp
+    var d2 = (performance && performance.now && (performance.now()*1000)) || 0;//Time in microseconds since page-load or 0 if unsupported
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16;//random number between 0 and 16
+        if(d > 0){//Use timestamp until depleted
+            r = (d + r)%16 | 0;
+            d = Math.floor(d/16);
+        } else {//Use microseconds since page-load if supported
+            r = (d2 + r)%16 | 0;
+            d2 = Math.floor(d2/16);
+        }
+        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+}
+
+function fSFAddClass(el, className)
+{
+    if (el.classList)
+        el.classList.add(className)
+    else if (!hasClass(el, className))
+        el.className += " " + className;
+}
+</script>
+
+{% include 'modals/addstockfiltermodal.html' %}

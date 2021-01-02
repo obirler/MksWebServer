@@ -640,7 +640,7 @@ def getStockTypes():
 
 @app.route('/stockmoves', methods=['GET'])
 @login_required
-def getStockMoves():
+def stockMoves():
     stockbases = dbexecutor.getAllStockBases()
 
     bases = []
@@ -688,6 +688,59 @@ def getStockMoves():
         bases.append(base)
 
     return render_template("stockmoves.html", bases=bases)
+
+
+@app.route('/formstockmoves', methods=['GET'])
+@login_required
+def formStockMoves():
+    stockbases = dbexecutor.getAllStockBases()
+
+    bases = []
+
+    for stockbase in stockbases:
+        if stockbase.entrytype:
+            base = {}
+            base['userid'] = stockbase.userid
+            base['username'] = stockbase.getUserName()
+            base['stockcolorid'] = stockbase.stockcolorid
+            base['stockcolorname'] = stockbase.getStockColorName()
+            base['stocktypeid'] = stockbase.stocktypeid
+            base['stocktypename'] = stockbase.getStockTypeName()
+            base['quantity'] = stockbase.getFormattedQuantity()
+            base['quantityunit'] = stockbase.getStockUnitName()
+            base['createdate'] = stockbase.createdate
+            base['action'] = stockbase.actiontype
+
+            formstockbase = dbexecutor.getFormStockBasesByStockBaseId(stockbase.id)
+            stockform = dbexecutor.getStockForm(formstockbase.stockformid)
+
+            base['corporationid'] = stockform.corporationid
+            base['corporationname'] = stockform.getCorporationName()
+
+            base['packagequantity'] = formstockbase.packagequantity
+            base['packagequantityunit'] = formstockbase.getStockPackageName()
+            base['note'] = formstockbase.note
+            if stockbase.actiontype:
+                base['actiontype'] = 'Depo Giriş Formu'
+                incomingstockform = dbexecutor.getIncomingStockFormByStockFormId(stockform.id)
+                base['formid'] = incomingstockform.id
+                base['formname'] = incomingstockform.name
+                base['stockroomid'] = '-1'
+                base['stockroomname'] = '-'
+                base['shipinfo'] = '-'
+
+            else:
+                base['actiontype'] = 'Ürün Sevkiyat Formu'
+                outgoingstockform = dbexecutor.getOutgoingStockFormByStockFormId(stockform.id)
+                base['formid'] = outgoingstockform.id
+                base['formname'] = outgoingstockform.name
+                base['stockroomid'] = outgoingstockform.stockroomid
+                base['stockroomname'] = outgoingstockform.getStockroomName()
+                base['shipinfo'] = outgoingstockform.shipinfo
+
+            bases.append(base)
+
+    return render_template("formstockmoves.html", bases=bases)
 
 
 @app.route('/getstockcategoriesbystocktypeid', methods=['POST'])

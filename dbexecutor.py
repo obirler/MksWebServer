@@ -1872,14 +1872,16 @@ def addStockBase(userid, stocktypeid, stockcolorid, quantity, actiontype, entryt
     base = models.StockBase(userid, stocktypeid, stockcolorid, quantity, actiontype, entrytype)
     try:
         session.add(base, True)
+
+        if commit:
+            session.commit()
+
         if processstock:
             if actiontype:
                 processaddincomingstock(base, commit)
             else:
                 processaddoutgoingstock(base, commit)
 
-        if commit:
-            session.commit()
         return base
     except Exception as e:
         session.rollback()

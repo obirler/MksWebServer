@@ -136,7 +136,7 @@ class StockSubcategory(Base):
     __tablename__ = 'stocksubcategory'
     id = Column(Integer, primary_key=True)
     name = Column(String(50))
-    categoryid = Column(Integer, ForeignKey('stockcategory.id'), nullable=False)
+    categoryid = Column(Integer, ForeignKey(StockCategory.id, ondelete='RESTRICT'), nullable=False)
 
     def __init__(self, name=None, categoryid=None):
         """
@@ -660,6 +660,20 @@ class StockBase(Base):
             formattedqtty = round(qtty, int(dbexecutor.getStockType(self.stocktypeid).getUnitPrecision()))
         return str(formattedqtty) + ' ' + self.getStockUnitName()
 
+    def getFormattedQuantity(self):
+        """
+        Gets the formatted quantity of this StockBase
+
+        :return: The formatted quantity of this StockBase
+        :rtype: float
+        """
+        qtty = float(self.quantity)
+        if float.is_integer(qtty):
+            formattedqtty = int(qtty)
+        else:
+            formattedqtty = round(qtty, int(dbexecutor.getStockType(self.stocktypeid).getUnitPrecision()))
+        return formattedqtty
+
     def getStockUnitName(self):
         """
         Gets the name of the StockUnit of this StockBase
@@ -795,6 +809,7 @@ class FormStockBase(Base):
         :rtype: str
         """
         return str(self.packagequantity) + ' ' + self.getStockPackageName()
+
 
     def __repr__(self):
         return "<FormStockBase(id='%s', stockformid='%s', stockbaseid='%s', stockpackageid='%s', " \
