@@ -98,12 +98,10 @@ function fSFAddFilterItem(columnid, operatorid, value1, value2)
     var newRow = tbodyRef.insertRow();
 
     var columnCell = newRow.insertCell();
-    columnCell.style.verticalAlign= "middle";
     columnCell.textContent = filtercolumntext;
     columnCell.setAttribute('data-id', entryid);
 
     var filterCell = newRow.insertCell();
-    filterCell.style.verticalAlign= "middle";
     filterCell.textContent = filtertext;
     filterCell.setAttribute('data-columnid', columnid);
     filterCell.setAttribute('data-operatorid', operatorid);
@@ -111,8 +109,6 @@ function fSFAddFilterItem(columnid, operatorid, value1, value2)
     filterCell.setAttribute('data-value2', value2);
 
     var buttonCell = newRow.insertCell();
-    buttonCell.style.verticalAlign= "middle";
-    buttonCell.style.horizontalAlign = "right";
     var div = document.createElement('div');
     buttonCell.appendChild(div);
     fSFAddClass(div, "form-row");

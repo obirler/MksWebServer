@@ -1,0 +1,78 @@
+<!-- Form Stock Moves Document Modal -->
+<div id="formStockMovesDocumentModal" class="modal" data-operation="none">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 id="formStockMovesDocumentTitle" class="modal-title">Belge Oluştur</h4>
+        <button id="formStockMovesDocumentModalCloseBtn1" type="button" data-dismiss="modal" class="close">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div id="formStockMovesDocumentModalAlert" class="alert alert-danger" role="alert" style="display: none;">
+           Message
+        </div>
+
+        <form class="form" style="margin:0;">
+            <div class="form-group">
+              <label for="formStockMovesDocumentTitleInput">Belge Başlığı</label>
+              <input data-typeid="-1" id="formStockMovesDocumentTitleInput" type="text" class="form-control" placeholder="Başlık Girin">
+            </div>
+            <div class="form-group form-check" style="margin-left: 10px;">
+              <input type="checkbox" class="form-check-input" id="stockTypeCheck" checked>
+              <label class="form-check-label" for="stockTypeCheck">Malzeme Türü</label>
+            </div>
+            <div class="form-group form-check" style="margin-left: 10px;">
+              <input type="checkbox" class="form-check-input" id="stockColorCheck" checked>
+              <label class="form-check-label" for="stockColorCheck">Renk</label>
+            </div>
+            <div class="form-group form-check" style="margin-left: 10px;">
+              <input type="checkbox" class="form-check-input" id="stockQuantityCheck" checked>
+              <label class="form-check-label" for="stockQuantityCheck">Miktar</label>
+            </div>
+            <div class="form-group form-check" style="margin-left: 10px;">
+              <input type="checkbox" class="form-check-input" id="stockPackageQuantityCheck" checked>
+              <label class="form-check-label" for="stockPackageQuantityCheck">Paket Miktarı</label>
+            </div>
+            <div class="form-group form-check" style="margin-left: 10px;">
+              <input type="checkbox" class="form-check-input" id="userCheck">
+              <label class="form-check-label" for="userCheck">Kullanıcı</label>
+            </div>
+            <div class="form-group form-check" style="margin-left: 10px;">
+              <input type="checkbox" class="form-check-input" id="companyCheck" checked>
+              <label class="form-check-label" for="companyCheck">Şirket İsmi</label>
+            </div>
+            <div class="form-group form-check" style="margin-left: 10px;">
+              <input type="checkbox" class="form-check-input" id="moveTypeCheck">
+              <label class="form-check-label" for="moveTypeCheck">Hareket Tipi</label>
+            </div>
+            <div class="form-group form-check" style="margin-left: 10px;">
+              <input type="checkbox" class="form-check-input" id="stockRoomCheck">
+              <label class="form-check-label" for="stockRoomCheck">Ambar Adı</label>
+            </div>
+            <div class="form-group form-check" style="margin-left: 10px;">
+              <input type="checkbox" class="form-check-input" id="shipInfoCheck">
+              <label class="form-check-label" for="shipInfoCheck">Araç Bilgileri</label>
+            </div>
+            <div class="form-group form-check" style="margin-left: 10px;">
+              <input type="checkbox" class="form-check-input" id="descriptionCheck">
+              <label class="form-check-label" for="descriptionCheck">Açıklama</label>
+            </div>
+            <div class="form-group form-check" style="margin-left: 10px;">
+              <input type="checkbox" class="form-check-input" id="dateCheck">
+              <label class="form-check-label" for="dateCheck">Tarih</label>
+            </div>
+            <button id="formStockMovesDocumentModalActionButton" type="button" class="btn btn-primary btn-block" style="margin-top:3%;">Belgeyi Oluştur</button>
+        </form>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button id="stockCategoryModalCloseBtn2" type="button" data-dismiss="modal" class="btn btn-danger">Kapat</button>
+      </div>
+
+    </div>
+  </div>
+</div>

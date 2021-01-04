@@ -9,7 +9,7 @@
     <h2 class="form-signin-heading" style="text-align:center; color:white;">Ürün Sevkiyat Formları</h2>
     <span style="display:block; height: 10px;"></span>
     <div class="table-responsive">
-        <table id="stockformstable" class="table table-striped" style="background-color:white;">
+        <table id="stockformstable" class="table table-striped">
           <thead>
             <tr>
               <th scope="col">Form Adı</th>
@@ -25,15 +25,15 @@
           <tbody>
             {%for f in forms%}
               <tr>
-                  <td style="vertical-align: middle;">
+                  <td>
                       <a href="/editoutgoingstockform/{{f.formid}}">{{f.name}}</a>
                   </td>
-                  <td style="vertical-align: middle;">{{f.username}}</td>
-                  <td style="vertical-align: middle;">{{f.corporationname}}</td>
-                  <td style="vertical-align: middle;">{{f.outgoingstocksquantity}}</td>
-                  <td style="vertical-align: middle;">{{f.stockroom}}</td>
-                  <td style="vertical-align: middle;">{{f.shipinfo}}</td>
-                  <td style="vertical-align: middle;">{{f.recorddate.strftime('%d-%m-%Y %H:%M:%S')}}</td>
+                  <td>{{f.username}}</td>
+                  <td>{{f.corporationname}}</td>
+                  <td>{{f.outgoingstocksquantity}}</td>
+                  <td>{{f.stockroom}}</td>
+                  <td>{{f.shipinfo}}</td>
+                  <td>{{f.recorddate.strftime('%d-%m-%Y %H:%M:%S')}}</td>
                   <td class="min">
                       <div class="d-flex flex-nowrap">
                           <div class="btn-group">

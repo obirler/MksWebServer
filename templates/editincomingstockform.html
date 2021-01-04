@@ -21,11 +21,11 @@
           <tbody>
             {%for stock in form.incomingstocks %}
               <tr>
-                  <td style="vertical-align: middle;" data-id="{{stock.stocktypeid}}" data-entryid="{{stock.entryid}}">{{stock.stocktypename}}</td>
-                  <td style="vertical-align: middle;" data-id="{{stock.stockcolorid}}">{{stock.stockcolorname}}</td>
-                  <td style="vertical-align: middle;" data-quantity="{{stock.quantity}}" data-unitid="{{stock.stockunitid}}">{{stock.quantitytext}}</td>
-                  <td style="vertical-align: middle;" data-quantity="{{stock.packagequantity}}" data-packageid="{{stock.stockpackageid}}">{{stock.packagetext}}</td>
-                  <td style="vertical-align: middle;">{{stock.note}}</td>
+                  <td data-id="{{stock.stocktypeid}}" data-entryid="{{stock.entryid}}">{{stock.stocktypename}}</td>
+                  <td data-id="{{stock.stockcolorid}}">{{stock.stockcolorname}}</td>
+                  <td data-quantity="{{stock.quantity}}" data-unitid="{{stock.stockunitid}}">{{stock.quantitytext}}</td>
+                  <td data-quantity="{{stock.packagequantity}}" data-packageid="{{stock.stockpackageid}}">{{stock.packagetext}}</td>
+                  <td >{{stock.note}}</td>
                   <td>
                       <div class="form-row">
                           <button class="btn btn-primary" data-toggle="tooltip" title="Malzemeyi Değiştir" onclick="openStockEntryModalForUpdate('{{stock.entryid}}', '{{stock.stocktypeid}}', '{{stock.stockcolorid}}', '{{stock.stockunitid}}', '{{stock.quantity}}', '{{stock.stockpackageid}}', '{{stock.packagequantity}}', '{{stock.note}}')"><i class="fas fa-search"></i></button>

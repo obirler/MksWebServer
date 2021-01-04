@@ -13,48 +13,13 @@ $( document ).ready(function()
         filterTable();
     });
 
-    getDataTable();
-});
+    $("#formStockMovesDocumentModalActionButton").on("click", function(){
+        $('#formStockMovesDocumentModal').modal('hide');
+        createDocument();
+    });
 
-function getDataTable()
-{
-    if ( $.fn.dataTable.isDataTable('#stockformstable'))
-    {
-        var table = $('#stockformstable').DataTable();
-        return table;
-    }
-    else
-    {
-        var table = $('#stockformstable').DataTable(
-        {
-            language: {
-                            "decimal":        ",",
-                            "emptyTable":     "Tabloda herhangi bir veri mevcut değil",
-                            "info":           "_TOTAL_ kayıttan _START_ - _END_ arasındaki kayıtlar gösteriliyor",
-                            "infoEmpty":      "0 kayıttan 0 - 0 arasındaki kayıtlar gösteriliyor",
-                            "infoFiltered":   "(_MAX_ kayıt içerisinden bulunan)",
-                            "infoPostFix":    "",
-                            "thousands":      "",
-                            "lengthMenu":     "Sayfada _MENU_ kayıt göster",
-                            "loadingRecords": "Yükleniyor...",
-                            "processing":     "İşleniyor...",
-                            "search":         "Ara:",
-                            "zeroRecords":    "Eşleşen kayıt bulunamadı",
-                            "paginate": {
-                                "first":      "İlk",
-                                "last":       "Son",
-                                "next":       "Sonraki",
-                                "previous":   "Önceki"
-                            },
-                            "aria": {
-                                "sortAscending":  ": artan sütun sıralamasını aktifleştir",
-                                "sortDescending": ": azalan sütun sıralamasını aktifleştir"
-                            }
-                     }
-        });
-        return table;
-    }
-}
+    getDataTable('stockformstable');
+});
 
 function filterTable()
 {
@@ -71,13 +36,12 @@ function filterTable()
         var value2 = cell.dataset.value2;
         addfilter(columnid, operatorid, value1, value2);
     }
-    var table = getDataTable();
+    var table = getDataTable('stockformstable');
     table.draw();
 }
 
 function addfilter(columnid, operatorid, value1, value2)
 {
-    
     switch(columnid)
     {
         case "-1":
@@ -332,6 +296,119 @@ function getDateTimeFromTableString(str)
 
     var datetime = new Date(year, month-1, date, hour, minute, second, 0);
     return datetime;
+}
+
+function createDocument()
+{
+    var danger = document.getElementById('dangeralert');
+    danger.style.display = "none";
+    var entryids = [];
+    var table = getDataTable('stockformstable');
+    var rows = table.rows( { search: 'applied' } ).nodes();
+
+    for (var i = 0; i < rows.length; i++)
+    {
+        var row = rows[i];
+        var id = row.dataset.id;
+        entryids.push(id);
+    }
+
+    var columnids = [];
+
+    var stocktypecheckbox = document.getElementById("stockTypeCheck");
+    if(stocktypecheckbox.checked)
+    {
+        columnids.push(1);
+    }
+
+    var stockcolorcheckbox = document.getElementById("stockColorCheck");
+    if(stockcolorcheckbox.checked)
+    {
+        columnids.push(2);
+    }
+
+    var stockquantitycheckbox = document.getElementById("stockQuantityCheck");
+    if(stockquantitycheckbox.checked)
+    {
+        columnids.push(3);
+    }
+
+    var stockpackagequantitycheckbox = document.getElementById("stockPackageQuantityCheck");
+    if(stockpackagequantitycheckbox.checked)
+    {
+        columnids.push(4);
+    }
+
+    var usercheckbox = document.getElementById("userCheck");
+    if(usercheckbox.checked)
+    {
+        columnids.push(5);
+    }
+
+    var companycheckbox = document.getElementById("companyCheck");
+    if(companycheckbox.checked)
+    {
+        columnids.push(6);
+    }
+
+    var movetypecheckbox = document.getElementById("moveTypeCheck");
+    if(movetypecheckbox.checked)
+    {
+        columnids.push(7);
+    }
+
+    var stockroomcheckbox = document.getElementById("stockRoomCheck");
+    if(stockroomcheckbox.checked)
+    {
+        columnids.push(8);
+    }
+
+    var shipinfocheckbox = document.getElementById("shipInfoCheck");
+    if(shipinfocheckbox.checked)
+    {
+        columnids.push(9);
+    }
+
+    var decriptioncheckbox = document.getElementById("descriptionCheck");
+    if(decriptioncheckbox.checked)
+    {
+        columnids.push(10);
+    }
+
+    var datecheckbox = document.getElementById("dateCheck");
+    if(datecheckbox.checked)
+    {
+        columnids.push(11);
+    }
+
+    var doctitle = document.getElementById("formStockMovesDocumentTitleInput").value;
+
+    var doctable = {};
+    doctable.entries = entryids;
+    doctable.columns = columnids;
+    doctable.title = doctitle;
+
+    var request = new XMLHttpRequest();
+    request.open("POST", "/downloadformstockmoves");
+    request.setRequestHeader("Content-Type", "application/json");
+    request.addEventListener("load", documentListener);
+    var jsondata = JSON.stringify(doctable);
+    request.send(jsondata);
+}
+
+function documentListener()
+{
+    var json = JSON.parse(this.responseText);
+    if(json.responsecode === 0)
+    {
+        window.open('/getfilteredformstockmovesdoc','_blank');
+    }
+    else if(json.responsecode === -1)
+    {
+        var danger = document.getElementById('dangeralert');
+        danger.textContent  = json.message;
+        danger.style.display = "block";
+    }
 }
 
 function clearfilterstack()

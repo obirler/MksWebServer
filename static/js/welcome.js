@@ -3,6 +3,11 @@ function depodurumu()
     window.location.replace("/stocks");
 }
 
+function formmalzemehareketleri()
+{
+    window.location.replace("/formstockmoves");
+}
+
 function depogiris()
 {
     window.location.replace("/addincomingstockform");

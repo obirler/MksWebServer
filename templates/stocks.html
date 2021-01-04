@@ -5,11 +5,11 @@
 {%block content%}
 {% if current_user.isadmin %}
 
-<div id="tablecontainer" data-order='[[ 1, "asc" ]]' data-page-length='10' style="margin-top: 1%; margin-left: 2%; margin-right:2%;">
+<div id="tablecontainer" style="margin-top: 1%; margin-left: 2%; margin-right:2%;">
     <h2 class="form-signin-heading" style="text-align:center; color:white;">Depo Malzeme Durumu</h2>
     <span style="display:block; height: 10px;"></span>
     <div class="table-responsive">
-        <table id="stockstable" class="table table-striped" style="background-color:white;">
+        <table id="stockstable" class="table table-striped" data-order='[[0, "asc"]]' data-page-length='10'>
           <thead>
             <tr>
               <th scope="col">Malzeme Adı</th>
@@ -21,10 +21,10 @@
           <tbody>
             {%for stock in stocks%}
               <tr>
-                  <td style="vertical-align: middle;" >{{stock.getStockTypeName()}}</td>
-                  <td style="vertical-align: middle;" >{{stock.getStockColorName()}}</td>
-                  <td style="vertical-align: middle;" >{{stock.getQuantityText()}}</td>
-                  <td class="min" style="vertical-align: middle;" >
+                  <td>{{stock.getStockTypeName()}}</td>
+                  <td>{{stock.getStockColorName()}}</td>
+                  <td>{{stock.getQuantityText()}}</td>
+                  <td class="min">
                       <div class="d-flex flex-nowrap">
                           <button class="btn btn-primary" data-toggle="tooltip" title="Malzemeyi Düzenle" onclick="openStockEntryModalForUpdate('{{stock.id}}', '{{stock.stocktypeid}}', '{{stock.stockcolorid}}', '{{stock.getStockUnitId()}}','{{stock.quantity}}')"><i class="fas fa-external-link-alt"></i></button>
                           <span style="display: inline; width: 5px;"></span>
@@ -50,6 +50,7 @@
 <div class="alert alert-danger" role="alert" style="margin-top: 1%; margin-left: 3%; margin-right:3%; display: block;">
   Bu sayfayı görüntülemeye yetkiniz yok!
 </div>
+
 {% endif %}
 {%endblock%}
 

@@ -212,7 +212,7 @@ function addStockCategoryEntryHtml(catid, catname)
 {
     var rowid = 'stockcategory' + catid;
     var htmlstr = '<tr id="' + rowid +'">';
-    htmlstr += '<td data-id="' + catid + '" style="vertical-align: middle;">' + catname + '</td>';
+    htmlstr += '<td data-id="' + catid + '">' + catname + '</td>';
     htmlstr += '<td class="min">';
     htmlstr +=  '<div class="d-flex flex-nowrap">';
     htmlstr +=      '<button class="btn btn-primary" onclick="openStockCategoryUpdateModalClicked(\'' + catid + '\',\'' + catname + '\')" data-toggle="tooltip" title="Malzeme Kategorisini Değiştir">';
@@ -409,7 +409,7 @@ function addStockSubcategoryEntryHtml(subcatid, subcatname, catid)
 {
     var rowid = 'stocksubcategory' + subcatid;
     var htmlstr = '<tr id="' + rowid +'">';
-    htmlstr += '<td data-id="' + subcatid + '" data-categoryid="' + catid + '" style="vertical-align: middle;">' + subcatname + '</td>';
+    htmlstr += '<td data-id="' + subcatid + '" data-categoryid="' + catid + '">' + subcatname + '</td>';
     htmlstr += '<td class="min">';
     htmlstr +=  '<div class="d-flex flex-nowrap">';
     htmlstr +=      '<button class="btn btn-primary" onclick="openStockSubcategoryUpdateModalClicked(\'' + subcatid + '\',\'' + subcatname + '\',\'' + catid + '\')" data-toggle="tooltip" title="Malzeme Alt Kategorisini Değiştir">';
@@ -646,8 +646,8 @@ function addStockTypeEntryHtml(typeid, typename, unitid, unitname, subcatid)
 {
     var rowid = 'stocktype' + typeid;
     var htmlstr = '<tr id="' + rowid +'">';
-    htmlstr += '<td data-id="' + typeid + '" style="vertical-align: middle;">' + typename + '</td>';
-    htmlstr += '<td data-unitid="' + unitid + '" style="vertical-align: middle;">' + unitname + '</td>';
+    htmlstr += '<td data-id="' + typeid + '">' + typename + '</td>';
+    htmlstr += '<td data-unitid="' + unitid + '">' + unitname + '</td>';
     htmlstr += '<td class="min">';
     htmlstr +=  '<div class="d-flex flex-nowrap">';
     htmlstr +=      '<button class="btn btn-primary" onclick="openStockTypeUpdateModalClicked(\'' + typeid + '\',\'' + typename + '\',\'' + unitid + '\',\'' + subcatid + '\')" data-toggle="tooltip" title="Malzeme Cinsini Değiştir">';
@@ -780,7 +780,7 @@ function addStockColorEntryHtml(colorid, colorname)
 {
     var rowid = 'stockcolor' + colorid;
     var htmlstr = '<tr id="' + rowid +'">';
-    htmlstr += '<td data-id="' + colorid + '" style="vertical-align: middle;">' + colorname + '</td>';
+    htmlstr += '<td data-id="' + colorid + '">' + colorname + '</td>';
     htmlstr += '<td class="min">';
     htmlstr +=  '<div class="d-flex flex-nowrap">';
     htmlstr +=      '<button class="btn btn-primary" onclick="openStockColorUpdateModalClicked(\'' + colorid + '\',\'' + colorname + '\')" data-toggle="tooltip" title="Malzeme Rengini Değiştir">';
@@ -916,7 +916,7 @@ function addStockPackageEntryHtml(packageid, packagename)
 {
     var rowid = 'stockpackage' + packageid;
     var htmlstr = '<tr id="' + rowid +'">';
-    htmlstr += '<td data-id="' + packageid + '" style="vertical-align: middle;">' + packagename + '</td>';
+    htmlstr += '<td data-id="' + packageid + '">' + packagename + '</td>';
     htmlstr += '<td class="min">';
     htmlstr +=  '<div class="d-flex flex-nowrap">';
     htmlstr +=      '<button class="btn btn-primary" onclick="openStockPackageUpdateModalClicked(\'' + packageid + '\',\'' + packagename + '\')" data-toggle="tooltip" title="Malzeme Rengini Değiştir">';
@@ -1053,7 +1053,7 @@ function addCorporationEntryHtml(corporationid, corporationname)
 {
     var rowid = 'corporation' + corporationid;
     var htmlstr = '<tr id="' + rowid +'">';
-    htmlstr += '<td data-id="' + corporationid + '" style="vertical-align: middle;">' + corporationname + '</td>';
+    htmlstr += '<td data-id="' + corporationid + '">' + corporationname + '</td>';
     htmlstr += '<td class="min">';
     htmlstr +=  '<div class="d-flex flex-nowrap">';
     htmlstr +=      '<button class="btn btn-primary" onclick="openCorporationUpdateModalClicked(\'' + corporationid + '\',\'' + corporationname + '\')" data-toggle="tooltip" title="Malzeme Rengini Değiştir">';
@@ -1189,7 +1189,7 @@ function addStockUnitEntryHtml(unitid, unitname)
 {
     var rowid = 'stockunit' + unitid;
     var htmlstr = '<tr id="' + rowid +'">';
-    htmlstr += '<td data-id="' + unitid + '" style="vertical-align: middle;">' + unitname + '</td>';
+    htmlstr += '<td data-id="' + unitid + '">' + unitname + '</td>';
     htmlstr += '<td class="min">';
     htmlstr +=  '<div class="d-flex flex-nowrap">';
     htmlstr +=      '<button class="btn btn-primary" onclick="openStockUnitUpdateModalClicked(\'' + unitid + '\',\'' + unitname + '\')" data-toggle="tooltip" title="Malzeme Rengini Değiştir">';

@@ -23,11 +23,11 @@
 
     <span style="display:block; height: 10px;"></span>
 
-    <div class="collapse" id="stockcategorycollapse" aria-expanded="true" data-order='[[ 1, "asc" ]]' data-page-length='10'>
+    <div class="collapse" id="stockcategorycollapse" aria-expanded="true">
         <h4 class="form-signin-heading" style="text-align:center; color: white;">Malzeme Kategorisi</h4>
         <span style="display:block; height: 6px;"></span>
         <div class="table-responsive">
-        <table id="stockcategorytable" class="table table-striped" style="background-color:white;">
+        <table id="stockcategorytable" class="table table-striped" data-order='[[0, "asc"]]' data-page-length='10'>
           <thead>
             <tr>
               <th scope="col">Malzeme Kategorisi</th>
@@ -37,7 +37,7 @@
           <tbody>
             {%for category in stockcategories%}
               <tr id="{{'stockcategory' ~ category.id}}">
-                  <td data-id="{{category.id}}" style="vertical-align: middle;">{{category.name}}</td>
+                  <td data-id="{{category.id}}">{{category.name}}</td>
                   <td class="min">
                       <div class="d-flex flex-nowrap">
                             <button class="btn btn-primary" onclick="openStockCategoryUpdateModalClicked('{{category.id}}','{{category.name}}')" data-toggle="tooltip" title="Malzeme Kategorisini Değiştir">
@@ -67,7 +67,7 @@
         </select>
         <span style="display:block; height: 15px;"></span>
         <div class="table-responsive">
-        <table id="stocksubcategorytable" class="table table-striped" style="background-color:white;">
+        <table id="stocksubcategorytable" class="table table-striped" data-order='[[0, "asc"]]' data-page-length='10'>
             <thead>
                 <tr>
                   <th scope="col">Malzeme Alt Kategorisi</th>
@@ -95,7 +95,7 @@
         </select>
         <span style="display:block; height: 15px;"></span>
         <div class="table-responsive">
-        <table id="stocktypetable" class="table table-striped" style="background-color:white;">
+        <table id="stocktypetable" class="table table-striped" data-order='[[0, "asc"]]' data-page-length='10'>
           <thead>
             <tr>
               <th scope="col">Malzeme Cinsi</th>
@@ -116,7 +116,7 @@
         <h4 class="form-signin-heading" style="text-align:center; color: white;">Malzeme Renkleri</h4>
         <span style="display:block; height: 6px;"></span>
         <div class="table-responsive">
-        <table id="stockcolortable" class="table table-striped" style="background-color:white;">
+        <table id="stockcolortable" class="table table-striped" data-order='[[0, "asc"]]' data-page-length='10'>
           <thead>
             <tr>
               <th scope="col">Malzeme Rengi</th>
@@ -126,7 +126,7 @@
           <tbody>
             {%for color in stockcolors%}
               <tr id="{{'stockcolor' ~ color.id}}">
-                  <td data-id="{{color.id}}" style="vertical-align: middle;">{{color.name}}</td>
+                  <td data-id="{{color.id}}">{{color.name}}</td>
                   <td class="min">
                       <div class="d-flex flex-nowrap">
                             <button class="btn btn-primary" onclick="openStockColorUpdateModalClicked('{{color.id}}','{{color.name}}')" data-toggle="tooltip" title="Malzeme Rengini Değiştir">
@@ -152,7 +152,7 @@
         <h4 class="form-signin-heading" style="text-align:center; color: white;">Şirketler</h4>
         <span style="display:block; height: 6px;"></span>
         <div class="table-responsive">
-        <table id="corporationtable" class="table table-striped" style="background-color:white;">
+        <table id="corporationtable" class="table table-striped" data-order='[[0, "asc"]]' data-page-length='10'>
           <thead>
             <tr>
               <th scope="col">Şirket Adı</th>
@@ -162,7 +162,7 @@
           <tbody>
             {%for corporation in corporations%}
               <tr id="{{'corporation' ~ corporation.id}}">
-                  <td data-id="{{corporation.id}}" style="vertical-align: middle;">{{corporation.name}}</td>
+                  <td data-id="{{corporation.id}}">{{corporation.name}}</td>
                   <td class="min">
                       <div class="d-flex flex-nowrap">
                             <button class="btn btn-primary" onclick="openCorporationUpdateModalClicked('{{corporation.id}}','{{corporation.name}}')" data-toggle="tooltip" title="Şirketi Değiştir">
@@ -188,7 +188,7 @@
         <h4 class="form-signin-heading" style="text-align:center; color: white;">Ambalaj Tipleri</h4>
         <span style="display:block; height: 6px;"></span>
         <div class="table-responsive">
-        <table id="stockpackagetable" class="table table-striped" style="background-color:white;">
+        <table id="stockpackagetable" class="table table-striped" data-order='[[0, "asc"]]' data-page-length='10'>
           <thead>
             <tr>
               <th scope="col">Ambalaj Tipi</th>
@@ -197,8 +197,8 @@
           </thead>
           <tbody>
             {%for package in stockpackages%}
-              <tr  id="{{'stockpackage' ~ package.id}}">
-                  <td data-id="{{package.id}}" style="vertical-align: middle;">{{package.name}}</td>
+              <tr id="{{'stockpackage' ~ package.id}}">
+                  <td data-id="{{package.id}}">{{package.name}}</td>
                   <td class="min">
                       <div class="d-flex flex-nowrap">
                             <button class="btn btn-primary" onclick="openStockPackageUpdateModalClicked('{{package.id}}','{{package.name}}')" data-toggle="tooltip" title="Ambalaj Tipini Değiştir">
@@ -224,7 +224,7 @@
         <h4 class="form-signin-heading" style="text-align:center; color: white;">Malzeme Birimleri</h4>
         <span style="display:block; height: 6px;"></span>
         <div class="table-responsive">
-        <table id="stockunittable" class="table table-striped" style="background-color:white;">
+        <table id="stockunittable" class="table table-striped" data-order='[[0, "asc"]]' data-page-length='10'>
           <thead>
             <tr>
               <th scope="col">Stok Birim Adı</th>
@@ -235,8 +235,8 @@
           <tbody>
             {%for unit in stockunits%}
               <tr id="{{'stockunit' ~ unit.id}}">
-                  <td data-id="{{unit.id}}" style="vertical-align: middle;">{{unit.name}}</td>
-                  <td data-precision="{{unit.precision}}" style="vertical-align: middle;">{{unit.precision}}</td>
+                  <td data-id="{{unit.id}}">{{unit.name}}</td>
+                  <td data-precision="{{unit.precision}}">{{unit.precision}}</td>
                   <td class="min">
                       <div class="d-flex flex-nowrap">
                             <button class="btn btn-primary" onclick="openStockUnitUpdateModalClicked('{{unit.id}}','{{unit.name}}','{{unit.precision}}')" data-toggle="tooltip" title="Malzeme Birimini Değiştir">

@@ -3,9 +3,10 @@ from flask_login import login_required, current_user
 
 import dbexecutor
 import util
-from config import app
+from config import app, AppRoot
 from doctemplates.IncomingStockFormTemplate import IncomingStockFormTemplate
 from doctemplates.OutgoingStockFormTemplate import OutgoingStockFormTemplate
+from doctemplates.FormStockMovesTemplate import FormStockMovesTemplate
 
 
 @app.route('/incomingstockforms', methods=['GET'])
@@ -700,6 +701,7 @@ def formStockMoves():
     for stockbase in stockbases:
         if stockbase.entrytype:
             base = {}
+            base['baseid'] = stockbase.id
             base['userid'] = stockbase.userid
             base['username'] = stockbase.getUserName()
             base['stockcolorid'] = stockbase.stockcolorid
@@ -741,6 +743,32 @@ def formStockMoves():
             bases.append(base)
 
     return render_template("formstockmoves.html", bases=bases)
+
+
+@app.route('/downloadformstockmoves', methods=['POST'])
+@login_required
+def downloadFilteredFormStockMoves():
+    reqjson = request.get_json()
+    entries = reqjson['entries']
+    columns = reqjson['columns']
+    title = reqjson['title']
+    try:
+        formtemplate = FormStockMovesTemplate(entries, columns, title)
+        formtemplate.generatePdf()
+        return jsonify(responsecode=0)
+    except Exception as e:
+        if hasattr(e, 'message'):
+            message = e.message
+        else:
+            message = 'Hata'
+        return jsonify(responsecode=-1, message=message)
+
+
+@app.route('/getfilteredformstockmovesdoc', methods=['GET'])
+@login_required
+def getFilteredFormStockMovesDoc():
+    pdfpath = AppRoot + '/static/data/form.pdf'
+    return send_file(pdfpath, mimetype="application/pdf", attachment_filename='form.pdf')
 
 
 @app.route('/getstockcategoriesbystocktypeid', methods=['POST'])

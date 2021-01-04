@@ -5,23 +5,23 @@
 {%block content%}
 {% if current_user.isadmin %}
 
-<div id="tablecontainer" data-order='[[ 1, "asc" ]]' data-page-length='10' style="margin-top: 1%; margin-left: 2%; margin-right:2%;">
+<div id="tablecontainer" style="margin-top: 1%; margin-left: 2%; margin-right:2%;">
     <h2 class="form-signin-heading" style="text-align:center; color:white;">Form Malzeme Hareketleri</h2>
     <span style="display:block; height: 10px;"></span>
     <button id="updateFormBtn" type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#formStockFilterModal">Filtrele</button>
     <span style="display:block; height: 15px;"></span>
     <div class="table-responsive">
-        <table id="stockformstable" class="table table-striped table-hover table-sm" style="background-color:white;">
+        <table id="stockformstable" class="table table-striped table-hover table-sm" data-order='[[1, "asc"]]' data-page-length='10'>
           <thead>
             <tr>
               <th scope="col">Op.</th>
-              <th scope="col">Mazeme Türü</th>
+              <th scope="col">Mazeme Cinsş</th>
               <th scope="col">Renk</th>
               <th scope="col">Miktar</th>
               <th scope="col">Miktar Birimi</th>
-              <th scope="col">Paket Miktarı</th>
-              <th scope="col">Paket Miktarı Birimi</th>
-              <th scope="col">Kullanıcı Adı</th>
+              <th scope="col">Ambalaj Sayısı</th>
+              <th scope="col">Ambalaj Birimi</th>
+              <th scope="col">Ekleyen Kullanıcı</th>
               <th scope="col">Şirket İsmi</th>
               <th scope="col">Hareket Tipi</th>
               <th scope="col">Form Adı</th>
@@ -33,7 +33,7 @@
           </thead>
           <tbody>
             {%for base in bases%}
-              <tr>
+              <tr data-id="{{base.baseid}}">
                   {% if base.action %}
                   <td data-title="Giriş" style="vertical-align: middle;">
                     <i class="fas fa-arrow-left" data-toggle="tooltip" title="Giriş"></i>
@@ -43,36 +43,39 @@
                     <i class="fas fa-arrow-left" data-toggle="tooltip" title="Çıkış"></i>
                   </td>
                   {% endif %}
-                  <td style="vertical-align: middle;">{{base.stocktypename}}</td>
-                  <td style="vertical-align: middle;">{{base.stockcolorname}}</td>
-                  <td style="vertical-align: middle;">{{base.quantity}}</td>
-                  <td style="vertical-align: middle;">{{base.quantityunit}}</td>
-                  <td style="vertical-align: middle;">{{base.packagequantity}}</td>
-                  <td style="vertical-align: middle;">{{base.packagequantityunit}}</td>
-                  <td style="vertical-align: middle;">{{base.username}}</td>
-                  <td style="vertical-align: middle;">{{base.corporationname}}</td>
-                  <td style="vertical-align: middle;">{{base.actiontype}}</td>
-                  <td style="vertical-align: middle;">
+                  <td >{{base.stocktypename}}</td>
+                  <td>{{base.stockcolorname}}</td>
+                  <td>{{base.quantity}}</td>
+                  <td>{{base.quantityunit}}</td>
+                  <td>{{base.packagequantity}}</td>
+                  <td>{{base.packagequantityunit}}</td>
+                  <td>{{base.username}}</td>
+                  <td>{{base.corporationname}}</td>
+                  <td>{{base.actiontype}}</td>
+                  <td>
                   {% if base.action %}
                     <a href="/editincomingstockform/{{base.formid}}">{{base.formname}}</a>
                   {% else %}
                     <a href="/editoutgoingstockform/{{base.formid}}">{{base.formname}}</a>
                   {% endif %}
                   </td>
-                  <td style="vertical-align: middle;">{{base.stockroomname}}</td>
-                  <td style="vertical-align: middle;">{{base.shipinfo}}</td>
-                  <td style="vertical-align: middle;">{{base.note}}</td>
-                  <td style="vertical-align: middle;">{{base.createdate.strftime('%d-%m-%Y %H:%M:%S')}}</td>
+                  <td>{{base.stockroomname}}</td>
+                  <td>{{base.shipinfo}}</td>
+                  <td>{{base.note}}</td>
+                  <td>{{base.createdate.strftime('%d-%m-%Y %H:%M:%S')}}</td>
               </tr>
             {%endfor%}
           </tbody>
         </table>
     </div>
-
+    <span style="display:block; height: 10px;"></span>
+    <button id="createDocumentBtn" type="button" data-toggle="modal" data-target="#formStockMovesDocumentModal" class="btn btn-primary btn-block">Belge Oluştur</button>
     <span style="display:block; height: 30px;"></span>
 </div>
 
 {% include 'modals/formstockfiltermodal.html' %}
+
+{% include 'modals/formstockmovesdocumentmodal.html' %}
 
 {%block script%}
 

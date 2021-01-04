@@ -9,7 +9,7 @@
     <h2 class="form-signin-heading" style="text-align:center; color:white;">Depo Hareketleri</h2>
     <span style="display:block; height: 10px;"></span>
     <div class="table-responsive">
-        <table id="stockstable" class="table table-striped" style="background-color:white;">
+        <table id="stockstable" class="table table-striped">
           <thead>
             <tr>
               <th scope="col">Op.</th>
@@ -26,20 +26,20 @@
           <tbody>
             {%for base in bases%}
               <tr>
-                  <td style="vertical-align: middle;">
+                  <td>
                     {% if base.action %}
                     <i class="fas fa-arrow-left" data-toggle="tooltip" title="Giriş"></i>
                     {% else %}
                     <i class="fas fa-arrow-right" data-toggle="tooltip" title="Çıkış"></i>
                     {% endif %}
                   </td>
-                  <td style="vertical-align: middle;">{{base.stocktypename}}</td>
-                  <td style="vertical-align: middle;">{{base.stockcolorname}}</td>
-                  <td style="vertical-align: middle;">{{base.quantity}}</td>
-                  <td style="vertical-align: middle;">{{base.username}}</td>
-                  <td style="vertical-align: middle;">{{base.entrytype}}</td>
-                  <td style="vertical-align: middle;">{{base.actiontype}}</td>
-                  <td style="vertical-align: middle;">
+                  <td>{{base.stocktypename}}</td>
+                  <td>{{base.stockcolorname}}</td>
+                  <td>{{base.quantity}}</td>
+                  <td>{{base.username}}</td>
+                  <td>{{base.entrytype}}</td>
+                  <td>{{base.actiontype}}</td>
+                  <td>
                       {% if base.entry %}
                         {% if base.action %}
                             <a href="/editincomingstockform/{{base.formid}}">{{base.formname}}</a>
@@ -50,7 +50,7 @@
                         {{base.formname}}
                       {% endif %}
                   </td>
-                  <td style="vertical-align: middle;">{{base.createdate.strftime('%d-%m-%Y %H:%M:%S')}}</td>
+                  <td>{{base.createdate.strftime('%d-%m-%Y %H:%M:%S')}}</td>
               </tr>
             {%endfor%}
           </tbody>
