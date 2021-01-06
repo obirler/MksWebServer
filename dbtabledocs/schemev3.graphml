@@ -159,7 +159,7 @@ name
     <node id="n8">
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
-          <y:Geometry height="72.3125" width="113.66796875" x="576.7578125" y="1756.7248035690254"/>
+          <y:Geometry height="72.3125" width="113.66796875" x="576.7578125" y="1742.0705208032878"/>
           <y:Fill color="#FF0000" color2="#B7C9E3" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#FFFF00" configuration="com.yworks.entityRelationship.label.name" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="t" textColor="#000000" verticalTextPosition="bottom" visible="true" width="80.7109375" x="16.478515625" xml:space="preserve" y="4.0">StockPackage</y:NodeLabel>
@@ -266,7 +266,7 @@ entrytype<y:LabelModel><y:ErdAttributesNodeLabelModel/></y:LabelModel><y:ModelPa
     <node id="n14">
       <data key="d6">
         <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
-          <y:Geometry height="172.11249999999995" width="113.66796875" x="870.7628125000001" y="1706.8248035690256"/>
+          <y:Geometry height="142.80393446852418" width="113.66796875" x="870.7628125000001" y="1706.8248035690258"/>
           <y:Fill color="#FF0000" color2="#B7C9E3" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#FFFF00" configuration="com.yworks.entityRelationship.label.name" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="t" textColor="#000000" verticalTextPosition="bottom" visible="true" width="89.359375" x="12.154296875" xml:space="preserve" y="4.0">FormStockBase</y:NodeLabel>

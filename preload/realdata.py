@@ -1,17 +1,73 @@
 import dbexecutor
-from preload import testdata
 
 
-class CategoryLoad():
+class RealData():
     adetid = None
     metreid = None
     kiloid = None
 
-    def __init__(self, adetid, metreid, kiloid):
-        self.kiloid = kiloid
-        self.metreid = metreid
-        self.adetid = adetid
+    def __init__(self):
+        self.kiloid = -1
+        self.metreid = -1
+        self.adetid = -1
 
+    def preloadRealData(self):
+        self.preloadBaseData()
+        self.preloadcorporation()
+        self.preloadstockrooms()
+        self.preloadCategories()
+
+    def preloadBaseData(self):
+        self.preloadstockunits()
+        self.preloadstockcolors()
+        self.preloadstockpackage()
+
+    def preloadstockunits(self):
+        adet = dbexecutor.addStockUnit('Adet', 0)
+        self.adetid = adet.id
+        metre = dbexecutor.addStockUnit('Metre', 2)
+        self.metreid = metre.id
+        kilo = dbexecutor.addStockUnit('Kilogram', 1)
+        self.kiloid = kilo.id
+
+    def preloadstockcolors(self):
+        dbexecutor.addStockColor("Gri")
+        dbexecutor.addStockColor("Sarı-Yeşil")
+        dbexecutor.addStockColor("Lila")
+        dbexecutor.addStockColor("Siyah")
+        dbexecutor.addStockColor("Mavi")
+        dbexecutor.addStockColor("Yeşil")
+        dbexecutor.addStockColor("Beyaz")
+        dbexecutor.addStockColor("Kahve")
+        dbexecutor.addStockColor("Kırmızı")
+        dbexecutor.addStockColor("Mor")
+        dbexecutor.addStockColor("Sarı")
+        dbexecutor.addStockColor("Turuncu")
+        dbexecutor.addStockColor("Kahve-Mavi")
+
+    def preloadstockpackage(self):
+        dbexecutor.addStockPackage("Koli")
+        dbexecutor.addStockPackage("Çuval")
+        dbexecutor.addStockPackage("Torba")
+        dbexecutor.addStockPackage("Kangal")
+        dbexecutor.addStockPackage("Makara")
+
+    def preloadcorporation(self):
+        dbexecutor.addCorporation("Mega Metal")
+        dbexecutor.addCorporation("Er Bakır")
+        dbexecutor.addCorporation("Deva Plastik")
+        dbexecutor.addCorporation("Eker Motor")
+        dbexecutor.addCorporation("Ürün Sarfı")
+
+    def preloadstockrooms(self):
+        dbexecutor.addStockRoom("Şentaş")
+        dbexecutor.addStockRoom("Günaydın")
+        dbexecutor.addStockRoom("Özkan")
+        dbexecutor.addStockRoom("K. A.")
+
+    '''
+        Category Section
+    '''
     def preloadCategories(self):
         self.preloadImalat()
         self.preloadMegaMetal()

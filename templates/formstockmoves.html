@@ -15,7 +15,7 @@
           <thead>
             <tr>
               <th scope="col">Op.</th>
-              <th scope="col">Mazeme Cinsş</th>
+              <th scope="col">Mazeme Cinsi</th>
               <th scope="col">Renk</th>
               <th scope="col">Miktar</th>
               <th scope="col">Miktar Birimi</th>
@@ -28,7 +28,7 @@
               <th scope="col">Ambar Adı</th>
               <th scope="col">Araç Bilgileri</th>
               <th scope="col">Açıklama</th>
-              <th scope="col">Tarih</th>
+              <th scope="col">Kayıt Tarihi</th>
             </tr>
           </thead>
           <tbody>
@@ -62,7 +62,7 @@
                   <td>{{base.stockroomname}}</td>
                   <td>{{base.shipinfo}}</td>
                   <td>{{base.note}}</td>
-                  <td>{{base.createdate.strftime('%d-%m-%Y %H:%M:%S')}}</td>
+                  <td>{{base.recorddate.strftime('%d-%m-%Y %H:%M:%S')}}</td>
               </tr>
             {%endfor%}
           </tbody>

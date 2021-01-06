@@ -4,7 +4,7 @@ import dbexecutor
 import os
 import routes.stockoperations
 import routes.useroperations
-from preload import testdata
+from preload import preloader
 
 app = config.app
 
@@ -18,8 +18,8 @@ def shutdown_session(exception=None):
 def hello():
     if dbexecutor.firstTime():
         routes.useroperations.registeradmin()
-        test = testdata.TestData()
-        test.preLoadData()
+        preload = preloader.Preloader()
+        preload.preLoad()
     return render_template('welcome.html')
 
 
@@ -28,10 +28,6 @@ def test():
     stocks = dbexecutor.getDepotAllStocks()
     return render_template('test.html', stocks=stocks)
 
-@app.route('/getlang')
-def datatableslangfile():
-    target = os.path.join(config.AppRoot, 'static/DataTables')
-    return send_from_directory(directory=target, filename='turkishlang.json')
 
 @app.context_processor
 def inject_debug():

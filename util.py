@@ -1,6 +1,7 @@
 from flask import session
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
+from random import randrange
 
 
 def setUserSession(user):
@@ -48,3 +49,20 @@ def pythonDateTime(htmldatetime):
 def htmldateTime(pythondatetime):
     htmldatetime = pythondatetime.strftime('%Y-%m-%dT%H:%M')
     return htmldatetime
+
+
+def randomDate(start, end):
+    """
+    Return a random datetime between given datetimes
+
+    :param start: The start datetime
+    :type start: datetime
+    :param end: The end datetime
+    :type end: datetime
+    :return: The random datetime between start and end
+    :rtype: datetime
+    """
+    delta = end - start
+    int_delta = (delta.days * 24 * 60 * 60) + delta.seconds
+    random_second = randrange(int_delta)
+    return start + timedelta(seconds=random_second)

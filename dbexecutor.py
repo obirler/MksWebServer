@@ -113,6 +113,17 @@ def getAllUsers():
     return users
 
 
+def getAllAdminIds():
+    """
+    Gets all available ids of admin Users
+
+    :return: The list of all available ids of admin Users
+    :rtype: list[int]
+    """
+    adminids = session.query(models.User.id).filter(models.User.isadmin == True).all()
+    return adminids
+
+
 def addDepotStock(typeid, colorid, quantity, commit=True):
     """
     Adds a DepotStock
@@ -382,7 +393,7 @@ def updateIncomingStockFormFromJson(formid, user, json):
             note = entry['stocknote']
 
             # Also process the stock to add or change depotstock, call with processstock=True
-            #Have to commit changes because we will have trouble if the same type of stock added
+            # Have to commit changes because we will have trouble if the same type of stock added
             if addFormStockBase(user.id, stockform.id, stocktypeid, stockcolorid, stockpackageid, quantity,
                                 packagequantity, note, True, True, True) is None:
                 session.rollback()
@@ -863,6 +874,17 @@ def deleteStockUnit(id, commit=True):
         return -1
 
 
+def getAllStockUnitIds():
+    """
+    Gets all available ids of StockUnits
+
+    :return: The list of all available ids of StockUnit
+    :rtype: list[int]
+    """
+    ids = session.query(models.StockUnit.id).all()
+    return ids
+
+
 def getAllStockUnits():
     """
     Gets all available StockUnits
@@ -994,6 +1016,17 @@ def getAllStockTypes():
     return types
 
 
+def getAllStockTypeIds():
+    """
+    Gets all available ids of StockType
+
+    :return: The list of all available ids of StockType
+    :rtype: list[int]
+    """
+    ids = session.query(models.StockType.id).all()
+    return ids
+
+
 def getAllStockTypesByStockSubcategory(categoryid):
     """
     Gets all available StockTypes by subcategory
@@ -1117,6 +1150,17 @@ def getAllStockColors():
     return colors
 
 
+def getAllStockColorIds():
+    """
+    Gets all available ids of StockColor
+
+    :return: The list of all available ids of StockColor
+    :rtype: list[int]
+    """
+    ids = session.query(models.StockColor.id).all()
+    return ids
+
+
 def addStockPackage(name, commit=True):
     """
     Adds a StockPackage
@@ -1227,6 +1271,17 @@ def getAllStockPackages():
     return packages
 
 
+def getAllStockPackageIds():
+    """
+    Gets all available ids of StockPackage
+
+    :return: The list of all available ids of StockPackage
+    :rtype: list[int]
+    """
+    ids = session.query(models.StockPackage.id).all()
+    return ids
+
+
 def addCorporation(name, commit=True):
     """
     Adds a Corporation
@@ -1335,6 +1390,17 @@ def getAllCorporations():
     """
     corporations = session.query(models.Corporation).all()
     return corporations
+
+
+def getAllCorporationIds():
+    """
+    Gets all available ids of Corporation
+
+    :return: The list of all available ids of Corporation
+    :rtype: list[int]
+    """
+    ids = session.query(models.Corporation.id).all()
+    return ids
 
 
 def addStockCategory(name, commit=True):

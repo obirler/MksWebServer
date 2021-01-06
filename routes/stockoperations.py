@@ -718,6 +718,7 @@ def formStockMoves():
 
             base['corporationid'] = stockform.corporationid
             base['corporationname'] = stockform.getCorporationName()
+            base['recorddate'] = stockform.recorddate
 
             base['packagequantity'] = formstockbase.packagequantity
             base['packagequantityunit'] = formstockbase.getStockPackageName()
