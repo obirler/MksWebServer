@@ -15,6 +15,7 @@
               <th scope="col">Malzeme Adı</th>
               <th scope="col">Malzeme Rengi</th>
               <th scope="col">Malzeme Miktarı</th>
+              <th scope="col">Miktar Birimi</th>
               <th class="min" scope="col">İşlemler</th>
             </tr>
           </thead>
@@ -23,7 +24,8 @@
               <tr>
                   <td>{{stock.getStockTypeName()}}</td>
                   <td>{{stock.getStockColorName()}}</td>
-                  <td>{{stock.getQuantityText()}}</td>
+                  <td>{{stock.getFormattedQuantity()}}</td>
+                  <td>{{stock.getStockUnitName()}}</td>
                   <td class="min">
                       <div class="d-flex flex-nowrap">
                           <button class="btn btn-primary" data-toggle="tooltip" title="Malzemeyi Düzenle" onclick="openStockEntryModalForUpdate('{{stock.id}}', '{{stock.stocktypeid}}', '{{stock.stockcolorid}}', '{{stock.getStockUnitId()}}','{{stock.quantity}}')"><i class="fas fa-external-link-alt"></i></button>

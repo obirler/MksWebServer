@@ -208,6 +208,17 @@ def getDepotStockByTypeAndColor(typeid, colorid):
     return stock
 
 
+def getAllDepotStockIds():
+    """
+    Gets all available ids of DepotStocks
+
+    :return: The list of all available ids of DepotStock
+    :rtype: list[int]
+    """
+    ids = session.query(models.DepotStock.id).all()
+    return ids
+
+
 def getDepotAllStocks():
     """
     Gets all available DepotStocks
@@ -2130,6 +2141,17 @@ def getAllStockRooms():
     """
     stockrooms = session.query(models.StockRoom).all()
     return stockrooms
+
+
+def getAllStockRoomIds():
+    """
+    Gets all available ids of StockRoom
+
+    :return: The list of all available ids of StockRoom
+    :rtype: list[int]
+    """
+    ids = session.query(models.StockRoom.id).all()
+    return ids
 
 
 def commit():

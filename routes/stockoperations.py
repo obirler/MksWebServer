@@ -12,6 +12,9 @@ from doctemplates.FormStockMovesTemplate import FormStockMovesTemplate
 @app.route('/incomingstockforms', methods=['GET'])
 @login_required
 def incomingstockforms():
+    if not current_user.isadmin:
+        return render_template('autherror.html')
+
     if request.method == 'GET':
         forms = []
         incomingforms = dbexecutor.getAllIncomingStockForms()
@@ -35,6 +38,9 @@ def incomingstockforms():
 @app.route('/addincomingstockform', methods=['GET', 'POST'])
 @login_required
 def addincomingstockform():
+    if not current_user.isadmin:
+        return render_template('autherror.html')
+
     if request.method == 'GET':
         stockcategories = dbexecutor.getAllStockCategory()
         stockcolors = dbexecutor.getAllStockColors()
@@ -57,6 +63,9 @@ def addincomingstockform():
 @app.route('/editincomingstockform/<int:formid>', methods=['GET', 'PATCH', 'DELETE'])
 @login_required
 def editincomingstockform(formid):
+    if not current_user.isadmin:
+        return render_template('autherror.html')
+
     if request.method == 'GET':
         incomingform = dbexecutor.getIncomingStockForm(formid)
         stockform = dbexecutor.getStockForm(incomingform.stockformid)
@@ -135,6 +144,9 @@ def editincomingstockform(formid):
 @app.route('/downloadincomingstockform/<int:formid>', methods=['GET'])
 @login_required
 def downloadincomingstockform(formid):
+    if not current_user.isadmin:
+        return render_template('autherror.html')
+
     form = dbexecutor.getIncomingStockForm(formid)
     formtemplate = IncomingStockFormTemplate(form, 18)
     pdfpath = formtemplate.generatePdf()
@@ -145,6 +157,9 @@ def downloadincomingstockform(formid):
 @app.route('/downloadincomingstockform/<int:formid>/<int:row>', methods=['GET'])
 @login_required
 def downloadincomingstockformadvanced(formid, row):
+    if not current_user.isadmin:
+        return render_template('autherror.html')
+
     form = dbexecutor.getIncomingStockForm(formid)
     formtemplate = IncomingStockFormTemplate(form, row)
     pdfpath = formtemplate.generatePdf()
@@ -155,6 +170,9 @@ def downloadincomingstockformadvanced(formid, row):
 @app.route('/copyincomingstockforminfo/<int:formid>', methods=['GET'])
 @login_required
 def copyincomingstockforminfo(formid):
+    if not current_user.isadmin:
+        return render_template('autherror.html')
+
     incomingform = dbexecutor.getIncomingStockForm(formid)
     stockform = dbexecutor.getStockForm(incomingform.stockformid)
     formstockbases = dbexecutor.getFormStockBasesByStockFormId(stockform.id)
@@ -170,6 +188,9 @@ def copyincomingstockforminfo(formid):
 @app.route('/addoutgoingstockform', methods=['GET', 'POST'])
 @login_required
 def addoutgoingstockform():
+    if not current_user.isadmin:
+        return render_template('autherror.html')
+
     if request.method == 'GET':
         stockcategories = dbexecutor.getAllStockCategory()
         stockcolors = dbexecutor.getAllStockColors()
@@ -200,6 +221,9 @@ def addoutgoingstockform():
 @app.route('/editoutgoingstockform/<int:formid>', methods=['GET', 'PATCH', 'DELETE'])
 @login_required
 def editoutgoingstockform(formid):
+    if not current_user.isadmin:
+        return render_template('autherror.html')
+
     if request.method == 'GET':
         outgoingform = dbexecutor.getOutgoingStockForm(formid)
         stockform = dbexecutor.getStockForm(outgoingform.stockformid)
@@ -281,6 +305,9 @@ def editoutgoingstockform(formid):
 @app.route('/downloadoutgoingstockform/<int:formid>', methods=['GET'])
 @login_required
 def downloadoutgoingstockform(formid):
+    if not current_user.isadmin:
+        return render_template('autherror.html')
+
     form = dbexecutor.getOutgoingStockForm(formid)
     formtemplate = OutgoingStockFormTemplate(form, 18)
     pdfpath = formtemplate.generatePdf()
@@ -291,6 +318,9 @@ def downloadoutgoingstockform(formid):
 @app.route('/downloadoutgoingstockform/<int:formid>/<int:row>', methods=['GET'])
 @login_required
 def downloadoutgoingstockformadvanced(formid, row):
+    if not current_user.isadmin:
+        return render_template('autherror.html')
+
     form = dbexecutor.getOutgoingStockForm(formid)
     formtemplate = OutgoingStockFormTemplate(form, row)
     pdfpath = formtemplate.generatePdf()
@@ -301,6 +331,9 @@ def downloadoutgoingstockformadvanced(formid, row):
 @app.route('/copyoutgoingstockforminfo/<int:formid>', methods=['GET'])
 @login_required
 def copyoutgoingstockforminfo(formid):
+    if not current_user.isadmin:
+        return render_template('autherror.html')
+
     outgoingform = dbexecutor.getOutgoingStockForm(formid)
     stockform = dbexecutor.getStockForm(outgoingform.stockformid)
     formstockbases = dbexecutor.getFormStockBasesByStockFormId(stockform.id)
@@ -317,6 +350,9 @@ def copyoutgoingstockforminfo(formid):
 @app.route('/outgoingstockforms', methods=['GET'])
 @login_required
 def outgoingstockforms():
+    if not current_user.isadmin:
+        return render_template('autherror.html')
+
     if request.method == 'GET':
         forms = []
         outgoingforms = dbexecutor.getAllOutgoingStockForms()
@@ -342,6 +378,9 @@ def outgoingstockforms():
 @app.route('/stockcategory', methods=['POST', 'DELETE', 'PATCH'])
 @login_required
 def stockCategory():
+    if not current_user.isadmin:
+        return render_template('autherror.html')
+
     if request.method == 'POST':
         reqjson = request.get_json()
         name = reqjson['name']
@@ -371,6 +410,9 @@ def stockCategory():
 @app.route('/stocksubcategory', methods=['POST', 'DELETE', 'PATCH'])
 @login_required
 def stockSubcategory():
+    if not current_user.isadmin:
+        return render_template('autherror.html')
+
     if request.method == 'POST':
         reqjson = request.get_json()
         name = reqjson['name']
@@ -402,6 +444,9 @@ def stockSubcategory():
 @app.route('/stocktype', methods=['POST', 'DELETE', 'PATCH'])
 @login_required
 def stockType():
+    if not current_user.isadmin:
+        return render_template('autherror.html')
+
     if request.method == 'POST':
         reqjson = request.get_json()
         name = reqjson['name']
@@ -435,6 +480,9 @@ def stockType():
 @app.route('/stockcolor', methods=['POST', 'DELETE', 'PATCH'])
 @login_required
 def stockColor():
+    if not current_user.isadmin:
+        return render_template('autherror.html')
+
     if request.method == 'POST':
         reqjson = request.get_json()
         name = reqjson['name']
@@ -464,6 +512,9 @@ def stockColor():
 @app.route('/stockpackage', methods=['POST', 'DELETE', 'PATCH'])
 @login_required
 def stockPackage():
+    if not current_user.isadmin:
+        return render_template('autherror.html')
+
     if request.method == 'POST':
         reqjson = request.get_json()
         name = reqjson['name']
@@ -493,6 +544,9 @@ def stockPackage():
 @app.route('/corporation', methods=['POST', 'DELETE', 'PATCH'])
 @login_required
 def corporation():
+    if not current_user.isadmin:
+        return render_template('autherror.html')
+
     if request.method == 'POST':
         reqjson = request.get_json()
         name = reqjson['name']
@@ -522,6 +576,9 @@ def corporation():
 @app.route('/stockunit', methods=['POST', 'DELETE', 'PATCH'])
 @login_required
 def stockUnit():
+    if not current_user.isadmin:
+        return render_template('autherror.html')
+
     if request.method == 'POST':
         reqjson = request.get_json()
         name = reqjson['name']
@@ -553,6 +610,9 @@ def stockUnit():
 @app.route('/stocks', methods=['GET', 'POST', 'PATCH', 'DELETE'])
 @login_required
 def stocks():
+    if not current_user.isadmin:
+        return render_template('autherror.html')
+
     if request.method == 'GET':
         stocks = dbexecutor.getDepotAllStocks()
         stockcategories = dbexecutor.getAllStockCategory()
@@ -602,6 +662,9 @@ def stocks():
 @app.route('/datamanagement', methods=['GET'])
 @login_required
 def datamanagement():
+    if not current_user.isadmin:
+        return render_template('autherror.html')
+
     stockcategories = dbexecutor.getAllStockCategory()
     stocktypes = dbexecutor.getAllStockTypes()
     stockcolors = dbexecutor.getAllStockColors()
@@ -616,6 +679,9 @@ def datamanagement():
 @app.route('/getstockcategories', methods=['POST'])
 @login_required
 def getStockCategories():
+    if not current_user.isadmin:
+        return render_template('autherror.html')
+
     categories = dbexecutor.getAllStockCategory()
     return jsonify(categories=[category.serialize() for category in categories])
 
@@ -623,6 +689,9 @@ def getStockCategories():
 @app.route('/getstocksubcategories', methods=['POST'])
 @login_required
 def getStockSubCategoriesByStockCategory():
+    if not current_user.isadmin:
+        return render_template('autherror.html')
+
     reqjson = request.get_json()
     catid = reqjson['id']
     subcategories = dbexecutor.getAllStockSubcategoryByStockCategory(catid)
@@ -632,6 +701,9 @@ def getStockSubCategoriesByStockCategory():
 @app.route('/getstocktypes', methods=['POST'])
 @login_required
 def getStockTypes():
+    if not current_user.isadmin:
+        return render_template('autherror.html')
+
     reqjson = request.get_json()
     catid = reqjson['id']
     stocktypes = dbexecutor.getAllStockTypesByStockSubcategory(catid)
@@ -642,6 +714,9 @@ def getStockTypes():
 @app.route('/stockmoves', methods=['GET'])
 @login_required
 def stockMoves():
+    if not current_user.isadmin:
+        return render_template('autherror.html')
+
     stockbases = dbexecutor.getAllStockBases()
 
     bases = []
@@ -667,6 +742,8 @@ def stockMoves():
             if stockbase.actiontype:
                 base['actiontype'] = 'Depo Giriş Formu'
                 incomingstockform = dbexecutor.getIncomingStockFormByStockFormId(stockform.id)
+
+                
                 base['formid'] = incomingstockform.id
                 base['formname'] = incomingstockform.name
 
@@ -694,8 +771,14 @@ def stockMoves():
 @app.route('/formstockmoves', methods=['GET'])
 @login_required
 def formStockMoves():
-    stockbases = dbexecutor.getAllStockBases()
+    if not current_user.isadmin:
+        return render_template('autherror.html')
 
+    timevar = util.time_me()
+    stockbases = dbexecutor.getAllStockBases()
+    util.time_me(timevar)
+
+    timevar = util.time_me()
     bases = []
 
     for stockbase in stockbases:
@@ -742,13 +825,16 @@ def formStockMoves():
                 base['shipinfo'] = outgoingstockform.shipinfo
 
             bases.append(base)
-
+    util.time_me(timevar)
     return render_template("formstockmoves.html", bases=bases)
 
 
 @app.route('/downloadformstockmoves', methods=['POST'])
 @login_required
 def downloadFilteredFormStockMoves():
+    if not current_user.isadmin:
+        return render_template('autherror.html')
+
     reqjson = request.get_json()
     entries = reqjson['entries']
     columns = reqjson['columns']
@@ -768,6 +854,9 @@ def downloadFilteredFormStockMoves():
 @app.route('/getfilteredformstockmovesdoc', methods=['GET'])
 @login_required
 def getFilteredFormStockMovesDoc():
+    if not current_user.isadmin:
+        return render_template('autherror.html')
+
     pdfpath = AppRoot + '/static/data/form.pdf'
     return send_file(pdfpath, mimetype="application/pdf", attachment_filename='form.pdf')
 
@@ -775,6 +864,9 @@ def getFilteredFormStockMovesDoc():
 @app.route('/getstockcategoriesbystocktypeid', methods=['POST'])
 @login_required
 def getStockCategoriesByStockTypeId():
+    if not current_user.isadmin:
+        return render_template('autherror.html')
+
     reqjson = request.get_json()
     typeid = reqjson['id']
     stocktype = dbexecutor.getStockType(typeid)

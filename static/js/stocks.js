@@ -72,7 +72,7 @@ function updatestock()
 {
     if(dSEMCheckEntries())
     {
-       var stocktype = document.getElementById('stocktype');
+        var stocktype = document.getElementById('stocktype');
         var stockcolor = document.getElementById('stockcolor');
         var stockquantity = document.getElementById('stockquantity');
 

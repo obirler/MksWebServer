@@ -1,0 +1,17 @@
+{%extends "base.html"%}
+
+{%block title%}
+Yetkisiz Erişim
+{%endblock%}
+
+
+{%block script%}
+<script>
+$( document ).ready(function()
+{
+    var danger = document.getElementById('dangeralert');
+    danger.textContent  = "Bu sayfayı görüntülemeye yetkiniz yok!";
+    danger.style.display = "block";
+});
+</script>
+{%endblock%}

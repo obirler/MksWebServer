@@ -19,21 +19,12 @@ class TestData():
         self.metreid = metreid
         self.adetid = adetid
 
-    def loadids(self):
-        self.adminids = dbexecutor.getAllAdminIds()
-        self.unitids = dbexecutor.getAllStockUnitIds()
-        self.stocktypeids = dbexecutor.getAllStockTypeIds()
-        self.stockcolorids = dbexecutor.getAllStockColorIds()
-        self.stockpackageids = dbexecutor.getAllStockPackageIds()
-        self.corporationids = dbexecutor.getAllCorporationIds()
-
     def preLoadTestData(self):
         self.preloadtestcorporation()
         self.preloadteststockrooms()
         self.preloadusers()
         self.preloadTestCategories()
-        self.loadids()
-        self.preloadTestIncomingStockForm()
+        self.preloadRandomTestEntries()
 
     def preloadTestCategories(self):
         self.preloadTestCat1()
@@ -98,17 +89,8 @@ class TestData():
         dbexecutor.addUser('ryot', 'Ryo', 'Tetsuda', '1234', False)
         dbexecutor.addUser('harpern', 'Nyx', 'Harper', '1234', True)
 
-    def preloadTestIncomingStockForm(self):
-        generator = preload.randomentrygenerator.RandomEntryGenerator(self.adminids, self.unitids, self.stocktypeids,
-                                                                      self.stockcolorids, self.stockpackageids,
-                                                                      self.corporationids)
-        for i in range(100):
-            user = generator.getRandomAdminUser()
-            jsn = generator.getRandomIncomingStockForm()
-            dbexecutor.addIncomingStockFormFromJson(user, jsn)
+    def preloadRandomTestEntries(self):
+        generator = preload.randomentrygenerator.RandomEntryGenerator()
+        generator.addDepotStockEntries(20)
+        generator.addEntries(100)
 
-    def preloadincomingdepotstock(self):
-        return ""
-
-    def preLoadFormEntries(self):
-        return ""

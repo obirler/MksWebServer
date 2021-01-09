@@ -5,6 +5,7 @@ import os
 import routes.stockoperations
 import routes.useroperations
 from preload import preloader
+from flask_login import current_user
 
 app = config.app
 

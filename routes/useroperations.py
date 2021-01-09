@@ -1,5 +1,5 @@
 from flask import request, jsonify, render_template
-from flask_login import login_user, login_required, logout_user
+from flask_login import login_user, login_required, logout_user, current_user
 from config import app, login_manager, DbPath, ADMIN_PASSWORD, ADMIN_NAME, ADMIN_USER_NAME, ADMIN_SURNAME
 from werkzeug.security import check_password_hash
 from models import User
@@ -144,8 +144,12 @@ def changeusername():
 @app.route('/users', methods=['GET'])
 @login_required
 def users():
+    if not current_user.isadmin:
+        return render_template('autherror.html')
+
     users = dbexecutor.getAllUsers()
     return render_template("users.html", users=users)
+
 
 @app.route('/userprofile/passwordchange', methods=['POST'])
 @login_required

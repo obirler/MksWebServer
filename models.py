@@ -482,6 +482,20 @@ class DepotStock(Base):
             formattedqtty = round(qtty, int(dbexecutor.getStockType(self.stocktypeid).getUnitPrecision()))
         return str(formattedqtty) + ' ' + self.getStockUnitName()
 
+    def getFormattedQuantity(self):
+        """
+        Gets the formatted quantity of this StockBase
+
+        :return: The formatted quantity of this StockBase
+        :rtype: float
+        """
+        qtty = float(self.quantity)
+        if float.is_integer(qtty):
+            formattedqtty = int(qtty)
+        else:
+            formattedqtty = round(qtty, int(dbexecutor.getStockType(self.stocktypeid).getUnitPrecision()))
+        return formattedqtty
+
     def getStockUnitId(self):
         """
         Gets the id of the StockUnit of this DepotStock
