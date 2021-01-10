@@ -19,17 +19,16 @@ def incomingstockforms():
         forms = []
         incomingforms = dbexecutor.getAllIncomingStockForms()
         for incomingform in incomingforms:
-            stockform = dbexecutor.getStockForm(incomingform.stockformid)
-            stockbasescount = dbexecutor.getFormStockBasesCountByStockFormId(stockform.id)
+            stockbasescount = dbexecutor.getStockBasesCountByStockFormId(incomingform.id)
             form = {}
             form['formid'] = incomingform.id
             form['name'] = incomingform.name
-            form['userid'] = stockform.userid
-            form['username'] = stockform.getUserName()
-            form['corporationid'] = stockform.corporationid
-            form['corporationname'] = stockform.getCorporationName()
+            form['userid'] = incomingform.userid
+            form['username'] = incomingform.user.username
+            form['corporationid'] = incomingform.corporationid
+            form['corporationname'] = incomingform.corporation.name
             form['incomingstocksquantity'] = stockbasescount
-            form['recorddate'] = stockform.recorddate
+            form['recorddate'] = incomingform.recorddate
             forms.append(form)
 
         return render_template("incomingstockforms.html", forms=forms)
@@ -52,8 +51,7 @@ def addincomingstockform():
 
     elif request.method == 'POST':
         req_data = request.get_json()
-        user = dbexecutor.getUser(current_user.id)
-        if dbexecutor.addIncomingStockFormFromJson(user, req_data) != 0:
+        if dbexecutor.addIncomingStockFormFromJson(current_user, req_data) != 0:
             return jsonify(responsecode=-1, message="Hata! Depo giriş verisi eklenemedi")
 
         return jsonify(responsecode=0, heading="Tebrikler!", message="Sisteme başarıyla depo girişi yaptınız.",
@@ -67,32 +65,32 @@ def editincomingstockform(formid):
         return render_template('autherror.html')
 
     if request.method == 'GET':
-        incomingform = dbexecutor.getIncomingStockForm(formid)
-        stockform = dbexecutor.getStockForm(incomingform.stockformid)
-        formstockbases = dbexecutor.getFormStockBasesByStockFormId(stockform.id)
+        incomingform = dbexecutor.getStockForm(formid)
         form = {}
         form['name'] = incomingform.name
         form['formid'] = incomingform.id
-        form['corporationid'] = stockform.corporationid
-        form['recorddate'] = util.htmldateTime(stockform.recorddate)
+        form['corporationid'] = incomingform.corporationid
+        form['recorddate'] = util.htmldateTime(incomingform.recorddate)
 
+        stockbases = dbexecutor.getStockBasesFromStockFormId(incomingform.id)
         incomingstocks = []
 
-        for formstockbase in formstockbases:
+        i=0
+        for stockbase in stockbases:
             entry = {}
-            stockbase = dbexecutor.getStockBase(formstockbase.stockbaseid)
-            entry['stocktypename'] = formstockbase.getStockTypeName()
+            entry['stocktypename'] = stockbase.stocktype.name
             entry['stocktypeid'] = stockbase.stocktypeid
-            entry['stockcolorname'] = formstockbase.getStockColorName()
+            entry['stockcolorname'] = stockbase.stockcolor.name
             entry['stockcolorid'] = stockbase.stockcolorid
-            entry['stockunitid'] = formstockbase.getStockUnitId()
+            entry['stockunitid'] = stockbase.stocktype.stockunit.id
             entry['quantity'] = stockbase.quantity
-            entry['quantitytext'] = formstockbase.getQuantityText()
-            entry['stockpackageid'] = formstockbase.stockpackageid
-            entry['packagequantity'] = formstockbase.packagequantity
-            entry['packagetext'] = formstockbase.getPackageQuantityText()
-            entry['note'] = formstockbase.note
-            entry['entryid'] = str(util.numberDateTimeNowUtc())
+            entry['quantitytext'] = stockbase.getQuantityText()
+            entry['stockpackageid'] = stockbase.stockpackageid
+            entry['packagequantity'] = stockbase.packagequantity
+            entry['packagetext'] = stockbase.getPackageQuantityText()
+            entry['note'] = stockbase.note
+            entry['entryid'] = str(i)
+            i += 1
             incomingstocks.append(entry)
 
         form['incomingstocks'] = incomingstocks
@@ -116,22 +114,16 @@ def editincomingstockform(formid):
                        postmessage="Şimdi depo giriş verileri sayfasına yönlendirileceksiniz")
 
     elif request.method == 'DELETE':
-        incomingform = dbexecutor.getIncomingStockForm(formid)
-        stockform = dbexecutor.getStockForm(incomingform.stockformid)
-        formstockbases = dbexecutor.getFormStockBasesByStockFormId(stockform.id)
+        incomingform = dbexecutor.getStockForm(formid)
+        stockbases = dbexecutor.getStockBasesFromStockFormId(incomingform.id)
 
-        for formstockbase in formstockbases:
-            if dbexecutor.deleteFormStockBase(formstockbase.id, False, True) < 0:
+        for stockbase in stockbases:
+            if dbexecutor.deleteStockBase(stockbase.id, False, True) < 0:
                 dbexecutor.rollback()
                 return jsonify(responsecode=-1, heading="Hata!",
                                message="Depo giriş verisi silinemedi")
 
-        if dbexecutor.deleteStockForm(stockform.id, False) < 0:
-            dbexecutor.rollback()
-            return jsonify(responsecode=-1, heading="Hata!",
-                           message="Depo giriş verisi silinemedi")
-
-        if dbexecutor.deleteIncomingStockForm(incomingform.id, False) < 0:
+        if dbexecutor.deleteStockForm(incomingform.id, False) < 0:
             dbexecutor.rollback()
             return jsonify(responsecode=-1, heading="Hata!",
                            message="Depo giriş verisi silinemedi")
@@ -147,7 +139,7 @@ def downloadincomingstockform(formid):
     if not current_user.isadmin:
         return render_template('autherror.html')
 
-    form = dbexecutor.getIncomingStockForm(formid)
+    form = dbexecutor.getStockForm(formid)
     formtemplate = IncomingStockFormTemplate(form, 18)
     pdfpath = formtemplate.generatePdf()
     print('sending pdf file in a blank tab')
@@ -160,7 +152,7 @@ def downloadincomingstockformadvanced(formid, row):
     if not current_user.isadmin:
         return render_template('autherror.html')
 
-    form = dbexecutor.getIncomingStockForm(formid)
+    form = dbexecutor.getStockForm(formid)
     formtemplate = IncomingStockFormTemplate(form, row)
     pdfpath = formtemplate.generatePdf()
     print('sending pdf file in a blank tab')
@@ -173,15 +165,14 @@ def copyincomingstockforminfo(formid):
     if not current_user.isadmin:
         return render_template('autherror.html')
 
-    incomingform = dbexecutor.getIncomingStockForm(formid)
-    stockform = dbexecutor.getStockForm(incomingform.stockformid)
-    formstockbases = dbexecutor.getFormStockBasesByStockFormId(stockform.id)
+    incomingform = dbexecutor.getStockForm(formid)
+    stockbases = dbexecutor.getStockBasesFromStockFormId(incomingform.id)
     str = "Depo Girişi:\n"
-    for formstockbase in formstockbases:
-        str += "-" + formstockbase.getQuantityText() + " " + formstockbase.getStockTypeName() + " " + \
-               formstockbase.getStockColorName() + "\n"
+    for stockbase in stockbases:
+        str += "-" + stockbase.getQuantityText() + " " + stockbase.stocktype.name + " " + \
+               stockbase.stockcolor.name + "\n"
     str += "\n"
-    str += stockform.getCorporationName()
+    str += incomingform.corporation.name
     return str.upper()
 
 
@@ -225,34 +216,34 @@ def editoutgoingstockform(formid):
         return render_template('autherror.html')
 
     if request.method == 'GET':
-        outgoingform = dbexecutor.getOutgoingStockForm(formid)
-        stockform = dbexecutor.getStockForm(outgoingform.stockformid)
-        formstockbases = dbexecutor.getFormStockBasesByStockFormId(stockform.id)
+        outgoingform = dbexecutor.getStockForm(formid)
         form = {}
         form['name'] = outgoingform.name
         form['formid'] = outgoingform.id
-        form['stockroomid'] = outgoingform.stockformid
-        form['shipinfo'] = outgoingform.shipinfo
-        form['corporationid'] = stockform.corporationid
-        form['recorddate'] = util.htmldateTime(stockform.recorddate)
+        form['stockroomid'] = outgoingform.stockformdetail.stockroom.id
+        form['shipinfo'] = outgoingform.stockformdetail.shipinfo
+        form['corporationid'] = outgoingform.corporationid
+        form['recorddate'] = util.htmldateTime(outgoingform.recorddate)
 
+        stockbases = dbexecutor.getStockBasesFromStockFormId(outgoingform.id)
         outgoingstocks = []
 
-        for formstockbase in formstockbases:
+        i = 0
+        for stockbase in stockbases:
             entry = {}
-            stockbase = dbexecutor.getStockBase(formstockbase.stockbaseid)
-            entry['stocktypename'] = formstockbase.getStockTypeName()
+            entry['stocktypename'] = stockbase.stocktype.name
             entry['stocktypeid'] = stockbase.stocktypeid
-            entry['stockcolorname'] = formstockbase.getStockColorName()
+            entry['stockcolorname'] = stockbase.stockcolor.name
             entry['stockcolorid'] = stockbase.stockcolorid
-            entry['stockunitid'] = formstockbase.getStockUnitId()
+            entry['stockunitid'] = stockbase.stocktype.stockunit.id
             entry['quantity'] = stockbase.quantity
-            entry['quantitytext'] = formstockbase.getQuantityText()
-            entry['stockpackageid'] = formstockbase.stockpackageid
-            entry['packagequantity'] = formstockbase.packagequantity
-            entry['packagetext'] = formstockbase.getPackageQuantityText()
-            entry['note'] = formstockbase.note
-            entry['entryid'] = str(util.numberDateTimeNowUtc())
+            entry['quantitytext'] = stockbase.getQuantityText()
+            entry['stockpackageid'] = stockbase.stockpackageid
+            entry['packagequantity'] = stockbase.packagequantity
+            entry['packagetext'] = stockbase.getPackageQuantityText()
+            entry['note'] = stockbase.note
+            entry['entryid'] = str(i)
+            i += 1
             outgoingstocks.append(entry)
 
         form['outgoingstocks'] = outgoingstocks
@@ -277,22 +268,16 @@ def editoutgoingstockform(formid):
                        postmessage="Şimdi ürün sevkiyat verileri sayfasına yönlendirileceksiniz")
 
     elif request.method == 'DELETE':
-        outgoingform = dbexecutor.getOutgoingStockForm(formid)
-        stockform = dbexecutor.getStockForm(outgoingform.stockformid)
-        formstockbases = dbexecutor.getFormStockBasesByStockFormId(stockform.id)
+        outgoingform = dbexecutor.getStockForm(formid)
+        stockbases = dbexecutor.getStockBasesFromStockFormId(outgoingform.id)
 
-        for formstockbase in formstockbases:
-            if dbexecutor.deleteFormStockBase(formstockbase.id, False, True) < 0:
+        for stockbase in stockbases:
+            if dbexecutor.deleteStockBase(stockbase.id, False, True) < 0:
                 dbexecutor.rollback()
                 return jsonify(responsecode=-1, heading="Hata!",
                                message="Ürün sevkiyat verisi silinemedi")
 
-        if dbexecutor.deleteStockForm(stockform.id, False) < 0:
-            dbexecutor.rollback()
-            return jsonify(responsecode=-1, heading="Hata!",
-                           message="Ürün sevkiyat verisi silinemedi")
-
-        if dbexecutor.deleteOutgoingStockForm(outgoingform.id, False) < 0:
+        if dbexecutor.deleteStockForm(outgoingform.id, False) < 0:
             dbexecutor.rollback()
             return jsonify(responsecode=-1, heading="Hata!",
                            message="Ürün sevkiyat verisi silinemedi")
@@ -308,7 +293,7 @@ def downloadoutgoingstockform(formid):
     if not current_user.isadmin:
         return render_template('autherror.html')
 
-    form = dbexecutor.getOutgoingStockForm(formid)
+    form = dbexecutor.getStockForm(formid)
     formtemplate = OutgoingStockFormTemplate(form, 18)
     pdfpath = formtemplate.generatePdf()
     print('sending pdf file in a blank tab')
@@ -321,7 +306,7 @@ def downloadoutgoingstockformadvanced(formid, row):
     if not current_user.isadmin:
         return render_template('autherror.html')
 
-    form = dbexecutor.getOutgoingStockForm(formid)
+    form = dbexecutor.getStockForm(formid)
     formtemplate = OutgoingStockFormTemplate(form, row)
     pdfpath = formtemplate.generatePdf()
     print('sending pdf file in a blank tab')
@@ -334,16 +319,15 @@ def copyoutgoingstockforminfo(formid):
     if not current_user.isadmin:
         return render_template('autherror.html')
 
-    outgoingform = dbexecutor.getOutgoingStockForm(formid)
-    stockform = dbexecutor.getStockForm(outgoingform.stockformid)
-    formstockbases = dbexecutor.getFormStockBasesByStockFormId(stockform.id)
+    outgoingform = dbexecutor.getStockForm(formid)
+    stockbases = dbexecutor.getStockBasesFromStockFormId(outgoingform.id)
     str = "Ürün Sevkiyatı:\n"
-    for formstockbase in formstockbases:
-        str += "-" + formstockbase.getQuantityText() + " " + formstockbase.getStockTypeName() + " " + \
-               formstockbase.getStockColorName() + "\n"
+    for stockbase in stockbases:
+        str += "-" + stockbase.getQuantityText() + " " + stockbase.stocktype.name + " " + \
+               stockbase.stockcolor.name + "\n"
     str += "\n"
-    str += stockform.getCorporationName() + "\n"
-    str += outgoingform.shipinfo
+    str += outgoingform.corporation.name + "\n"
+    str += outgoingform.stockformdetail.shipinfo
     return str.upper()
 
 
@@ -357,19 +341,18 @@ def outgoingstockforms():
         forms = []
         outgoingforms = dbexecutor.getAllOutgoingStockForms()
         for outgoingform in outgoingforms:
-            stockform = dbexecutor.getStockForm(outgoingform.stockformid)
-            stockbasescount = dbexecutor.getFormStockBasesCountByStockFormId(stockform.id)
+            stockbasescount = dbexecutor.getStockBasesCountByStockFormId(outgoingform.id)
             form = {}
             form['formid'] = outgoingform.id
             form['name'] = outgoingform.name
-            form['userid'] = stockform.userid
-            form['username'] = stockform.getUserName()
-            form['corporationid'] = stockform.corporationid
-            form['corporationname'] = stockform.getCorporationName()
+            form['userid'] = outgoingform.userid
+            form['username'] = outgoingform.user.username
+            form['corporationid'] = outgoingform.corporationid
+            form['corporationname'] = outgoingform.corporation.name
             form['outgoingstocksquantity'] = stockbasescount
-            form['stockroom'] = outgoingform.getStockroomName()
-            form['shipinfo'] = outgoingform.shipinfo
-            form['recorddate'] = stockform.recorddate
+            form['stockroom'] = outgoingform.stockformdetail.stockroom.name
+            form['shipinfo'] = outgoingform.stockformdetail.shipinfo
+            form['recorddate'] = outgoingform.recorddate
             forms.append(form)
 
         return render_template("outgoingstockforms.html", forms=forms)
@@ -724,34 +707,26 @@ def stockMoves():
     for stockbase in stockbases:
         base = {}
         base['userid'] = stockbase.userid
-        base['username'] = stockbase.getUserName()
+        base['username'] = stockbase.user.name
         base['stockcolorid'] = stockbase.stockcolorid
-        base['stockcolorname'] = stockbase.getStockColorName()
+        base['stockcolorname'] = stockbase.stockcolor.name
         base['stocktypeid'] = stockbase.stocktypeid
-        base['stocktypename'] = stockbase.getStockTypeName()
+        base['stocktypename'] = stockbase.stocktype.name
         base['quantity'] = stockbase.getQuantityText()
         base['createdate'] = stockbase.createdate
         base['action'] = stockbase.actiontype
         base['entry'] = stockbase.entrytype
         if stockbase.entrytype:
             base['entrytype'] = 'Form Girdisi'
-            formstockbase = dbexecutor.getFormStockBasesByStockBaseId(stockbase.id)
-            stockform = dbexecutor.getStockForm(formstockbase.stockformid)
-            base['packagequantitytext'] = formstockbase.getPackageQuantityText()
-            base['note'] = formstockbase.note
+            base['packagequantitytext'] = stockbase.getPackageQuantityText()
+            base['note'] = stockbase.note
+            base['formid'] = stockbase.stockformid
+            base['formname'] = stockbase.stockform.name
             if stockbase.actiontype:
                 base['actiontype'] = 'Depo Giriş Formu'
-                incomingstockform = dbexecutor.getIncomingStockFormByStockFormId(stockform.id)
-
-                
-                base['formid'] = incomingstockform.id
-                base['formname'] = incomingstockform.name
 
             else:
                 base['actiontype'] = 'Ürün Sevkiyat Formu'
-                outgoingstockform = dbexecutor.getOutgoingStockFormByStockFormId(stockform.id)
-                base['formid'] = outgoingstockform.id
-                base['formname'] = outgoingstockform.name
 
         else:
             base['entrytype'] = 'Depo Girdisi'
@@ -786,43 +761,38 @@ def formStockMoves():
             base = {}
             base['baseid'] = stockbase.id
             base['userid'] = stockbase.userid
-            base['username'] = stockbase.getUserName()
+            base['username'] = stockbase.user.name
             base['stockcolorid'] = stockbase.stockcolorid
-            base['stockcolorname'] = stockbase.getStockColorName()
+            base['stockcolorname'] = stockbase.stockcolor.name
             base['stocktypeid'] = stockbase.stocktypeid
-            base['stocktypename'] = stockbase.getStockTypeName()
+            base['stocktypename'] = stockbase.stocktype.name
             base['quantity'] = stockbase.getFormattedQuantity()
-            base['quantityunit'] = stockbase.getStockUnitName()
+            base['quantityunit'] = stockbase.stocktype.stockunit.name
             base['createdate'] = stockbase.createdate
             base['action'] = stockbase.actiontype
 
-            formstockbase = dbexecutor.getFormStockBasesByStockBaseId(stockbase.id)
-            stockform = dbexecutor.getStockForm(formstockbase.stockformid)
+            base['corporationid'] = stockbase.stockform.corporationid
+            base['corporationname'] = stockbase.stockform.corporation.name
+            base['recorddate'] = stockbase.stockform.recorddate
 
-            base['corporationid'] = stockform.corporationid
-            base['corporationname'] = stockform.getCorporationName()
-            base['recorddate'] = stockform.recorddate
-
-            base['packagequantity'] = formstockbase.packagequantity
-            base['packagequantityunit'] = formstockbase.getStockPackageName()
-            base['note'] = formstockbase.note
+            base['packagequantity'] = stockbase.packagequantity
+            base['packagequantityunit'] = stockbase.stockpackage.name
+            base['note'] = stockbase.note
             if stockbase.actiontype:
                 base['actiontype'] = 'Depo Giriş Formu'
-                incomingstockform = dbexecutor.getIncomingStockFormByStockFormId(stockform.id)
-                base['formid'] = incomingstockform.id
-                base['formname'] = incomingstockform.name
+                base['formid'] = stockbase.stockform.id
+                base['formname'] = stockbase.stockform.name
                 base['stockroomid'] = '-1'
                 base['stockroomname'] = '-'
                 base['shipinfo'] = '-'
 
             else:
                 base['actiontype'] = 'Ürün Sevkiyat Formu'
-                outgoingstockform = dbexecutor.getOutgoingStockFormByStockFormId(stockform.id)
-                base['formid'] = outgoingstockform.id
-                base['formname'] = outgoingstockform.name
-                base['stockroomid'] = outgoingstockform.stockroomid
-                base['stockroomname'] = outgoingstockform.getStockroomName()
-                base['shipinfo'] = outgoingstockform.shipinfo
+                base['formid'] = stockbase.stockform.id
+                base['formname'] = stockbase.stockform.name
+                base['stockroomid'] = stockbase.stockform.stockformdetail.stockroom.id
+                base['stockroomname'] = stockbase.stockform.stockformdetail.stockroom.name
+                base['shipinfo'] = stockbase.stockform.stockformdetail.shipinfo
 
             bases.append(base)
     util.time_me(timevar)
@@ -870,8 +840,8 @@ def getStockCategoriesByStockTypeId():
     reqjson = request.get_json()
     typeid = reqjson['id']
     stocktype = dbexecutor.getStockType(typeid)
-    subcat = stocktype.getStockSubcategory()
-    cat = subcat.getStockCategory()
+    subcat = stocktype.subcategory
+    cat = subcat.category
     subcategories = dbexecutor.getAllStockSubcategoryByStockCategory(cat.id)
     stocktypes = dbexecutor.getAllStockTypesByStockSubcategory(subcat.id)
     return jsonify(categoryid=cat.id, subcategoryid=subcat.id, stocktypeid=typeid,

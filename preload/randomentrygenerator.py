@@ -24,7 +24,6 @@ class RandomEntryGenerator():
 
     def __init__(self):
         self.loadids()
-        random.seed(time.thread_time_ns())
 
     def loadids(self):
         self.adminids = dbexecutor.getAllAdminIds()
@@ -39,27 +38,6 @@ class RandomEntryGenerator():
     def addEntries(self, number):
         rndsel = [1, 2, 3, 4]
         for i in range(number):
-            t = time.time()
-            tns = time.time_ns()
-            tts = time.thread_time()
-            ttns = time.thread_time_ns()
-            p = time.process_time()
-            pns = time.process_time()
-            pc = time.perf_counter()
-            pcns = time.perf_counter_ns()
-            m = time.monotonic()
-            mns = time.monotonic_ns()
-            random.seed(t)
-            print('t=' + str(t))
-            print('tns=' + str(tns))
-            print('tts=' + str(tts))
-            print('ttns=' + str(ttns))
-            print('p=' + str(p))
-            print('pns=' + str(pns))
-            print('pc=' + str(pc))
-            print('pcns=' + str(pcns))
-            print('m=' + str(m))
-            print('mns=' + str(mns))
             sel = random.choice(rndsel)
             print('selection=' + str(sel))
             if sel == 1:
@@ -87,6 +65,43 @@ class RandomEntryGenerator():
             depotstock = dbexecutor.getDepotStockByTypeAndColor(typeid, colorid)
 
         dbexecutor.handleDepotStockAdd(userid, typeid, colorid, random.randint(1, 2000))
+
+    def addRandomCategories(self, length):
+        """
+        Adds the desired number of random StockCategories
+
+        :param length: The number of StockCategories that will be added
+        :type length: int
+        """
+        for i in range(length):
+            cat = dbexecutor.addStockCategory('Category ' + str(i))
+            self.addRandomSubCategories(cat)
+
+
+    def addRandomSubCategories(self, category):
+        """
+        Adds random number of StockSubcategory under given StockCategory
+
+        :param category: The category under which StockSubcategories supposed to added
+        :type category: models.StockCategory
+        """
+        lngth = random.randint(1, 10)
+        for i in range(lngth):
+            sub = dbexecutor.addStockSubcategory(category.name + ' Sub ' + str(i), category.id)
+            self.addRandomStockTypes(sub)
+
+    def addRandomStockTypes(self, subcategory):
+        """
+        Adds random number of random of StockTypes under given StockSubcategory
+
+        :param subcategory: The subcategory under which StockTypes supposed to added
+        :type subcategory: models.StockSubcategory
+        """
+        lngth = random.randint(1, 20)
+        for i in range(lngth):
+            unitid = random.choice(self.unitids)
+            typ = dbexecutor.addStockType('Type ' + str(i) + ' ' + subcategory.name, unitid.id, subcategory.id)
+            self.stocktypeids.append(typ.id)
 
     def removeRandomDepotStock(self):
         userid = self.getRandomAdminUser().id
@@ -243,27 +258,6 @@ class RandomEntryGenerator():
 
         lngth = random.randint(1, 9)
         strng = ''
-        t = time.time()
-        tns = time.time_ns()
-        tts = time.thread_time()
-        ttns = time.thread_time_ns()
-        p = time.process_time()
-        pns = time.process_time()
-        pc = time.perf_counter()
-        pcns = time.perf_counter_ns()
-        m = time.monotonic()
-        mns = time.monotonic_ns()
-        print('t=' + str(t))
-        print('tns=' + str(tns))
-        print('tts=' + str(tts))
-        print('ttns=' + str(ttns))
-        print('p=' + str(p))
-        print('pns=' + str(pns))
-        print('pc=' + str(pc))
-        print('pcns=' + str(pcns))
-        print('m=' + str(m))
-        print('mns=' + str(mns))
-        random.seed(t)
         for i in range(lngth):
             strng += random.choice(self.formnames) + ' '
         return strng

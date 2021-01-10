@@ -1320,9 +1320,7 @@ function resetselect(id)
 
 function cleartable(id)
 {
-    var table = document.getElementById(id);
-    while (table.rows.length > 1)
-    {
-        table.deleteRow(1);
-    }
+    var table = getDataTable(id);
+    table.clear()
+    table.draw();
 }

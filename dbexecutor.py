@@ -77,7 +77,7 @@ def getUser(id):
 def updateUser(id, username, name, surname, password, isadmin, commit=True):
     try:
         user = getUser(id)
-        user.change(username, password, name, surname, password, isadmin)
+        user.change(username, password, name, surname, isadmin)
         if commit:
             session.commit()
     except Exception as e:
@@ -231,34 +231,36 @@ def getDepotAllStocks():
 
 
 def handleDepotStockAdd(userid, stocktypeid, stockcolorid, quantity):
-    return addStockBase(userid, stocktypeid, stockcolorid, quantity, True, False, True, True)
+    return addStockBase(userid, stocktypeid, stockcolorid, None, None, quantity, None, None, True, False, True, True)
 
 
 def handleDepotStockUpdate(id, userid, stocktypeid, stockcolorid, quantity):
     """
-        Fake updates StockBase to sync changes to DepotStock
-        :param id:
-        :type id:
-        :param userid:
-        :type userid:
-        :param stocktypeid:
-        :type stocktypeid:
-        :param stockcolorid:
-        :type stockcolorid:
-        :param quantity:
-        :type quantity:
-        :return: The StockBase
-        :rtype: models.StockBase
-        """
+    Fake updates StockBase to sync changes to DepotStock
+
+    :param id:
+    :type id:
+    :param userid:
+    :type userid:
+    :param stocktypeid:
+    :type stocktypeid:
+    :param stockcolorid:
+    :type stockcolorid:
+    :param quantity:
+    :type quantity:
+    :return: The StockBase
+    :rtype: models.StockBase
+    """
     depotstock = getDepotStock(id)
 
     if depotstock.stocktypeid != stocktypeid or depotstock.stockcolorid != stockcolorid:
         # The user changed the depot stock. So add a manual outgoing stockbase to delete old stock
-        if addStockBase(userid, depotstock.stocktypeid, depotstock.stockcolorid, depotstock.quantity, False, False,
-                        True, True) is None:
+        if addStockBase(userid, depotstock.stocktypeid, depotstock.stockcolorid, None, None, depotstock.quantity, None,
+                        None, False, False, True, True) is None:
             return None
-        # And add a new incoming manual stockbase with nuw values
-        stock = addStockBase(userid, stocktypeid, stockcolorid, quantity, True, False, True, True)
+        # And add a new incoming manual stockbase with new values
+        stock = addStockBase(userid, stocktypeid, stockcolorid, None, None, quantity, None, None, True, False, True,
+                             True)
         return stock
 
     else:
@@ -268,13 +270,15 @@ def handleDepotStockUpdate(id, userid, stocktypeid, stockcolorid, quantity):
         if currentqtty > stockqtty:
             # the user added some quantity, so this is incoming stockbase
             addedqtty = currentqtty - stockqtty
-            stock = addStockBase(userid, stocktypeid, stockcolorid, addedqtty, True, False, True, True)
+            stock = addStockBase(userid, stocktypeid, stockcolorid, None, None, addedqtty, None, None, True, False,
+                                 True, True)
             return stock
 
         elif currentqtty < stockqtty:
             # the user removed some quantity, so this is outgoing stockbase
             removedqtty = stockqtty - currentqtty
-            stock = addStockBase(userid, stocktypeid, stockcolorid, removedqtty, False, False, True, True)
+            stock = addStockBase(userid, stocktypeid, stockcolorid, None, None, removedqtty, None, None, False, False,
+                                 True, True)
             return stock
 
 
@@ -295,39 +299,11 @@ def handleDepotStockDelete(id, userid):
         return -1
 
 
-def addIncomingStockForm(name, stockformid, commit=True):
-    """
-    Adds an IncomingStockForm
-
-    :param name: The name of the IncomingStockForm
-    :type name: str
-    :param stockformid: The id of StockForm of this IncomingStockForm
-    :type stockformid: int
-    :param commit: If it should commit the changes
-    :type commit: bool
-    :return: The IncomingStockForm that is added
-    :rtype: models.IncomingStockForm
-    """
-    form = models.IncomingStockForm(name, stockformid)
-    try:
-        session.add(form, True)
-        if commit:
-            session.commit()
-        return form
-    except Exception as e:
-        session.rollback()
-        if hasattr(e, 'message'):
-            print('Exception: ' + e.message)
-        else:
-            print(e)
-        return -1
-
-
 def addIncomingStockFormFromJson(user, json):
     """
-    Adds an IncomingStockForm by the given json file and adds StockBases according to json
+    Adds an incoming StockForm by the given json file and adds StockBases according to json
 
-    :param user: The User that adds this IncomingStockForm, generally this is the current_user
+    :param user: The User that adds this incoming StockForm, generally this is the current_user
     :type user: models.User
     :param json: The Json string that contains information about the form and stocks under the form
     :type json: dict
@@ -338,10 +314,10 @@ def addIncomingStockFormFromJson(user, json):
     corporationid = json['corporationid']
     recorddate = json['recorddate']
 
-    stockform = addStockForm(user.id, corporationid, recorddate, True)
+    # There is no stock detail in incoming StockForm. So, we will give None parameter
+    incomingstockform = addStockForm(name, user.id, corporationid, None, True, recorddate, True)
 
     try:
-        incomingform = addIncomingStockForm(name, stockform.id, False)
         for entry in json['incomingstocks']:
             stocktypeid = entry['stocktypeid']
             stockcolorid = entry['stockcolorid']
@@ -351,18 +327,20 @@ def addIncomingStockFormFromJson(user, json):
             note = entry['stocknote']
 
             # Also process the stock to add or change depotstock, call with processstock=True
-            if addFormStockBase(user.id, stockform.id, stocktypeid, stockcolorid, stockpackageid, quantity,
-                                packagequantity, note, True, True, True) is None:
+            if addStockBase(user.id, stocktypeid, stockcolorid, stockpackageid, incomingstockform.id, quantity,
+                            packagequantity, note, True, True, True) is None:
                 session.rollback()
+                deleteStockForm(incomingstockform.id)
                 return -1
 
         session.commit()
         if name == '':
-            incomingform.name = 'Form ' + str(incomingform.id)
+            incomingstockform.name = 'Form ' + str(incomingstockform.id)
             session.commit()
         return 0
     except Exception as e:
         session.rollback()
+        deleteStockForm(incomingstockform.id)
         if hasattr(e, 'message'):
             print('Exception: ' + e.message)
         else:
@@ -375,8 +353,7 @@ def updateIncomingStockFormFromJson(formid, user, json):
     corporationid = json['corporationid']
     recorddate = json['recorddate']
 
-    incomingform = getIncomingStockForm(formid)
-    stockform = getStockForm(incomingform.stockformid)
+    incomingform = getStockForm(formid)
 
     try:
         if name == '':
@@ -384,14 +361,15 @@ def updateIncomingStockFormFromJson(formid, user, json):
         else:
             incomingform.name = name
 
-        if updateStockForm(stockform.id, user.id, corporationid, recorddate, False) is None:
+        if updateStockForm(incomingform.id, user.id, name, corporationid, None, True, recorddate, False) is None:
             session.rollback()
             return -1
 
-        stockbases = getFormStockBasesByStockFormId(stockform.id)
+        stockbases = getStockBasesFromStockFormId(incomingform.id)
+
         for stockbase in stockbases:
             # Also process the deleted stocks for DepotStock
-            if deleteFormStockBase(stockbase.id, True, True) < 0:
+            if deleteStockBase(stockbase.id, True, True) < 0:
                 session.rollback()
                 return -1
 
@@ -405,7 +383,7 @@ def updateIncomingStockFormFromJson(formid, user, json):
 
             # Also process the stock to add or change depotstock, call with processstock=True
             # Have to commit changes because we will have trouble if the same type of stock added
-            if addFormStockBase(user.id, stockform.id, stocktypeid, stockcolorid, stockpackageid, quantity,
+            if addStockBase(user.id, stocktypeid, stockcolorid, stockpackageid, incomingform.id, quantity,
                                 packagequantity, note, True, True, True) is None:
                 session.rollback()
                 return -1
@@ -422,56 +400,14 @@ def updateIncomingStockFormFromJson(formid, user, json):
         return -1
 
 
-def deleteIncomingStockForm(formid, commit=True):
-    incomingform = getIncomingStockForm(formid)
-
-    try:
-        session.delete(incomingform)
-        if commit:
-            session.commit()
-        return 0
-    except Exception as e:
-        session.rollback()
-        if hasattr(e, 'message'):
-            print('Exception: ' + e.message)
-        else:
-            print(e)
-        return -1
-
-
-def getIncomingStockForm(formid):
-    """
-    Gets the IncomingStockForm by given form id
-
-    :param formid: Id of IncomingStockForm
-    :type formid: int
-    :return: The desired IncomingStockForm
-    :rtype: models.IncomingStockForm
-    """
-    form = session.query(models.IncomingStockForm).get(formid)
-    return form
-
-
-def getIncomingStockFormByStockFormId(stockformid):
-    """
-    Gets IncomingStockForm by StockForm id
-    :param stockformid: StockForm id of IncomingStockForm
-    :type stockformid: int
-    :return: The desired IncomingStockForm
-    :rtype: models.IncomingStockForm
-    """
-    incomingstockform = session.query(models.IncomingStockForm).filter_by(stockformid=stockformid).first()
-    return incomingstockform
-
-
 def getAllIncomingStockForms():
     """
-    Gets all available IncomingStockForms
+    Gets all available incoming StockForms
 
-    :return: The list of all available IncomingStockForms
-    :rtype: list[models.IncomingStockForm]
+    :return: The list of all available incoming StockForms
+    :rtype: list[models.StockForm]
     """
-    forms = session.query(models.IncomingStockForm).all()
+    forms = session.query(models.StockForm).filter(models.StockForm.movetype == True).all()
     return forms
 
 
@@ -531,38 +467,6 @@ def processdeleteincomingstock(incomingstock, commit=True):
     return 1
 
 
-def addOutgoingStockForm(name, stockformid, stockroomid, shipifo, commit=True):
-    """
-    Adds an OutgoingStockForm
-
-    :param name: The name of the OutgoingStockForm
-    :type name: str
-    :param stockformid: The id of StockForm of this OutgoingStockForm
-    :type stockformid: int
-    :param stockroomid: The id of StockRoom of this OutgoingStockForm
-    :type stockroomid: int
-    :param shipifo: The shipping information about this OutgoingStockForm
-    :type shipifo: str
-    :param commit: If it should commit the changes
-    :type commit: bool
-    :return: The OutgoingStockForm that is added
-    :rtype: models.OutgoingStockForm
-    """
-    form = models.OutgoingStockForm(name, stockformid, stockroomid, shipifo)
-    try:
-        session.add(form, True)
-        if commit:
-            session.commit()
-        return form
-    except Exception as e:
-        session.rollback()
-        if hasattr(e, 'message'):
-            print('Exception: ' + e.message)
-        else:
-            print(e)
-        return -1
-
-
 def addOutgoingStockFormFromJson(user, json):
     """
     Adds an OutgoingStockForm by the given json file and adds StockBases according to json
@@ -580,10 +484,11 @@ def addOutgoingStockFormFromJson(user, json):
     shipinfo = json['shipinfo']
     recorddate = json['recorddate']
 
-    stockform = addStockForm(user.id, corporationid, recorddate, True)
+    detail = addStockFormDetail(stockroomid, shipinfo, True)
+
+    outgoingstockform = addStockForm(name, user.id, corporationid, detail.id, False, recorddate, True)
 
     try:
-        outgoingform = addOutgoingStockForm(name, stockform.id, stockroomid, shipinfo, False)
         for entry in json['outgoingstocks']:
             stocktypeid = entry['stocktypeid']
             stockcolorid = entry['stockcolorid']
@@ -595,14 +500,15 @@ def addOutgoingStockFormFromJson(user, json):
             # Also process the stock to add or change depotstock, call with processstock=True
             # TODO Don't just swallow the internal error codes. Implement a tuple mechanism to return multiple values
             # One of them the return class and the other is error code
-            if addFormStockBase(user.id, stockform.id, stocktypeid, stockcolorid, stockpackageid, quantity,
+            if addStockBase(user.id, stocktypeid, stockcolorid, stockpackageid, outgoingstockform.id, quantity,
                                 packagequantity, note, False, True, True) is None:
                 session.rollback()
+                deleteStockForm(outgoingstockform.id)
                 return -1
 
         session.commit()
         if name == '':
-            outgoingform.name = 'Form ' + str(outgoingform.id)
+            outgoingstockform.name = 'Form ' + str(outgoingstockform.id)
             session.commit()
         return 0
     except Exception as e:
@@ -621,8 +527,7 @@ def updateOutgoingStockFormFromJson(formid, user, json):
     stockroomid = json['stockroomid']
     shipinfo = json['shipinfo']
 
-    outgoingform = getOutgoingStockForm(formid)
-    stockform = getStockForm(outgoingform.stockformid)
+    outgoingform = getStockForm(formid)
 
     try:
         if name == '':
@@ -630,17 +535,19 @@ def updateOutgoingStockFormFromJson(formid, user, json):
         else:
             outgoingform.name = name
 
-        outgoingform.stockroomid = stockroomid
-        outgoingform.shipinfo = shipinfo
+        outgoingform.stockformdetail.stockroomid = stockroomid
+        outgoingform.stockformdetail.shipinfo = shipinfo
 
-        if updateStockForm(stockform.id, user.id, corporationid, recorddate, False) is None:
+        if updateStockForm(outgoingform.id, user.id, name, corporationid, outgoingform.stockformdetail.id, False,
+                           recorddate, False) is None:
             session.rollback()
             return -1
 
-        stockbases = getFormStockBasesByStockFormId(stockform.id)
+        stockbases = getStockBasesFromStockFormId(outgoingform.id)
+
         for stockbase in stockbases:
             # Also process the deleted stocks for DepotStock
-            if deleteFormStockBase(stockbase.id, True, True) < 0:
+            if deleteStockBase(stockbase.id, True, True) < 0:
                 session.rollback()
                 return -1
 
@@ -653,7 +560,7 @@ def updateOutgoingStockFormFromJson(formid, user, json):
             note = entry['stocknote']
 
             # Also process the stock to add or change depotstock, call with processstock=True
-            if addFormStockBase(user.id, stockform.id, stocktypeid, stockcolorid, stockpackageid, quantity,
+            if addStockBase(user.id, stocktypeid, stockcolorid, stockpackageid, outgoingform.id, quantity,
                                 packagequantity, note, False, True, True) is None:
                 session.rollback()
                 return -1
@@ -670,56 +577,14 @@ def updateOutgoingStockFormFromJson(formid, user, json):
         return -1
 
 
-def deleteOutgoingStockForm(formid, commit=True):
-    outgoingform = getOutgoingStockForm(formid)
-
-    try:
-        session.delete(outgoingform)
-        if commit:
-            session.commit()
-        return 0
-    except Exception as e:
-        session.rollback()
-        if hasattr(e, 'message'):
-            print('Exception: ' + e.message)
-        else:
-            print(e)
-        return -1
-
-
-def getOutgoingStockForm(formid):
-    """
-    Gets the OutgoingStockForm by given form id
-
-    :param formid: Id of OutgoingStockForm
-    :type formid: int
-    :return: The desired OutgoingStockForm
-    :rtype: models.OutgoingStockForm
-    """
-    form = session.query(models.OutgoingStockForm).get(formid)
-    return form
-
-
-def getOutgoingStockFormByStockFormId(stockformid):
-    """
-    Gets OutgoingStockForm by StockForm id
-    :param stockformid: StockForm id of OutgoingStockForm
-    :type stockformid: int
-    :return: The desired OutgoingStockForm
-    :rtype: models.OutgoingStockForm
-    """
-    outgoingstockform = session.query(models.OutgoingStockForm).filter_by(stockformid=stockformid).first()
-    return outgoingstockform
-
-
 def getAllOutgoingStockForms():
     """
-    Gets all available OutgoingStockForm
+    Gets all available outgoing StockForms
 
-    :return: The list of all available OutgoingStockForm
-    :rtype: list[models.OutgoingStockForm]
+    :return: The list of all available outgoing StockForms
+    :rtype: list[models.StockForm]
     """
-    forms = session.query(models.OutgoingStockForm).all()
+    forms = session.query(models.StockForm).filter(models.StockForm.movetype == False).all()
     return forms
 
 
@@ -1662,15 +1527,21 @@ def getAllStockSubcategoryByStockCategory(categoryid):
     return categories
 
 
-def addStockForm(userid, corporationid, recorddate, commit=True):
+def addStockForm(name, userid, corporationid, stockformdetailid, movetype, recorddate, commit=True):
     """
     Adds a StockForm
 
-    :param userid: User id of the StockForm
+    :param name: The form name of this StockForm
+    :type name: str
+    :param userid: The User id of this StockForm
     :type userid: int
-    :param corporationid: Corporation id of StockForm
+    :param corporationid: The Corporation id of this StockForm
     :type corporationid: int
-    :param recorddate: The date of record of the StockForm
+    :param stockformdetailid: The StockFormDetail id of this StockForm
+    :type stockformdetailid: int
+    :param movetype: The move type of this StockForm. True for incoming stock form, False for outgoing stock form
+    :type movetype: bool
+    :param recorddate: The record date of this StockForm
     :type recorddate: datetime
     :return: The StockForm that is added
     :rtype: models.StockForm
@@ -1679,7 +1550,7 @@ def addStockForm(userid, corporationid, recorddate, commit=True):
         pydatetime = util.turkishTimeNow()
     else:
         pydatetime = util.pythonDateTime(recorddate)
-    stockform = models.StockForm(userid, corporationid, pydatetime)
+    stockform = models.StockForm(name, userid, corporationid, stockformdetailid, movetype, pydatetime)
     try:
         session.add(stockform, True)
         if commit:
@@ -1715,31 +1586,34 @@ def getStockForm(id):
         return None
 
 
-def updateStockForm(id, newuserid, newcorporationid, newrecorddate, commit=True):
+def updateStockForm(id, name, userid, corporationid, stockformdetailid, movetype, recorddate, commit=True):
     """
     Updates the StockForm
     :param id: Id of the StockForm to be updated
     :type id: int
-    :param newuserid: New User id of the StockForm
-    :type newuserid: int
-    :param newcorporationid: New Corporation id of the StockForm
-    :type newcorporationid: int
-    :param newrecorddate: New record date of the StockForm
-    :type newrecorddate: datetime
-    :param commit: If it should commit the changes
-    :type commit: bool
+    :param name: The new form name of this StockForm
+    :type name: str
+    :param userid: The new User id of this StockForm
+    :type userid: int
+    :param corporationid: The new Corporation id of this StockForm
+    :type corporationid: int
+    :param stockformdetailid: The new StockFormDetail id of this StockForm
+    :type stockformdetailid: int
+    :param movetype: The new move type of this StockForm. True for incoming stock form, False for outgoing stock form
+    :type movetype: bool
+    :param recorddate: The new record date of this StockForm
+    :type recorddate: datetime
     :return: The StockForm that is updated
     :rtype: models.StockForm
     """
     try:
         stockform = getStockForm(id)
-        stockform.userid = newuserid
-        stockform.corporationid = newcorporationid
-        if newrecorddate == '':
+        if recorddate == '':
             pydatetime = util.turkishTimeNow()
         else:
-            pydatetime = util.pythonDateTime(newrecorddate)
-        stockform.recorddate = pydatetime
+            pydatetime = util.pythonDateTime(recorddate)
+
+        stockform.change(name, userid, corporationid, stockformdetailid, movetype, pydatetime)
         if commit:
             session.commit()
         return stockform
@@ -1778,152 +1652,8 @@ def deleteStockForm(id, commit=True):
         return -1
 
 
-def addFormStockBase(userid, stockformid, stocktypeid, stockcolorid, stockpackageid, quantity, packagequantity, note,
-                     type, commit=True, processstock=True):
-    """
-    Adds a FormStockBase
-
-    :param stockformid: StockForm id of the FormStockBase
-    :type stockformid: int
-    :param stocktypeid: StockType id of the FormStockBase
-    :type stocktypeid: int
-    :param stockcolorid: StockColor id of the FormStockBase
-    :type stockcolorid: int
-    :param stockpackageid: FormStockPackage id of the StockBase
-    :type stockpackageid: int
-    :param quantity: Quantity of the FormStockBase
-    :type quantity: float
-    :param packagequantity: StockPackage quantity id of the FormStockBase
-    :type packagequantity: int
-    :param note: Note about FormStockBase
-    :type note: str
-    :param type: The type of the FormStockBase. True for incoming, False for outgoing
-    :type type: bool
-    :param commit: If it should commit the changes
-    :type commit: bool
-    :param processstock: If it should process the FormStockBase that is added for DepotStock
-    :type processstock: bool
-    :return: The FormStockBase that is added
-    :rtype: models.FormStockBase
-    """
-    try:
-        # Have to commit to get the id
-        stockbase = addStockBase(userid, stocktypeid, stockcolorid, quantity, type, True, True, processstock)
-
-        if stockbase is None:
-            session.rollback()
-            return None
-
-        formstockbase = models.FormStockBase(stockformid, stockbase.id, stockpackageid, packagequantity, note, type)
-
-        session.add(formstockbase, True)
-
-        if commit:
-            session.commit()
-        return stockbase
-    except Exception as e:
-        session.rollback()
-        if hasattr(e, 'message'):
-            print('Exception: ' + e.message)
-        else:
-            print(e)
-        return None
-
-
-def getFormStockBase(id):
-    """
-    Gets StockBase by given id
-
-    :param id: Id of the StockBase
-    :type id: int
-    :return: The desired StockBase
-    :rtype: models.FormStockBase
-    """
-
-    try:
-        stockbase = session.query(models.FormStockBase).get(id)
-        return stockbase
-    except Exception as e:
-        if hasattr(e, 'message'):
-            print('Exception: ' + e.message)
-        else:
-            print(e)
-        return None
-
-
-def getFormStockBasesByStockFormId(stockformid):
-    """
-    Gets StockBases by given StockForm id
-
-    :param stockformid: Id of the StockForm of StockBases
-    :type stockformid: int
-    :return: All StockBases whose StockForm id is give
-    :rtype: list[models.FormStockBase]
-    """
-    stockbases = session.query(models.FormStockBase).filter(models.FormStockBase.stockformid == stockformid).all()
-    return stockbases
-
-
-def getFormStockBasesCountByStockFormId(stockformid):
-    """
-    Gets StockBases by given StockForm id
-
-    :param stockformid: Id of the StockForm of StockBases
-    :type stockformid: int
-    :return: All StockBases whose StockForm id is give
-    :rtype: list[models.FormStockBase]
-    """
-    query = session.query(models.FormStockBase).filter(models.FormStockBase.stockformid == stockformid)
-    query = query.with_entities(func.count())
-    return query.scalar()
-
-
-def getFormStockBasesByStockBaseId(stockbaseid):
-    """
-    Gets StockBase by given StockBase id
-
-    :param stockformid: Id of the StockForm of StockBase
-    :type stockformid: int
-    :return: FormStockBases whose StockForm id is give
-    :rtype: models.FormStockBase
-    """
-    formstockbase = session.query(models.FormStockBase).filter_by(stockbaseid=stockbaseid).first()
-    return formstockbase
-
-
-def deleteFormStockBase(id, commit=True, processstock=True):
-    """
-    Deletes the StockBase
-
-    :param id: The of the StockBase to be deleted
-    :type id: int
-    :param commit: If it should commit the changes
-    :type commit: bool
-    :return: The operation result: 0 if delete is successful, otherwise -1
-    :rtype: int
-    """
-    try:
-        formstockbase = getFormStockBase(id)
-        stockbase = getStockBase(formstockbase.stockbaseid)
-
-        if deleteStockBase(stockbase.id, commit, processstock) < 0:
-            session.rollback()
-            return -1
-
-        session.delete(formstockbase)
-        if commit:
-            session.commit()
-        return 0
-    except Exception as e:
-        session.rollback()
-        if hasattr(e, 'message'):
-            print('Exception: ' + e.message)
-        else:
-            print(e)
-        return -1
-
-
-def addStockBase(userid, stocktypeid, stockcolorid, quantity, actiontype, entrytype, commit=True, processstock=True):
+def addStockBase(userid, stocktypeid, stockcolorid, stockpackageid, stockformid, quantity, packagequantity, note,
+                 actiontype, entrytype, commit=True, processstock=True):
     """
     Adds a FormStockBase
 
@@ -1933,8 +1663,16 @@ def addStockBase(userid, stocktypeid, stockcolorid, quantity, actiontype, entryt
     :type stocktypeid: int
     :param stockcolorid: StockColor id of the StockBase
     :type stockcolorid: int
+    :param stockpackageid: StockPackage id of the StockBase
+    :type stockpackageid: int
+    :param stockformid: StockForm id of the StockBase
+    :type stockformid: int
     :param quantity: Quantity of the StockBase
     :type quantity: float
+    :param packagequantity: The package quantity of this StockBase
+    :type packagequantity: int
+    :param note: The note about this StockBase
+    :type note: str
     :param actiontype: The action type of the StockBase. True for incoming, False for outgoing
     :type actiontype: bool
     :param entrytype: The entry type of the StockBase. True for form entry, False for manual entry
@@ -1946,7 +1684,8 @@ def addStockBase(userid, stocktypeid, stockcolorid, quantity, actiontype, entryt
     :return: The StockBase that is added
     :rtype: models.StockBase
     """
-    base = models.StockBase(userid, stocktypeid, stockcolorid, quantity, actiontype, entrytype)
+    base = models.StockBase(userid, stocktypeid, stockcolorid, stockpackageid, stockformid, quantity, packagequantity,
+                            note, actiontype, entrytype)
     try:
         session.add(base, True)
 
@@ -1991,10 +1730,8 @@ def getStockBase(id):
 
 def getAllStockBases():
     """
-    Gets al lavailable StockBases
+    Gets all available StockBases
 
-    :param id: Id of StockBase
-    :type id: int
     :return: The list of all available StockBases
     :rtype: list[models.StockBase]
     """
@@ -2007,6 +1744,19 @@ def getAllStockBases():
         else:
             print(e)
         return None
+
+
+def getStockBasesFromStockFormId(stockformid):
+    """
+    Gets all available StockBases under given StockForm
+
+    :param stockformid: The is of StockForm
+    :type stockformid: int
+    :return: The list of all available StockBases under StockForm
+    :rtype: list[models.StockBase]
+    """
+    stockbases = session.query(models.StockBase).filter(models.StockBase.stockformid == stockformid).all()
+    return stockbases
 
 
 def deleteStockBase(id, commit=True, processstock=True):
@@ -2031,6 +1781,20 @@ def deleteStockBase(id, commit=True, processstock=True):
         else:
             print(e)
         return -1
+
+
+def getStockBasesCountByStockFormId(stockformid):
+    """
+    Gets StockBases count by given StockForm id
+
+    :param stockformid: Id of the StockForm of StockBases
+    :type stockformid: int
+    :return: The count of all StockBases whose StockForm id is given
+    :rtype: int
+    """
+    query = session.query(models.StockBase).filter(models.StockBase.stockformid == stockformid)
+    query = query.with_entities(func.count())
+    return query.scalar()
 
 
 def addStockRoom(name, commit=True):
@@ -2152,6 +1916,85 @@ def getAllStockRoomIds():
     """
     ids = session.query(models.StockRoom.id).all()
     return ids
+
+
+def addStockFormDetail(stockroomid, shipinfo, commit):
+    """
+    Adds a StockFormDetail
+
+    :param stockroomid: The id of StockRoom of this StockFormDetail
+    :type stockroomid: id
+    :param shipinfo: The ship info opf this StockFormDetail
+    :type shipinfo: str
+    :param commit: If it should commit the changes
+    :type commit: bool
+    :return: The StockFormDetail that is added
+    :rtype: models.StockFormDetail
+    """
+    detail = models.StockFormDetail(stockroomid, shipinfo)
+    try:
+        session.add(detail, True)
+        if commit:
+            session.commit()
+        return detail
+    except Exception as e:
+        session.rollback()
+        if hasattr(e, 'message'):
+            print('Exception: ' + e.message)
+        else:
+            print(e)
+        return None
+
+
+def updateStockFormDetail(id, stockroomid, shipinfo, commit=True):
+    """
+    Updates the StockFormDetail
+
+    :param id:Id of the StockFormDetail to be updated
+    :type id: int
+    :param stockroomid: New id of StockRoom of this StockFormDetail
+    :type stockroomid: int
+    :param shipinfo: New ship info of this StockFormDetail
+    :type shipinfo: str
+    :param commit: If it should commit the changes
+    :type commit: bool
+    :return: The StockFormDetail that is updated
+    :rtype: models.StockFormDetail
+    """
+    try:
+        detail = getStockFormDetail(id)
+        detail.stockroomid = stockroomid
+        detail.shipinfo = shipinfo
+        if commit:
+            session.commit()
+        return detail
+    except Exception as e:
+        session.rollback()
+        if hasattr(e, 'message'):
+            print('Exception: ' + e.message)
+        else:
+            print(e)
+        return None
+
+
+def getStockFormDetail(id):
+    """
+    Gets StockFormDetail by given id
+
+    :param id: Id of the StockFormDetail
+    :type id: int
+    :return: The desired StockFormDetail
+    :rtype: models.StockFormDetail
+    """
+    try:
+        detail = session.query(models.StockFormDetail).get(id)
+        return detail
+    except Exception as e:
+        if hasattr(e, 'message'):
+            print('Exception: ' + e.message)
+        else:
+            print(e)
+        return None
 
 
 def commit():

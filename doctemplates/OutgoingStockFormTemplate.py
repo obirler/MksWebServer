@@ -4,7 +4,7 @@ from reportlab.lib import colors
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_RIGHT, TA_CENTER, TA_LEFT
+from reportlab.lib.enums import TA_CENTER, TA_LEFT
 import models
 import dbexecutor
 import config
@@ -21,8 +21,11 @@ class OutgoingStockFormTemplate:
     def __init__(self, outgoingform, rownumber):
         """
         Instantiates a new instance of OutgoingStockFormTemplate class
-        :param outgoingform: OutgoingStockForm
-        :type outgoingform: models.OutgoingStockForm
+
+        :param outgoingform: The outgoing StockForm
+        :type outgoingform: models.StockForm
+        :param rownumber: The total number of row to be added in the document
+        :type rownumber: int
         """
         self.outgoingform = outgoingform
         self.rownumber = rownumber
@@ -94,15 +97,14 @@ class OutgoingStockFormTemplate:
         ]
 
         i = 0
-        stockform = self.outgoingform.getStockForm()
-        formstockbases = dbexecutor.getFormStockBasesByStockFormId(stockform.id)
-        for formstockbase in formstockbases:
+        stockbases = dbexecutor.getStockBasesFromStockFormId(self.outgoingform.id)
+        for stockbase in stockbases:
             bodydata.append([self.getstockentry(str(i+1)),
-                             self.getstockdecriptionentry(formstockbase.getStockTypeName()),
-                             self.getstockentry(formstockbase.getStockColorName()),
-                             self.getstockentry(formstockbase.getQuantityText()),
-                             self.getstockentry(formstockbase.getPackageQuantityText()),
-                             self.getstockentry(formstockbase.note)])
+                             self.getstockdecriptionentry(stockbase.stocktype.name),
+                             self.getstockentry(stockbase.stockcolor.name),
+                             self.getstockentry(stockbase.getQuantityText()),
+                             self.getstockentry(stockbase.getPackageQuantityText()),
+                             self.getstockentry(stockbase.note)])
             rowheights.append(27)
             i = i + 1
 
@@ -148,16 +150,15 @@ class OutgoingStockFormTemplate:
         return titleparagraph
 
     def getdate(self):
-        stockform = self.outgoingform.getStockForm()
         dateparagrapfstyle = ParagraphStyle(name='center', fontName='MyCalibri', fontSize=12,
                                             parent=self.styles['Normal'], alignment=TA_CENTER)
-        dateparagraph = Paragraph(stockform.recorddate.strftime('%d.%m.%Y %I:%M:%S'), dateparagrapfstyle)
+        dateparagraph = Paragraph(self.outgoingform.recorddate.strftime('%d.%m.%Y %I:%M:%S'), dateparagrapfstyle)
         return dateparagraph
 
     def getgoingtoinfo(self):
         getgoingtoparagrapfstyle = ParagraphStyle(name='center', fontName='MyCalibriBold', fontSize=14,
                                                   parent=self.styles['Normal'], alignment=TA_LEFT)
-        getgoingtoparagraph = Paragraph('MALZEMENİN GÖNDERİLDİĞİ YER: ' + self.outgoingform.getCorporationName(),
+        getgoingtoparagraph = Paragraph('MALZEMENİN GÖNDERİLDİĞİ YER: ' + self.outgoingform.corporation.name,
                                         getgoingtoparagrapfstyle)
         return getgoingtoparagraph
 
@@ -170,8 +171,9 @@ class OutgoingStockFormTemplate:
     def getstockroomshipinfo(self):
         stockroomparagrapfstyle = ParagraphStyle(name='center', fontName='MyCalibriBold', fontSize=14, leading=16,
                                                  parent=self.styles['Normal'], alignment=TA_LEFT)
-        stockroomparagraph = Paragraph('AMBAR: ' + self.outgoingform.getStockroomName() + '<br/>ARAÇ BİLGİLERİ: ' +
-                                       self.outgoingform.shipinfo, stockroomparagrapfstyle)
+        stockroomparagraph = Paragraph('AMBAR: ' + self.outgoingform.stockformdetail.stockroom.name +
+                                       '<br/>ARAÇ BİLGİLERİ: ' + self.outgoingform.stockformdetail.shipinfo,
+                                       stockroomparagrapfstyle)
         return stockroomparagraph
 
     def getstocktableheader(self, headername):

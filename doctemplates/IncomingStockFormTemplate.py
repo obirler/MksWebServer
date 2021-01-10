@@ -21,8 +21,11 @@ class IncomingStockFormTemplate:
     def __init__(self, incomingform, rownumber):
         """
         Instantiates a new instance of IncomingStockFormTemplate class
-        :param incomingform: IncomingStockForm
-        :type incomingform: models.IncomingStockForm
+
+        :param incomingform: The incoming StockForm
+        :type incomingform: models.StockForm
+        :param rownumber: The total number of row to be added in the document
+        :type rownumber: int
         """
         self.incomingform = incomingform
         self.rownumber = rownumber
@@ -91,14 +94,13 @@ class IncomingStockFormTemplate:
         ]
 
         i = 0
-        stockform = self.incomingform.getStockForm()
-        formstockbases = dbexecutor.getFormStockBasesByStockFormId(stockform.id)
-        for formstockbase in formstockbases:
-            bodydata.append([self.getstockentry(str(i+1)), self.getstocktypeentry(formstockbase.getStockTypeName()),
-                             self.getstockentry(formstockbase.getStockColorName()),
-                             self.getstockentry(formstockbase.getQuantityText()),
-                             self.getstockentry(formstockbase.getPackageQuantityText()),
-                             self.getstockentry(formstockbase.note)])
+        stockbases = dbexecutor.getStockBasesFromStockFormId(self.incomingform.id)
+        for stockbase in stockbases:
+            bodydata.append([self.getstockentry(str(i+1)), self.getstocktypeentry(stockbase.stocktype.name),
+                             self.getstockentry(stockbase.stockcolor.name),
+                             self.getstockentry(stockbase.getQuantityText()),
+                             self.getstockentry(stockbase.getPackageQuantityText()),
+                             self.getstockentry(stockbase.note)])
             rowheights.append(27)
             i = i + 1
 
@@ -141,25 +143,22 @@ class IncomingStockFormTemplate:
         return titleparagraph
 
     def getdate(self):
-        stockform = self.incomingform.getStockForm()
         dateparagrapfstyle = ParagraphStyle(name='center', fontName='MyCalibri', fontSize=12,
                                             parent=self.styles['Normal'], alignment=TA_CENTER)
-        dateparagraph = Paragraph(stockform.recorddate.strftime('%d.%m.%Y %I:%M:%S'), dateparagrapfstyle)
+        dateparagraph = Paragraph(self.incomingform.recorddate.strftime('%d.%m.%Y %I:%M:%S'), dateparagrapfstyle)
         return dateparagraph
 
     def getcomefromtitle(self):
-        stockform = self.incomingform.getStockForm()
         getcomefromtitleparagrapfstyle = ParagraphStyle(name='center', fontName='MyCalibriBold', fontSize=14,
                                                         parent=self.styles['Normal'], alignment=TA_LEFT)
-        getcomefromtitleparagraph = Paragraph('MALZEMENİN GELDİĞİ YER: ' + stockform.getCorporationName(),
+        getcomefromtitleparagraph = Paragraph('MALZEMENİN GELDİĞİ YER: ' + self.incomingform.corporation.name,
                                               getcomefromtitleparagrapfstyle)
         return getcomefromtitleparagraph
 
     def getcomefrom(self):
-        stockform = self.incomingform.getStockForm()
         getcomefromparagrapfstyle = ParagraphStyle(name='center', fontName='MyCalibriBold', fontSize=14,
                                                    parent=self.styles['Normal'], alignment=TA_LEFT)
-        getcomefromparagraph = Paragraph(stockform.getCorporationName(), getcomefromparagrapfstyle)
+        getcomefromparagraph = Paragraph(self.incomingform.corporation.name, getcomefromparagrapfstyle)
         return getcomefromparagraph
 
     def getcountheader(self):

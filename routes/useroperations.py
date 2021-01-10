@@ -1,16 +1,15 @@
 from flask import request, jsonify, render_template
 from flask_login import login_user, login_required, logout_user, current_user
-from config import app, login_manager, DbPath, ADMIN_PASSWORD, ADMIN_NAME, ADMIN_USER_NAME, ADMIN_SURNAME
+from config import app, login_manager, ADMIN_PASSWORD, ADMIN_NAME, ADMIN_USER_NAME, ADMIN_SURNAME
 from werkzeug.security import check_password_hash
 from models import User
 import dbexecutor
 import util
-import os
 
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(user_id)
+    return dbexecutor.getUser(user_id)
 
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -20,7 +19,7 @@ def signup():
         password = request.form['password']
         name = request.form['name']
         surname = request.form['surname']
-        user = User.query.filter_by(username=username).first()
+        user = dbexecutor.getUserByUserName(username=username)
         if not user:
             if len(username) < 4:
                 return jsonify(responsecode=-1, message="Kullanıcı adı en az 4 karakter olmalı!")
@@ -51,7 +50,7 @@ def login():
         if len(password) < 1:
             return jsonify(responsecode=-4, message="Lütfen şifreyi giriniz!")
 
-        user = User.query.filter_by(username=username).first()
+        user = dbexecutor.getUserByUserName(username=username)
         if user:
             if check_password_hash(user.password, password):
                 login_user(user)
@@ -90,7 +89,7 @@ def changename():
     user = dbexecutor.getUser(id)
     if user:
         user.name = newname
-        user.setChanged()
+        user.changed()
         dbexecutor.commit()
         util.setUserSession(user)
         return jsonify(responsecode=0)
@@ -105,10 +104,10 @@ def changesurname():
     newsurname = request.form['newsurname']
     if len(newsurname) < 1:
         return jsonify(responsecode=-1, message="Lütfen soyadınızı giriniz!")
-    user = User.query.filter_by(id=id).first()
+    user = dbexecutor.getUser(id)
     if user:
         user.surname = newsurname
-        user.setChanged()
+        user.changed()
         dbexecutor.commit()
         util.setUserSession(user)
         return jsonify(responsecode=0)
@@ -135,6 +134,7 @@ def changeusername():
         else:
             if dbexecutor.updateUser(id, newusername, user.name, user.surname, user.password,
                                      user.isadmin, True) is not None:
+                user.changed()
                 util.setUserSession(user)
             return jsonify(responsecode=0)
     else:
@@ -172,6 +172,7 @@ def changepassword():
         if dbexecutor.updateUser(id, user.username, user.name, user.surname, newpassword1,
                                  user.isadmin, True) is not None:
             util.setUserSession(user)
+            user.changed()
             return jsonify(responsecode=0)
         else:
             return jsonify(responsecode=-1, message="Şifre Değiştirilemedi")

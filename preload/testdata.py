@@ -23,44 +23,7 @@ class TestData():
         self.preloadtestcorporation()
         self.preloadteststockrooms()
         self.preloadusers()
-        self.preloadTestCategories()
         self.preloadRandomTestEntries()
-
-    def preloadTestCategories(self):
-        self.preloadTestCat1()
-        self.preloadTestCat2()
-
-    def preloadTestCat1(self):
-        cat1 = dbexecutor.addStockCategory('Category 1')
-
-        cat1sub1 = dbexecutor.addStockSubcategory('Cat 1 Sub 1', cat1.id)
-        dbexecutor.addStockType('Type 1 Cat 1 Sub 1 ', self.metreid, cat1sub1.id)
-        dbexecutor.addStockType('Type 2 Cat 1 Sub 1 ', self.adetid, cat1sub1.id)
-        dbexecutor.addStockType('Type 3 Cat 1 Sub 1 ', self.kiloid, cat1sub1.id)
-
-        cat1sub2 = dbexecutor.addStockSubcategory('Cat 1 Sub 2', cat1.id)
-        dbexecutor.addStockType('Type 1 Cat 1 Sub 2 ', self.metreid, cat1sub2.id)
-        dbexecutor.addStockType('Type 2 Cat 1 Sub 2 ', self.kiloid, cat1sub2.id)
-
-        cat1sub3 = dbexecutor.addStockSubcategory('Cat 1 Sub 3', cat1.id)
-        dbexecutor.addStockType('Type 1 Cat 1 Sub 3 ', self.adetid, cat1sub3.id)
-        dbexecutor.addStockType('Type 2 Cat 1 Sub 3 ', self.kiloid, cat1sub3.id)
-
-    def preloadTestCat2(self):
-        cat2 = dbexecutor.addStockCategory('Category 2')
-
-        cat2sub1 = dbexecutor.addStockSubcategory('Cat 2 Sub 1', cat2.id)
-        dbexecutor.addStockType('Type 1 Cat 2 Sub 1 ', self.metreid, cat2sub1.id)
-        dbexecutor.addStockType('Type 2 Cat 2 Sub 1 ', self.kiloid, cat2sub1.id)
-        dbexecutor.addStockType('Type 3 Cat 2 Sub 1 ', self.adetid, cat2sub1.id)
-
-        cat2sub2 = dbexecutor.addStockSubcategory('Cat 2 Sub 2', cat2.id)
-        dbexecutor.addStockType('Type 1 Cat 2 Sub 2 ', self.kiloid, cat2sub2.id)
-        dbexecutor.addStockType('Type 2 Cat 2 Sub 2 ', self.adetid, cat2sub2.id)
-
-        cat2sub3 = dbexecutor.addStockSubcategory('Cat 2 Sub 3', cat2.id)
-        dbexecutor.addStockType('Type 1 Cat 2 Sub 3 ', self.metreid, cat2sub3.id)
-        dbexecutor.addStockType('Type 2 Cat 2 Sub 3 ', self.adetid, cat2sub3.id)
 
     def preloadtestcorporation(self):
         dbexecutor.addCorporation("Ferrous Corp")
@@ -91,6 +54,7 @@ class TestData():
 
     def preloadRandomTestEntries(self):
         generator = preload.randomentrygenerator.RandomEntryGenerator()
-        generator.addDepotStockEntries(20)
-        generator.addEntries(100)
+        generator.addRandomCategories(30)
+        generator.addDepotStockEntries(40)
+        generator.addEntries(300)
 
