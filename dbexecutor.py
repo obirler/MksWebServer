@@ -1,6 +1,6 @@
 from sqlalchemy.exc import IntegrityError
 
-from config import Base, engine, session, DbFilePath
+from config import Base, engine, session, DbFilePath, DbFileFolder
 import models
 import os
 import util
@@ -24,6 +24,8 @@ def firstTime():
     :return: True if it is first time, otherwise false
     :rtype: bool
     """
+    if not os.path.exists(DbFileFolder):
+        os.mkdir(DbFileFolder)
 
     if not os.path.exists(DbFilePath):
         init_db()
@@ -72,21 +74,6 @@ def getUser(id):
     """
     user = session.query(models.User).get(id)
     return user
-
-
-def updateUser(id, username, name, surname, password, isadmin, commit=True):
-    try:
-        user = getUser(id)
-        user.change(username, password, name, surname, isadmin)
-        if commit:
-            session.commit()
-    except Exception as e:
-        session.rollback()
-        if hasattr(e, 'message'):
-            print('Exception: ' + e.message)
-        else:
-            print(e)
-        return None
 
 
 def getUserByUserName(username):

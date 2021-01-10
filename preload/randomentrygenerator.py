@@ -39,7 +39,6 @@ class RandomEntryGenerator():
         rndsel = [1, 2, 3, 4]
         for i in range(number):
             sel = random.choice(rndsel)
-            print('selection=' + str(sel))
             if sel == 1:
                 self.addRandomDepotStock()
             elif sel == 2:

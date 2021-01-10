@@ -132,10 +132,10 @@ def changeusername():
         if useralike in None:
             return jsonify(responsecode=-3, message="Bu kullanıcı adı alınmış!")
         else:
-            if dbexecutor.updateUser(id, newusername, user.name, user.surname, user.password,
-                                     user.isadmin, True) is not None:
-                user.changed()
-                util.setUserSession(user)
+            user.username = newusername
+            user.changed()
+            dbexecutor.commit()
+            util.setUserSession(user)
             return jsonify(responsecode=0)
     else:
         return jsonify(responsecode=-4, message="Böyle bir kullanıcı yok!")
@@ -169,13 +169,9 @@ def changepassword():
     user = dbexecutor.getUser(id)
 
     if user:
-        if dbexecutor.updateUser(id, user.username, user.name, user.surname, newpassword1,
-                                 user.isadmin, True) is not None:
-            util.setUserSession(user)
-            user.changed()
-            return jsonify(responsecode=0)
-        else:
-            return jsonify(responsecode=-1, message="Şifre Değiştirilemedi")
+        user.setPassword(newpassword1)
+        user.changed()
+        return jsonify(responsecode=0)
     else:
         return jsonify(responsecode=-5, message="Böyle bir kullanıcı yok!")
 

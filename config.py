@@ -22,6 +22,7 @@ app.config['SECRET_KEY'] = 'Thisissupposedtobesecret!'
 app.config['JSON_AS_ASCII'] = False
 
 AppRoot = os.path.dirname(os.path.abspath(__file__))
+DbFileFolder = AppRoot + '/static/data/'
 DbFilePath = AppRoot + '/static/data/' + DB_NAME
 DbPath = 'sqlite:///' + DbFilePath
 engine = create_engine(DbPath, convert_unicode=True, connect_args={'check_same_thread': False}, echo=False)
